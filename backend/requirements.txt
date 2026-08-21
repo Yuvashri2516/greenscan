@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+
+numpy
+pillow
+python-multipart
+httpx
+python-dotenv
+aiofiles
+scipy
+opencv-python-headless
+scikit-learn
+matplotlib
+pandas
+seaborn

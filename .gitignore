@@ -1,0 +1,116 @@
+# =============================================================
+# GreenScan — .gitignore
+# =============================================================
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.eggs/
+*.egg-info/
+*.egg
+MANIFEST
+
+# ---- Virtual Environments ----
+venv/
+.venv/
+env/
+ENV/
+backend/venv/
+backend/#/
+backend/a/
+backend/creates/
+backend/environment/
+backend/virtual/
+
+# ---- Environment / Secrets ----
+.env
+*.env
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# ---- Database (runtime-generated) ----
+backend/greenscan.db
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- ML Model (large duplicate — canonical is model/greenscan_model.keras) ----
+backend/model/
+# Note: model/greenscan_model.keras (25.3 MB) is kept and committed.
+# If it grows beyond 100 MB, add below and host via Git LFS or HuggingFace:
+# model/
+
+# ---- Dataset (too large — 7,525 images, several GB) ----
+# Source dataset: https://www.kaggle.com/datasets/emmarex/plantdisease
+dataset/
+
+# ---- Frontend Build Artifacts ----
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+
+# ---- IDE / Editor ----
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ---- Android Build ----
+android/local.properties
+android/.gradle/
+android/app/build/
+android/build/
+*.apk
+*.aab
+*.ap_
+*.dex
+gen/
+
+# ---- Logs ----
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---- Testing Artifacts ----
+.pytest_cache/
+.coverage
+coverage/
+htmlcov/
+*.pytest_cache/
+
+# ---- OS ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# ---- Jupyter (if used) ----
+.ipynb_checkpoints/
+*.ipynb
+
+# ---- Temp / Scratch ----
+scratch/
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig

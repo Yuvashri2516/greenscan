@@ -1,0 +1,41 @@
+{
+    "dataset": {
+        "total_test_images": 1505,
+        "healthy_images": 490,
+        "early_blight_images": 504,
+        "late_blight_images": 511
+    },
+    "classification": {
+        "accuracy": 0.9176079734219269,
+        "macro_avg": {
+            "precision": 0.9194572103274138,
+            "recall": 0.9182596630737531,
+            "f1": 0.9167992239950632
+        },
+        "weighted_avg": {
+            "precision": 0.9192838839020548,
+            "recall": 0.9176079734219269,
+            "f1": 0.9163876009003245
+        }
+    },
+    "severity_analysis": {
+        "tomato_Early blight": {
+            "mean_affected_region_pct": 29.255734126984127,
+            "std_affected_region_pct": 13.134582078561738,
+            "mean_weighted_activation": 0.41626448412698414,
+            "mean_health_score": 54.47222222222222
+        },
+        "tomato_Late blight": {
+            "mean_affected_region_pct": 25.19187866927593,
+            "std_affected_region_pct": 13.335022765258254,
+            "mean_weighted_activation": 0.353053228962818,
+            "mean_health_score": 55.55381604696673
+        },
+        "tomato_healthy": {
+            "mean_affected_region_pct": 35.424,
+            "std_affected_region_pct": 23.205261266132037,
+            "mean_weighted_activation": 0.47799346938775505,
+            "mean_health_score": 97.47142857142858
+        }
+    }
+}
