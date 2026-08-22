@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 
 numpy
 pillow
@@ -13,3 +13,4 @@ scikit-learn
 matplotlib
 pandas
 seaborn
+tensorflow

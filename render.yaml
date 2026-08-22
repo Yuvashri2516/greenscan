@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: greenscan-api
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: FRONTEND_URL
+        value: ""           # Set this to your Vercel frontend URL after deploying (e.g. https://greenscan.vercel.app)
+      - key: OPENROUTER_API_KEY
+        sync: false         # Set manually in Render dashboard – never commit real keys
+      - key: MIN_CONFIDENCE_THRESHOLD
+        value: "0.65"
+      - key: BLUR_THRESHOLD
+        value: "80.0"
+      - key: BRIGHTNESS_MIN
+        value: "30.0"
+      - key: BRIGHTNESS_MAX
+        value: "230.0"
+      - key: GRADCAM_THRESHOLD
+        value: "0.60"
