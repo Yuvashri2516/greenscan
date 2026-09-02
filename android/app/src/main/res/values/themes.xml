@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ── Base Application Theme ── -->
+    <style name="Theme.GreenScan" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/green_700</item>
+        <item name="colorPrimaryVariant">@color/green_900</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/green_400</item>
+        <item name="colorSecondaryVariant">@color/green_600</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:colorBackground">@color/background_light</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+        <item name="colorError">@color/red_500</item>
+        <item name="colorOnError">@color/white</item>
+        <item name="android:windowBackground">@color/background_light</item>
+        <item name="android:statusBarColor">@color/green_900</item>
+        <item name="android:navigationBarColor">@color/green_900</item>
+        <item name="materialButtonStyle">@style/Widget.GreenScan.Button</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- ── Splash Screen Theme ── -->
+    <style name="Theme.GreenScan.Splash" parent="Theme.GreenScan">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:statusBarColor">@color/green_900</item>
+    </style>
+
+    <!-- ── No Action Bar ── -->
+    <style name="Theme.GreenScan.NoActionBar" parent="Theme.GreenScan">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- ── Custom Button Style ── -->
+    <style name="Widget.GreenScan.Button" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/white</item>
+        <item name="backgroundTint">@color/green_700</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- ── Secondary Button Style ── -->
+    <style name="Widget.GreenScan.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/green_700</item>
+        <item name="strokeColor">@color/green_700</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+    </style>
+
+    <!-- ── Card Style ── -->
+    <style name="Widget.GreenScan.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardElevation">4dp</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="contentPadding">20dp</item>
+        <item name="cardBackgroundColor">@color/white</item>
+    </style>
+
+</resources>
