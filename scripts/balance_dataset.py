@@ -1,6 +1,10 @@
 import os
 import random
-from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
+import tensorflow as tf
+
+ImageDataGenerator = tf.keras.preprocessing.image.ImageDataGenerator
+img_to_array = tf.keras.preprocessing.image.img_to_array
+load_img = tf.keras.preprocessing.image.load_img
 
 # Paths and parameters
 dataset_path = 'dataset'

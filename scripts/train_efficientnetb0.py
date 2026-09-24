@@ -30,13 +30,17 @@ np.random.seed(RANDOM_SEED)
 import tensorflow as tf
 tf.random.set_seed(RANDOM_SEED)
 
-from tensorflow.keras.applications import EfficientNetB0
-from tensorflow.keras.applications.efficientnet import preprocess_input as efficientnet_preprocess
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
-from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+EfficientNetB0 = tf.keras.applications.EfficientNetB0
+efficientnet_preprocess = tf.keras.applications.efficientnet.preprocess_input
+Dense = tf.keras.layers.Dense
+GlobalAveragePooling2D = tf.keras.layers.GlobalAveragePooling2D
+Dropout = tf.keras.layers.Dropout
+Model = tf.keras.models.Model
+Adam = tf.keras.optimizers.Adam
+EarlyStopping = tf.keras.callbacks.EarlyStopping
+ReduceLROnPlateau = tf.keras.callbacks.ReduceLROnPlateau
+ModelCheckpoint = tf.keras.callbacks.ModelCheckpoint
+ImageDataGenerator = tf.keras.preprocessing.image.ImageDataGenerator
 
 import matplotlib
 matplotlib.use('Agg')
