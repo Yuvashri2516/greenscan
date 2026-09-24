@@ -1,4 +1,4 @@
-﻿"""
+"""
 farmer_db.py - GreenScan 2.0 Phase 7: Farmer Profile CRUD Operations
 
 Provides create, read, update, and query operations for farmer profiles

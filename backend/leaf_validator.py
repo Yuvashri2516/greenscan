@@ -1,4 +1,4 @@
-﻿"""
+"""
 leaf_validator.py - GreenScan 2.0 Phase 1: Hierarchical Image Validation
 
 Determines whether an uploaded image is a valid tomato leaf image before

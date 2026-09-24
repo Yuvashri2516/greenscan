@@ -1,0 +1,2 @@
+# Root requirements.txt for Render / cloud deployment
+-r backend/requirements.txt

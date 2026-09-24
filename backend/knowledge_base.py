@@ -1,4 +1,4 @@
-﻿"""
+"""
 knowledge_base.py - GreenScan 2.0 Phase 11: Structured Agricultural Knowledge Layer
 
 Provides a curated, reference-grade agronomic knowledge store for GreenScan diseases.

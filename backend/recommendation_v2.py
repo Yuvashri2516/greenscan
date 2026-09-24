@@ -1,4 +1,4 @@
-﻿"""
+"""
 recommendation_v2.py - GreenScan 2.0 Phase 10: Farmer-Specific Recommendation Engine
 
 Generates structured, context-aware, farmer-personalized recommendations.

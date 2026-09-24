@@ -96,13 +96,25 @@ app = FastAPI(
 # Build CORS origin list from environment
 # FRONTEND_URL: set this on Render to your Vercel frontend URL (e.g. https://greenscan.vercel.app)
 _frontend_url = os.getenv("FRONTEND_URL", "").strip()
-_allowed_origins = ["http://127.0.0.1:5173", "http://localhost:5173"]
-if _frontend_url and _frontend_url not in _allowed_origins:
-    _allowed_origins.append(_frontend_url)
+_allowed_origins = [
+    "http://127.0.0.1:5173",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://localhost:3000"
+]
+if _frontend_url:
+    if _frontend_url == "*":
+        _allowed_origins = ["*"]
+    else:
+        for u in _frontend_url.split(","):
+            u = u.strip()
+            if u and u not in _allowed_origins:
+                _allowed_origins.append(u)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app" if "*" not in _allowed_origins else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

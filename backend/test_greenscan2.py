@@ -1,4 +1,4 @@
-﻿"""
+"""
 test_e2e.py - GreenScan 2.0 Extended End-to-End Tests
 
 Tests all new GreenScan 2.0 modules:
