@@ -11,8 +11,9 @@ import Chatbot from '../components/Chatbot.jsx'
 import WeatherWidget from '../components/WeatherWidget.jsx'
 import DosageCalculator from '../components/DosageCalculator.jsx'
 import SoilAdvisor from '../components/SoilAdvisor.jsx'
+import PlantHealthGuide from '../components/PlantHealthGuide.jsx'
 import { motion } from 'framer-motion'
-import { CloudSun, Calculator, Sprout, Activity } from 'lucide-react'
+import { CloudSun, Calculator, Sprout, Activity, AlertTriangle, CheckCircle } from 'lucide-react'
 import '../index.css';
 import ScanHeader from '../components/ScanHeader.jsx';
 
@@ -131,12 +132,81 @@ export default function ScanPage() {
           )}
 
           {/* Right column: Diagnosis & Analytics Results */}
-          {result && !loading && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', minWidth: 0 }}>
-              <ResultPanel result={result} />
-              {result.progression && <ProgressionPanel progression={result.progression} />}
-            </div>
-          )}
+          {result && !loading && (() => {
+            // GreenScan 2.0: Check if validation failed
+            const valStatus = result.validation_status || result.validation?.status;
+            const isRejected = valStatus === 'NOT_TOMATO_LEAF' || valStatus === 'LOW_QUALITY_IMAGE';
+
+            if (isRejected) {
+              const isNotLeaf = valStatus === 'NOT_TOMATO_LEAF';
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: 0 }}>
+                  {/* Validation Rejection Banner */}
+                  <div style={{
+                    background: isNotLeaf ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)',
+                    border: `1px solid ${isNotLeaf ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'}`,
+                    borderRadius: 18, padding: '2rem', textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+                      {isNotLeaf ? '🍃' : '📷'}
+                    </div>
+                    <div style={{ color: isNotLeaf ? '#f59e0b' : '#ef4444', fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.75rem' }}>
+                      {isNotLeaf ? 'Not a Valid Tomato Leaf Image' : 'Image Quality Too Low'}
+                    </div>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem', lineHeight: 1.6 }}>
+                      {result.message || result.validation?.message}
+                    </div>
+                    {(result.user_guidance || result.validation?.message) && (
+                      <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: '1rem', color: 'var(--text-secondary)', fontSize: '0.85rem', textAlign: 'left', lineHeight: 1.7 }}>
+                        💡 <strong>Tips:</strong> {result.user_guidance}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            }
+
+            // Valid scan — show full results
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', minWidth: 0 }}>
+                {/* Validation status badge (soft warning or valid) */}
+                {result.validation && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: '0.6rem',
+                    padding: '0.6rem 1rem', borderRadius: 10,
+                    background: result.validation.confidence_warning
+                      ? 'rgba(245,158,11,0.08)' : 'rgba(16,185,129,0.07)',
+                    border: `1px solid ${
+                      result.validation.confidence_warning
+                        ? 'rgba(245,158,11,0.25)' : 'rgba(16,185,129,0.2)'
+                    }`,
+                    fontSize: '0.85rem'
+                  }}>
+                    {result.validation.confidence_warning
+                      ? <AlertTriangle size={15} color="#f59e0b" />
+                      : <CheckCircle size={15} color="var(--primary-green)" />}
+                    <span style={{ color: result.validation.confidence_warning ? '#f59e0b' : 'var(--primary-green)' }}>
+                      {result.validation.confidence_warning
+                        ? `Low confidence (${result.confidence}%). Capture a clearer, closer image for more reliable results.`
+                        : `Valid tomato leaf — leaf coverage: ${result.validation.leaf_coverage_pct?.toFixed(1)}%`}
+                    </span>
+                  </div>
+                )}
+
+                <ResultPanel result={result} />
+
+                {/* GreenScan 2.0: Structured Plant Health Guide */}
+                {result.structured_recommendation && (
+                  <PlantHealthGuide
+                    recommendation={result.structured_recommendation}
+                    validationInfo={result.validation}
+                  />
+                )}
+
+                {result.progression && <ProgressionPanel progression={result.progression} />}
+              </div>
+            );
+          })()}
         </div>
       )}
 

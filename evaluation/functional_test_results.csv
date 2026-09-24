@@ -1,0 +1,10 @@
+Test,Description,Expected,Actual,Confidence (%),Health Score,Severity,Lighting Detected,Latency (ms),Status
+Test 1 — Healthy Tomato,Functional Test: Healthy Leaf,tomato_healthy,tomato_healthy,99.99,97,Healthy,diffuse_cloudy_optimal,4000.63,PASS
+Test 2 — Early Blight,Functional Test: Early Blight,tomato_Early blight,tomato_Early blight,59.4,60,Moderate,standard_field_lighting,1009.31,PASS
+Test 3 — Late Blight,Functional Test: Late Blight,tomato_Late blight,tomato_Late blight,95.45,53,Moderate,standard_field_lighting,1038.8,PASS
+Test 4 — Non-Leaf (Geometric),Validation Gate: Non-leaf rejection,REJECTED,LOW_QUALITY_IMAGE,0.0,N/A,N/A,N/A,41.75,PASS
+Test 5 — Extremely Blurry Leaf,Quality Gate: Blur detection,REJECTED_LOW_QUALITY,LOW_QUALITY_IMAGE,0.0,N/A,N/A,N/A,23.9,PASS
+Test 6a — Low Light Variation,Illumination Robustness: Low light,tomato_healthy,tomato_healthy,94.61,98,Healthy,low_light_or_heavy_shadow,1003.11,PASS
+Test 6b — Warm Evening Cast,Illumination Robustness: Warm cast,tomato_healthy,tomato_healthy,99.99,97,Healthy,diffuse_cloudy_optimal,1010.26,PASS
+Test 6c — Bright Direct Sunlight,Illumination Robustness: Sunlight,tomato_healthy,tomato_healthy,98.91,98,Healthy,bright_direct_sunlight,1037.66,PASS
+Test 6d — Canopy Shadow Gradient,Illumination Robustness: Shadows,tomato_healthy,tomato_healthy,99.85,98,Healthy,low_light_or_heavy_shadow,966.35,PASS

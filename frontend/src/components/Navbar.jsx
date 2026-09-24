@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Leaf, ScanLine, History, BookOpen, Menu, X, Cpu, Activity, MessageSquare } from 'lucide-react'
+import { Leaf, ScanLine, History, BookOpen, Menu, X, Cpu, Activity, MessageSquare, User, BarChart2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import '../index.css'
 
@@ -18,6 +18,8 @@ export default function Navbar() {
     { path: '/scan?tab=soil', label: 'Soil Advisor', icon: <Activity size={16} /> },
     { path: '/scan?tab=dosage', label: 'Dosage Calculator', icon: <Cpu size={16} /> },
     { path: '#', label: 'AI Assistant', icon: <MessageSquare size={16} />, isChat: true },
+    { path: '/profile', label: 'My Profile', icon: <User size={16} /> },
+    { path: '/dashboard', label: 'Dashboard', icon: <BarChart2 size={16} /> },
   ]
 
   useEffect(() => {

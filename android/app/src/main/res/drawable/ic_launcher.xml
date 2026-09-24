@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Simple vector launcher icon for API < 26 fallback.
+  For a production app, replace with actual PNG assets for each density.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Green background -->
+    <path
+        android:fillColor="#1B5E20"
+        android:pathData="M0,0 L48,0 L48,48 L0,48 Z" />
+
+    <!-- White leaf -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,8 C24,8 12,16 12,26 C12,33 18,38 24,38 C30,38 36,33 36,26 C36,16 24,8 24,8 Z" />
+
+    <!-- Green vein -->
+    <path
+        android:fillColor="#1B5E20"
+        android:pathData="M24,12 L24,36"
+        android:strokeColor="#1B5E20"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round" />
+
+</vector>

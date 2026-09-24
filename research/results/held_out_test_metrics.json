@@ -1,0 +1,108 @@
+{
+  "evaluation_name": "GreenScan Final Held-Out Test Evaluation",
+  "dataset": {
+    "manifest_path": "C:\\Greenscan project\\evaluation\\clean_split_manifest.csv",
+    "split": "test",
+    "total_test_images": 770,
+    "physical_leaf_groups": 511,
+    "class_distribution": {
+      "tomato_Late blight": 382,
+      "tomato_Early blight": 243,
+      "tomato_healthy": 145
+    },
+    "excluded_exact_duplicates": 11,
+    "subject_disjointness": "Verified physical-leaf-level disjoint split (Zero leakage)"
+  },
+  "model_checkpoint": {
+    "path": "C:\\Greenscan project\\research\\models\\greenscan_research_best.keras",
+    "selection_criterion": "Best validation loss checkpoint from training (Epoch 13)",
+    "architecture": "MobileNetV2 (ImageNet pretrained base + Custom GAP/Dense(128)/Dropout(0.5)/Softmax(3))"
+  },
+  "preprocessing": {
+    "image_size": [
+      224,
+      224,
+      3
+    ],
+    "rescaling": "1.0 / 255.0",
+    "color_mode": "RGB",
+    "augmentation": "None (Raw validation/test pipeline)"
+  },
+  "summary_metrics": {
+    "overall_accuracy": 0.9142857142857143,
+    "macro_precision": 0.9165819672495589,
+    "macro_recall": 0.9200181726730842,
+    "macro_f1": 0.9170024751420099,
+    "weighted_precision": 0.9143615080948182,
+    "weighted_recall": 0.9142857142857143,
+    "weighted_f1": 0.9132112531991723,
+    "correct_predictions_count": 704,
+    "incorrect_predictions_count": 66,
+    "total_evaluated": 770
+  },
+  "per_class_metrics": {
+    "tomato_Early blight": {
+      "precision": 0.9178082191780822,
+      "recall": 0.8271604938271605,
+      "f1": 0.8701298701298701,
+      "support": 243
+    },
+    "tomato_Late blight": {
+      "precision": 0.9088607594936708,
+      "recall": 0.9397905759162304,
+      "f1": 0.924066924066924,
+      "support": 382
+    },
+    "tomato_healthy": {
+      "precision": 0.9230769230769231,
+      "recall": 0.993103448275862,
+      "f1": 0.9568106312292359,
+      "support": 145
+    }
+  },
+  "confusion_matrix": {
+    "labels": [
+      "tomato_Early blight",
+      "tomato_Late blight",
+      "tomato_healthy"
+    ],
+    "matrix": [
+      [
+        201,
+        35,
+        7
+      ],
+      [
+        18,
+        359,
+        5
+      ],
+      [
+        0,
+        1,
+        144
+      ]
+    ],
+    "format": "matrix[true_index][predicted_index]"
+  },
+  "confidence_statistics": {
+    "overall": {
+      "mean": 0.8992270231246948,
+      "median": 0.9698352813720703,
+      "min": 0.35209184885025024,
+      "max": 0.999993085861206
+    },
+    "correct_predictions": {
+      "mean": 0.915779173374176,
+      "median": 0.9748691320419312,
+      "min": 0.35209184885025024,
+      "max": 0.999993085861206
+    },
+    "incorrect_predictions": {
+      "mean": 0.7226709127426147,
+      "median": 0.7232022881507874,
+      "min": 0.4243784546852112,
+      "max": 0.9976428151130676
+    }
+  }
+}

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Green Palette -->
+    <color name="green_50">#E8F5E9</color>
+    <color name="green_100">#C8E6C9</color>
+    <color name="green_200">#A5D6A7</color>
+    <color name="green_300">#81C784</color>
+    <color name="green_400">#66BB6A</color>
+    <color name="green_500">#4CAF50</color>
+    <color name="green_600">#43A047</color>
+    <color name="green_700">#2E7D32</color>
+    <color name="green_800">#1B5E20</color>
+    <color name="green_900">#1B5E20</color>
+
+    <!-- Status Colors -->
+    <color name="red_500">#F44336</color>
+    <color name="orange_500">#FF9800</color>
+    <color name="yellow_700">#FBC02D</color>
+    <color name="blue_700">#1976D2</color>
+    <color name="purple_700">#7B1FA2</color>
+
+    <!-- UI Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="background_light">#F4F6F8</color>
+    <color name="surface_card">#FFFFFF</color>
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="divider">#E0E0E0</color>
+
+    <!-- Severity Colors -->
+    <color name="severity_healthy">#2E7D32</color>
+    <color name="severity_mild">#FBC02D</color>
+    <color name="severity_moderate">#FF9800</color>
+    <color name="severity_severe">#F44336</color>
+    <color name="severity_critical">#B71C1C</color>
+
+    <!-- Gradient Colors -->
+    <color name="gradient_start">#1B5E20</color>
+    <color name="gradient_end">#2E7D32</color>
+
+    <!-- Card accent -->
+    <color name="card_feature_1">#E8F5E9</color>
+    <color name="card_feature_2">#E3F2FD</color>
+    <color name="card_feature_3">#FFF8E1</color>
+    <color name="card_feature_4">#FCE4EC</color>
+</resources>

@@ -1,0 +1,18 @@
+{
+  "experiment": "Experiment 1: Partial MobileNetV2 Fine-Tuning",
+  "dataset_manifest": "C:\\Greenscan project\\evaluation\\clean_split_manifest.csv",
+  "learning_rate": 1e-05,
+  "unfreeze_from_layer": 125,
+  "unfrozen_layers_count": 29,
+  "trainable_parameters": 1675075,
+  "non_trainable_parameters": 747264,
+  "total_parameters": 2422339,
+  "max_epochs": 15,
+  "actual_epochs": 15,
+  "best_epoch": 12,
+  "best_train_loss": 0.2601271867752075,
+  "best_train_accuracy": 0.8965997695922852,
+  "best_validation_loss": 0.224399596452713,
+  "best_validation_accuracy": 0.9086161851882935,
+  "total_training_time_seconds": 3977.899241924286
+}

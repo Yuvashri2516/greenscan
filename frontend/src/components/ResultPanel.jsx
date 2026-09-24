@@ -109,6 +109,11 @@ export default function ResultPanel({ result }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
               <span style={{ fontSize: '0.9rem', color: 'var(--gray-600)', fontWeight: 600 }}>Confidence: <strong>{confidence.toFixed(1)}%</strong></span>
               <span style={{ fontSize: '0.9rem', color: 'var(--gray-600)', fontWeight: 600 }}>Affected Area: <strong>{affectedAreaPct.toFixed(1)}%</strong></span>
+              {(result.illumination_info?.is_illumination_normalized || result.quality_info?.illumination?.is_illumination_normalized) && (
+                <span style={{ fontSize: '0.78rem', background: '#e8f5e9', color: '#2e7d32', padding: '3px 10px', borderRadius: '12px', border: '1px solid #c8e6c9', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }} title="Field illumination standardized before segmentation">
+                  ☀️ {(result.illumination_info?.lighting_condition || result.quality_info?.illumination?.lighting_condition || 'Standardized').replace(/_/g, ' ')}
+                </span>
+              )}
             </div>
           </div>
           <HealthScoreGauge score={healthScore} trafficColor={trafficColor} trafficDot={trafficDot} severity={severityLevel} />

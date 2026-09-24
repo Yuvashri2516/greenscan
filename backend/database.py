@@ -1,6 +1,12 @@
 """
 database.py - GreenScan SQLite Database & Repository Layer
-Persists scan history, disease catalogs, recommendations, and user logs.
+Persists scan history, disease catalogs, recommendations, farmer profiles, and user logs.
+
+GreenScan 2.0 additions (additive migrations only - existing data preserved):
+  - farmers table (Phase 7: Farmer Profile System)
+  - scan_history.farmer_id column
+  - scan_history.environmental_context_json column
+  - scan_history.validation_status column
 """
 
 import sqlite3
@@ -45,13 +51,19 @@ def init_db():
         );
     """)
 
-    # Alter table if it exists but lacks the new column (migration)
-    try:
-        cursor.execute("ALTER TABLE scan_history ADD COLUMN research_metrics_json TEXT;")
-    except sqlite3.OperationalError:
-        pass # Column already exists
+    # ─── Additive migrations for existing scan_history table ─────────────────
+    for migration_sql in [
+        "ALTER TABLE scan_history ADD COLUMN research_metrics_json TEXT;",
+        "ALTER TABLE scan_history ADD COLUMN farmer_id TEXT;",
+        "ALTER TABLE scan_history ADD COLUMN environmental_context_json TEXT;",
+        "ALTER TABLE scan_history ADD COLUMN validation_status TEXT DEFAULT 'VALID_TOMATO_LEAF';",
+    ]:
+        try:
+            cursor.execute(migration_sql)
+        except sqlite3.OperationalError:
+            pass  # Column already exists — safe to ignore
 
-    # 2. Disease Catalog Table
+    # ─── 2. Disease Catalog Table ──────────────────────────────────────────────
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS disease_catalog (
             key TEXT PRIMARY KEY,
@@ -64,6 +76,25 @@ def init_db():
             preventive_measures TEXT,
             suitable_fertilizer TEXT,
             recovery_time TEXT
+        );
+    """)
+
+    # ─── 3. Farmers Table (Phase 7: Farmer Profile System) ────────────────────
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS farmers (
+            farmer_id   TEXT PRIMARY KEY,
+            name        TEXT NOT NULL,
+            contact     TEXT,
+            farm_name   TEXT,
+            farm_location TEXT,
+            farm_size   REAL,
+            crop        TEXT DEFAULT 'Tomato',
+            tomato_variety TEXT,
+            crop_stage  TEXT,
+            irrigation_method TEXT,
+            pin         TEXT,
+            created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     """)
 
@@ -128,8 +159,9 @@ def save_scan_history(record: dict) -> int:
             disease_name, display_name, confidence, plant_health_score,
             affected_area_pct, weighted_activation, severity_level, risk_level,
             treatment_priority, traffic_light, leaf_pixels, activated_pixels,
-            recommendations_json, research_metrics_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            recommendations_json, research_metrics_json,
+            farmer_id, validation_status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         record["disease_name"],
         record["display_name"],
@@ -144,12 +176,15 @@ def save_scan_history(record: dict) -> int:
         record["leaf_pixels"],
         record["activated_pixels"],
         json.dumps(record.get("recommendations", {})),
-        json.dumps(record.get("research_metrics_json", {}))
+        json.dumps(record.get("research_metrics_json", {})),
+        record.get("farmer_id"),           # None if no farmer associated
+        record.get("validation_status", "VALID_TOMATO_LEAF"),
     ))
     conn.commit()
     scan_id = cursor.lastrowid
     conn.close()
     return scan_id
+
 
 def get_recent_history(limit: int = 20) -> List[Dict]:
     conn = get_db_connection()

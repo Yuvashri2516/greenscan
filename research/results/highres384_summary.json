@@ -1,0 +1,19 @@
+{
+  "experiment": "Experiment 3: Higher-Resolution Training (384x384)",
+  "dataset_manifest": "C:\\Greenscan project\\evaluation\\clean_split_manifest.csv",
+  "input_shape": [
+    384,
+    384,
+    3
+  ],
+  "batch_size": 16,
+  "learning_rate": 0.001,
+  "max_epochs": 15,
+  "actual_epochs": 15,
+  "best_epoch": 14,
+  "best_train_loss": 0.23467372357845306,
+  "best_train_accuracy": 0.9080267548561096,
+  "best_validation_loss": 0.2444278746843338,
+  "best_validation_accuracy": 0.8981723189353943,
+  "total_training_time_seconds": 30974.70621562004
+}

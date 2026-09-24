@@ -1,0 +1,20 @@
+{
+  "tomato_Early blight": {
+    "train_count": 1131,
+    "val_count": 240,
+    "class_index": 0,
+    "weight": 1.0574712643678161
+  },
+  "tomato_Late blight": {
+    "train_count": 1783,
+    "val_count": 382,
+    "class_index": 1,
+    "weight": 0.6707795849691531
+  },
+  "tomato_healthy": {
+    "train_count": 674,
+    "val_count": 144,
+    "class_index": 2,
+    "weight": 1.774480712166172
+  }
+}

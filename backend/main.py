@@ -37,7 +37,10 @@ if not logger.handlers:
     logger.addHandler(ch)
 
 # ─── Model Loading ────────────────────────────────────────────────────────────
-MODEL_PATH = (Path(__file__).parent.parent / "model" / "greenscan_model.keras").resolve()
+# Priority: Frozen Research Model (EfficientNetB0 best checkpoint)
+RESEARCH_MODEL_PATH = (Path(__file__).parent.parent / "research" / "models" / "greenscan_efficientnetb0_best.keras").resolve()
+DEPLOYMENT_MODEL_PATH = (Path(__file__).parent.parent / "model" / "greenscan_model.keras").resolve()
+MODEL_PATH = RESEARCH_MODEL_PATH if RESEARCH_MODEL_PATH.is_file() else DEPLOYMENT_MODEL_PATH
 CLASS_LABELS = ["tomato_Early blight", "tomato_Late blight", "tomato_healthy"]
 
 def load_tf_model():
@@ -48,10 +51,10 @@ def load_tf_model():
         import tensorflow as tf
         tf.get_logger().setLevel("ERROR")
         model = tf.keras.models.load_model(str(MODEL_PATH))
-        logger.info(f"Successfully loaded EfficientNet-B0 model from {MODEL_PATH}")
+        logger.info(f"Successfully loaded frozen EfficientNet-B0 model from {MODEL_PATH}")
         return model
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
+        logger.error(f"Failed to load model from {MODEL_PATH}: {e}")
         return None
 
 model = load_tf_model()
@@ -71,6 +74,15 @@ from soil import analyze_soil_health
 import config
 import gsa_engine
 
+# GreenScan 2.0 new module imports
+from leaf_validator import validate_leaf_image, get_validation_user_message, VALID_TOMATO_LEAF, NOT_TOMATO_LEAF, LOW_QUALITY_IMAGE
+from farmer_db import (
+    create_farmer, get_farmer, update_farmer, verify_farmer_pin,
+    get_farmer_history, get_farmer_trends, list_farmers
+)
+from knowledge_base import get_knowledge, retrieve_relevant_knowledge, get_all_disease_keys
+from recommendation_v2 import get_structured_recommendations
+
 # Override GSA threshold with config
 gsa_engine.GRADCAM_THRESHOLD = config.GRADCAM_THRESHOLD
 
@@ -78,7 +90,7 @@ gsa_engine.GRADCAM_THRESHOLD = config.GRADCAM_THRESHOLD
 app = FastAPI(
     title="GreenScan API",
     description="Explainable AI Plant Disease Detection & Decision Support System",
-    version="1.0.0"
+    version="2.0.0"
 )
 
 # Build CORS origin list from environment
@@ -102,6 +114,10 @@ class ChatApiRequest(BaseModel):
     language: Optional[str] = "en"
     context: Optional[dict] = None
     history: Optional[List[dict]] = None
+    # GreenScan 2.0: optional extended context fields
+    farmer_context: Optional[dict] = None
+    weather_context: Optional[dict] = None
+    history_trend: Optional[str] = None
 
 class DosageApiRequest(BaseModel):
     disease: str
@@ -117,15 +133,52 @@ class SoilApiRequest(BaseModel):
     moisture: Optional[float] = 45.0
     soil_type: Optional[str] = "Loam"
 
+# GreenScan 2.0: Farmer Profile Models
+class FarmerCreateRequest(BaseModel):
+    name: str
+    contact: Optional[str] = None
+    farm_name: Optional[str] = None
+    farm_location: Optional[str] = None
+    farm_size: Optional[float] = None
+    crop: Optional[str] = "Tomato"
+    tomato_variety: Optional[str] = None
+    crop_stage: Optional[str] = None
+    irrigation_method: Optional[str] = None
+    pin: Optional[str] = None
+
+class FarmerUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    contact: Optional[str] = None
+    farm_name: Optional[str] = None
+    farm_location: Optional[str] = None
+    farm_size: Optional[float] = None
+    crop: Optional[str] = None
+    tomato_variety: Optional[str] = None
+    crop_stage: Optional[str] = None
+    irrigation_method: Optional[str] = None
+    pin: Optional[str] = None
+
+class FarmerPinRequest(BaseModel):
+    pin: str
+
 # ─── API Routes ───────────────────────────────────────────────────────────────
 
 @app.get("/")
 def root():
     return {
         "project": "GreenScan Decision Support System",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "status": "running",
-        "target_diseases": ["Tomato Healthy", "Tomato Early Blight", "Tomato Late Blight"]
+        "target_diseases": ["Tomato Healthy", "Tomato Early Blight", "Tomato Late Blight"],
+        "features": [
+            "Hierarchical leaf validation",
+            "Disease classification + Grad-CAM + GSA",
+            "Farmer profile system",
+            "Context-aware structured recommendations",
+            "Structured agricultural knowledge base",
+            "Context-aware chatbot",
+            "Environmental weather risk integration",
+        ]
     }
 
 @app.get("/health")
@@ -137,17 +190,23 @@ def health():
     }
 
 @app.post("/predict")
-async def predict(file: UploadFile = File(...)):
+async def predict(
+    file: UploadFile = File(...),
+    farmer_id: Optional[str] = Query(None, description="Optional farmer ID to associate this scan")
+):
     """
-    Core GreenScan Decision Support Inference Pipeline:
+    GreenScan 2.0 Core Decision Support Inference Pipeline:
+    0. [NEW] Phase 1 Hierarchical Leaf Validation (NOT_TOMATO_LEAF / LOW_QUALITY gate)
     1. Read input leaf photo
     2. OpenCV Quality Inspection & Enhancement (Blur, CLAHE, Bilateral filter)
     3. OpenCV Leaf Segmentation (Leaf Mask & Leaf Pixels count)
-    4. EfficientNet-B0 Classification (Disease Label & Confidence)
-    5. Internal Grad-CAM Heatmap Matrix Generation (hidden raw map from user)
-    6. GreenScan Severity Analyzer (GSA) Pipeline (6-step statistical calculation)
-    7. Recommendation Lookup
-    8. SQLite Persistence & Response Packaging
+    4. [NEW] Leaf coverage validation gate (returns early if not valid leaf)
+    5. EfficientNet-B0 Classification (Disease Label & Confidence)
+    6. Internal Grad-CAM Heatmap Matrix Generation
+    7. GreenScan Severity Analyzer (GSA) Pipeline
+    8. Recommendation Lookup (legacy v1, preserved)
+    9. [NEW] Structured Recommendation v2 (context-aware, farmer-specific)
+    10. SQLite Persistence & Response Packaging
     """
     try:
         contents = await file.read()
@@ -162,11 +221,37 @@ async def predict(file: UploadFile = File(...)):
         
         # Step B: Leaf Segmentation
         leaf_mask, leaf_pixels = segment_leaf(enhanced_bgr)
+
+        # Step B2: [NEW] Phase 1 Leaf Validation Gate
+        # Check if image is a valid tomato leaf before running expensive inference.
+        total_pixels = enhanced_bgr.shape[0] * enhanced_bgr.shape[1]
+        early_validation = validate_leaf_image(
+            leaf_pixels=int(leaf_pixels),
+            total_pixels=total_pixels,
+            quality_info=quality_info,
+            confidence=None,  # confidence not yet known at this stage
+            min_leaf_coverage_pct=config.LEAF_COVERAGE_MIN_PCT,
+            min_leaf_pixels=config.LEAF_PIXEL_MIN,
+            min_confidence=config.MIN_CONFIDENCE_THRESHOLD,
+        )
+
+        # If image quality fails, return early with a clear user message
+        # (NOT_TOMATO_LEAF based purely on coverage/quality before model runs)
+        if not early_validation["is_valid"] and early_validation["validation_status"] == LOW_QUALITY_IMAGE:
+            return {
+                "validation": early_validation,
+                "is_valid": False,
+                "validation_status": early_validation["validation_status"],
+                "message": early_validation["message"],
+                "user_guidance": early_validation["user_guidance"],
+            }
         
         # Step C: Model Prediction (EfficientNet-B0)
+        # Match exact training preprocessing: raw [0, 255] float32 RGB image resized to 224x224 without double-normalization or color distortion.
+        raw_resized_bgr = cv2.resize(img_bgr, (224, 224), interpolation=cv2.INTER_AREA)
+        rgb_img = cv2.cvtColor(raw_resized_bgr, cv2.COLOR_BGR2RGB)
+        input_arr = np.expand_dims(rgb_img.astype(np.float32), axis=0)
         if model is not None:
-            rgb_img = cv2.cvtColor(enhanced_bgr, cv2.COLOR_BGR2RGB)
-            input_arr = np.expand_dims(rgb_img.astype(np.float32) / 255.0, axis=0)
             preds = model.predict(input_arr, verbose=0)
             predicted_idx = int(np.argmax(preds[0]))
             confidence = float(np.max(preds[0]))
@@ -176,8 +261,28 @@ async def predict(file: UploadFile = File(...)):
             predicted_idx = 1
             confidence = 0.945
             predicted_class = CLASS_LABELS[predicted_idx]
-            rgb_img = cv2.cvtColor(enhanced_bgr, cv2.COLOR_BGR2RGB)
-            input_arr = np.expand_dims(rgb_img.astype(np.float32) / 255.0, axis=0)
+
+        # Step C2: [NEW] Post-prediction leaf coverage validation
+        # Now that we have the confidence score, re-run validator to catch borderline cases.
+        validation_result = validate_leaf_image(
+            leaf_pixels=int(leaf_pixels),
+            total_pixels=total_pixels,
+            quality_info=quality_info,
+            confidence=confidence,
+            min_leaf_coverage_pct=config.LEAF_COVERAGE_MIN_PCT,
+            min_leaf_pixels=config.LEAF_PIXEL_MIN,
+            min_confidence=config.MIN_CONFIDENCE_THRESHOLD,
+        )
+
+        # Return early for NOT_TOMATO_LEAF (coverage-based rejection)
+        if not validation_result["is_valid"] and validation_result["validation_status"] == NOT_TOMATO_LEAF:
+            return {
+                "validation": validation_result,
+                "is_valid": False,
+                "validation_status": NOT_TOMATO_LEAF,
+                "message": validation_result["message"],
+                "user_guidance": validation_result["user_guidance"],
+            }
 
         # Map display name
         display_names = {
@@ -277,8 +382,10 @@ async def predict(file: UploadFile = File(...)):
 
         # Final Dashboard Record
         response_payload = {
+            "disease": display_name,
             "disease_name": predicted_class,
             "display_name": display_name,
+            "prediction": predicted_class,
             "confidence": round(confidence * 100.0, 2),
             "is_healthy": "healthy" in predicted_class.lower(),
             "is_reliable": is_reliable,
@@ -314,8 +421,50 @@ async def predict(file: UploadFile = File(...)):
                     "overlay": f"data:image/jpeg;base64,{overlay_b64}"
                 }
             },
-            "recommendations": recommendations
+            "recommendations": recommendations,
+            # GreenScan 2.0: Validation result (Phase 1)
+            "validation": {
+                "status": validation_result["validation_status"],
+                "is_valid": validation_result["is_valid"],
+                "leaf_coverage_pct": validation_result["leaf_coverage_pct"],
+                "quality_passed": validation_result["quality_passed"],
+                "quality_reasons": validation_result["quality_reasons"],
+                "confidence_warning": validation_result["confidence_warning"],
+                "message": get_validation_user_message(validation_result) or None,
+            },
+            "is_valid": validation_result["is_valid"],
+            "validation_status": validation_result["validation_status"],
+            "illumination_info": quality_info.get("illumination", {}),
+            # GreenScan 2.0: Farmer association
+            "farmer_id": farmer_id,
         }
+
+        # GreenScan 2.0: Build structured recommendation v2
+        try:
+            structured_rec = get_structured_recommendations(
+                disease_key=predicted_class,
+                severity_level=gsa_results["severity_level"],
+                confidence=confidence,
+                weather_context=None,  # enriched externally if farmer passes weather
+                farmer_context=get_farmer(farmer_id) if farmer_id else None,
+                history_trend=None,  # enriched from farmer trends if farmer_id provided
+            )
+            if farmer_id:
+                try:
+                    trends = get_farmer_trends(farmer_id)
+                    structured_rec = get_structured_recommendations(
+                        disease_key=predicted_class,
+                        severity_level=gsa_results["severity_level"],
+                        confidence=confidence,
+                        farmer_context=get_farmer(farmer_id),
+                        history_trend=trends.get("trend_direction"),
+                    )
+                except Exception:
+                    pass  # Non-critical; proceed without trend data
+            response_payload["structured_recommendation"] = structured_rec
+        except Exception as rec_err:
+            logger.error(f"Failed to build structured recommendation: {rec_err}")
+            response_payload["structured_recommendation"] = None
 
         # Step G: Persist to SQLite
         try:
@@ -332,6 +481,8 @@ async def predict(file: UploadFile = File(...)):
                 "traffic_light": gsa_results["traffic_light"],
                 "leaf_pixels": gsa_results["leaf_pixels"],
                 "activated_pixels": gsa_results["activated_pixels"],
+                "farmer_id": farmer_id,
+                "validation_status": validation_result["validation_status"],
                 "research_metrics_json": {
                     "attention_affected_region_percent": gsa_results["attention_affected_region_percent"],
                     "mean_leaf_activation": gsa_results["mean_leaf_activation"],
@@ -358,7 +509,11 @@ async def chat(request: ChatApiRequest):
         message=request.message,
         language=request.language or "en",
         context=request.context,
-        history=request.history
+        history=request.history,
+        # GreenScan 2.0 extended context
+        farmer_context=request.farmer_context,
+        weather_context=request.weather_context,
+        history_trend=request.history_trend,
     )
 
 @app.get("/history")
@@ -409,3 +564,89 @@ async def soil_diagnose(request: SoilApiRequest):
         moisture=request.moisture if request.moisture is not None else 45.0,
         soil_type=request.soil_type or "Loam"
     )
+
+
+# ─── GreenScan 2.0: Farmer Profile Routes (Phase 7) ────────────────────────────
+
+@app.post("/farmers")
+def create_farmer_profile(request: FarmerCreateRequest):
+    """Create a new farmer profile. Returns farmer_id."""
+    try:
+        farmer_id = create_farmer(request.model_dump())
+        return {"farmer_id": farmer_id, "message": "Farmer profile created successfully."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to create farmer: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create farmer profile.")
+
+
+@app.get("/farmers/{farmer_id}")
+def get_farmer_profile(farmer_id: str):
+    """Retrieve a farmer profile by ID. PIN hash is never returned."""
+    farmer = get_farmer(farmer_id)
+    if not farmer:
+        raise HTTPException(status_code=404, detail="Farmer not found.")
+    return {"farmer": farmer}
+
+
+@app.put("/farmers/{farmer_id}")
+def update_farmer_profile(farmer_id: str, request: FarmerUpdateRequest):
+    """Update a farmer profile. Only provided fields are updated."""
+    updated = update_farmer(farmer_id, {k: v for k, v in request.model_dump().items() if v is not None})
+    if not updated:
+        raise HTTPException(status_code=404, detail="Farmer not found.")
+    return {"farmer": updated, "message": "Profile updated."}
+
+
+@app.post("/farmers/{farmer_id}/verify")
+def verify_pin(farmer_id: str, request: FarmerPinRequest):
+    """Verify a farmer's PIN. Returns {valid: bool}."""
+    is_valid = verify_farmer_pin(farmer_id, request.pin)
+    return {"valid": is_valid}
+
+
+@app.get("/farmers/{farmer_id}/history")
+def farmer_history(farmer_id: str, limit: int = 20):
+    """Return scan history for a specific farmer (data-isolated)."""
+    farmer = get_farmer(farmer_id)
+    if not farmer:
+        raise HTTPException(status_code=404, detail="Farmer not found.")
+    history = get_farmer_history(farmer_id, limit=limit)
+    return {"farmer_id": farmer_id, "history": history}
+
+
+@app.get("/farmers/{farmer_id}/trends")
+def farmer_trends(farmer_id: str, limit: int = 20):
+    """Return health score and severity trend analysis for a farmer."""
+    farmer = get_farmer(farmer_id)
+    if not farmer:
+        raise HTTPException(status_code=404, detail="Farmer not found.")
+    trends = get_farmer_trends(farmer_id, limit=limit)
+    return {"farmer_id": farmer_id, "trends": trends}
+
+
+# ─── GreenScan 2.0: Knowledge Base Routes (Phase 11) ───────────────────────────
+
+@app.get("/knowledge")
+def knowledge_index():
+    """Returns all disease keys available in the knowledge base."""
+    return {"disease_keys": get_all_disease_keys()}
+
+
+@app.get("/knowledge/{disease_key}")
+def knowledge_entry(disease_key: str):
+    """Returns the full structured knowledge base entry for a disease."""
+    # Normalize: replace hyphens with underscores, lowercase
+    normalized_key = disease_key.replace("-", "_")
+    # Try exact match first, then case-insensitive search
+    from knowledge_base import KNOWLEDGE_BASE
+    matched_key = next(
+        (k for k in KNOWLEDGE_BASE if k.lower() == normalized_key.lower()),
+        None
+    )
+    if matched_key:
+        return {"disease_key": matched_key, "knowledge": get_knowledge(matched_key)}
+    # Return fallback
+    kb = get_knowledge(normalized_key)
+    return {"disease_key": normalized_key, "knowledge": kb}

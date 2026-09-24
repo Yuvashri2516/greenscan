@@ -1,0 +1,77 @@
+{
+  "experiment_name": "Experiment 1: Partial MobileNetV2 Fine-Tuning",
+  "model_checkpoint": "C:\\Greenscan project\\research\\models\\greenscan_finetuned_best.keras",
+  "best_epoch": 12,
+  "validation_samples": 766,
+  "summary_metrics": {
+    "accuracy": 0.9086161879895561,
+    "macro_precision": 0.912999881859531,
+    "macro_recall": 0.9079576304052743,
+    "macro_f1": 0.9086073994348204,
+    "weighted_precision": 0.909718688418702,
+    "weighted_recall": 0.9086161879895561,
+    "weighted_f1": 0.9073483187868878
+  },
+  "per_class_metrics": {
+    "tomato_Early blight": {
+      "precision": 0.9282296650717703,
+      "recall": 0.8083333333333333,
+      "f1": 0.8641425389755011,
+      "support": 240
+    },
+    "tomato_Late blight": {
+      "precision": 0.8962962962962963,
+      "recall": 0.9502617801047121,
+      "f1": 0.9224904701397713,
+      "support": 382
+    },
+    "tomato_healthy": {
+      "precision": 0.9144736842105263,
+      "recall": 0.9652777777777778,
+      "f1": 0.9391891891891891,
+      "support": 144
+    }
+  },
+  "confusion_matrix": [
+    [
+      194,
+      37,
+      9
+    ],
+    [
+      15,
+      363,
+      4
+    ],
+    [
+      0,
+      5,
+      139
+    ]
+  ],
+  "early_late_metrics": {
+    "early_recall": 0.8083333333333333,
+    "late_recall": 0.9502617801047121,
+    "early_to_late_errors": 37,
+    "late_to_early_errors": 15,
+    "total_early_late_errors": 52
+  },
+  "comparison_against_baseline": {
+    "baseline_val_accuracy": 0.906005,
+    "finetuned_val_accuracy": 0.9086161879895561,
+    "accuracy_delta": 0.002611187989556174,
+    "baseline_val_macro_f1": 0.908864,
+    "finetuned_val_macro_f1": 0.9086073994348204,
+    "macro_f1_delta": -0.00025660056517962104,
+    "baseline_early_recall": 0.833333,
+    "finetuned_early_recall": 0.8083333333333333,
+    "early_recall_delta": -0.024999666666666642,
+    "baseline_late_recall": 0.924084,
+    "finetuned_late_recall": 0.9502617801047121,
+    "late_recall_delta": 0.026177780104712056,
+    "baseline_early_to_late": 33,
+    "finetuned_early_to_late": 37,
+    "baseline_late_to_early": 24,
+    "finetuned_late_to_early": 15
+  }
+}

@@ -1,11 +1,13 @@
 """
 image_enhancer.py - GreenScan OpenCV Image Quality Enhancement & Preprocessing
 IEEE/Scopus Research Grade Preprocessing Module
+Includes Illumination Normalization & Standardization Stage
 """
 
 import cv2
 import numpy as np
 from config import BLUR_THRESHOLD, BRIGHTNESS_MIN, BRIGHTNESS_MAX
+from illumination_normalizer import normalize_illumination, detect_color_cast
 
 class QualityCheckError(ValueError):
     """Custom exception raised when an input leaf image fails quality validation criteria."""
@@ -51,32 +53,24 @@ def check_image_quality(img_bgr: np.ndarray, blur_threshold: float = BLUR_THRESH
 
 def enhance_leaf_image(img_bgr: np.ndarray, target_size: tuple = (224, 224)) -> tuple[np.ndarray, dict]:
     """
-    Applies image enhancement pipeline:
-    - Quality Check (Blur & Exposure)
-    - Brightness & Contrast Normalization using CLAHE (Contrast Limited Adaptive Histogram Equalization)
-    - Noise Reduction using Bilateral Filter (preserves leaf edge boundaries)
-    - Image Resizing to target_size (e.g., 224x224 for EfficientNet-B0)
+    Applies image enhancement and illumination standardization pipeline:
+    - Quality Check (Blur & Exposure diagnostics)
+    - Stage 1: Illumination Normalization (Color constancy + Retinex dynamic range balancing + CLAHE)
+    - Stage 2: Noise Reduction using Bilateral Filter (preserves leaf edge boundaries & lesion spots)
+    - Stage 3: Image Resizing to target_size (e.g., 224x224 for EfficientNet-B0)
     
     Returns (enhanced_bgr_image, quality_info_dict).
     """
     quality_info = check_image_quality(img_bgr)
     
-    # Convert BGR to LAB color space to equalize Luminance channel L
-    lab = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2LAB)
-    l_channel, a_channel, b_channel = cv2.split(lab)
+    # Step 1: Research-grade Illumination Normalization & Color Standardization
+    illum_normalized_bgr, illum_diagnostics = normalize_illumination(img_bgr)
+    quality_info["illumination"] = illum_diagnostics
     
-    # Apply CLAHE to Luminance channel
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    cl = clahe.apply(l_channel)
+    # Step 2: Apply Bilateral Filter for noise reduction while keeping lesion edges crisp
+    denoised_bgr = cv2.bilateralFilter(illum_normalized_bgr, d=7, sigmaColor=50, sigmaSpace=50)
     
-    # Merge back LAB channels
-    limg = cv2.merge((cl, a_channel, b_channel))
-    enhanced_bgr = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
-    
-    # Apply Bilateral Filter for noise reduction while keeping lesion edges crisp
-    denoised_bgr = cv2.bilateralFilter(enhanced_bgr, d=7, sigmaColor=50, sigmaSpace=50)
-    
-    # Resize image to model input shape (224x224)
+    # Step 3: Resize image to model input shape (224x224)
     resized_bgr = cv2.resize(denoised_bgr, target_size, interpolation=cv2.INTER_AREA)
     
     return resized_bgr, quality_info

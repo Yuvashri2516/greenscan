@@ -1,0 +1,89 @@
+{
+  "experiment_name": "Experiment 3: Higher-Resolution Training (384x384)",
+  "model_checkpoint": "C:\\Greenscan project\\research\\models\\greenscan_highres384_best.keras",
+  "best_epoch": 14,
+  "validation_samples": 766,
+  "input_resolution": [
+    384,
+    384,
+    3
+  ],
+  "batch_size": 16,
+  "summary_metrics": {
+    "accuracy": 0.8981723237597912,
+    "macro_precision": 0.9074760229534098,
+    "macro_recall": 0.8992316269148729,
+    "macro_f1": 0.9029257917534865,
+    "weighted_precision": 0.8982072595872668,
+    "weighted_recall": 0.8981723237597912,
+    "weighted_f1": 0.8977182725763744
+  },
+  "confidence_statistics": {
+    "mean_confidence_correct": 0.9155548214912415,
+    "mean_confidence_incorrect": 0.6932553052902222
+  },
+  "per_class_metrics": {
+    "tomato_Early blight": {
+      "precision": 0.8844444444444445,
+      "recall": 0.8291666666666667,
+      "f1": 0.8559139784946237,
+      "support": 240
+    },
+    "tomato_Late blight": {
+      "precision": 0.8869346733668342,
+      "recall": 0.9240837696335078,
+      "f1": 0.9051282051282051,
+      "support": 382
+    },
+    "tomato_healthy": {
+      "precision": 0.951048951048951,
+      "recall": 0.9444444444444444,
+      "f1": 0.9477351916376306,
+      "support": 144
+    }
+  },
+  "confusion_matrix": [
+    [
+      199,
+      38,
+      3
+    ],
+    [
+      25,
+      353,
+      4
+    ],
+    [
+      1,
+      7,
+      136
+    ]
+  ],
+  "error_breakdown": {
+    "early_to_late": 38,
+    "early_to_healthy": 3,
+    "late_to_early": 25,
+    "late_to_healthy": 4,
+    "healthy_to_early": 1,
+    "healthy_to_late": 7,
+    "total_early_late": 63
+  },
+  "controlled_comparison_vs_baseline": {
+    "accuracy_delta": -0.00783267624020878,
+    "macro_precision_delta": -0.0005749770465902637,
+    "macro_recall_delta": -0.012963373085127072,
+    "macro_f1_delta": -0.005938208246513477,
+    "early_precision_delta": -0.004444555555555563,
+    "early_recall_delta": -0.004166333333333272,
+    "early_f1_delta": -0.004301021505376257,
+    "late_precision_delta": -0.02285932663316581,
+    "late_recall_delta": -2.3036649221541694e-07,
+    "late_f1_delta": -0.01534079487179485,
+    "healthy_precision_delta": 0.02947995104895107,
+    "healthy_recall_delta": -0.03472255555555559,
+    "healthy_f1_delta": 0.0014261916376306916,
+    "early_to_late_delta": 5,
+    "late_to_early_delta": 1,
+    "total_early_late_delta": 6
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "random_seed": 42,
+  "split_ratios_target": {
+    "train": 0.7,
+    "val": 0.15,
+    "test": 0.15
+  },
+  "total_original_images": 5137,
+  "exact_duplicate_files_excluded": 11,
+  "total_active_images_split": 5126,
+  "total_unique_physical_leaf_groups": 3328,
+  "overall_split_counts": {
+    "train": {
+      "images": 3588,
+      "pct": 70.0,
+      "groups": 2314
+    },
+    "val": {
+      "images": 768,
+      "pct": 14.98,
+      "groups": 503
+    },
+    "test": {
+      "images": 770,
+      "pct": 15.02,
+      "groups": 511
+    }
+  },
+  "per_class_breakdown": {
+    "tomato_Early blight": {
+      "total_images": 1616,
+      "total_groups": 1002,
+      "train_images": 1131,
+      "train_groups": 695,
+      "val_images": 242,
+      "val_groups": 154,
+      "test_images": 243,
+      "test_groups": 153,
+      "train_pct": 69.99,
+      "val_pct": 14.98,
+      "test_pct": 15.04
+    },
+    "tomato_Late blight": {
+      "total_images": 2547,
+      "total_groups": 1836,
+      "train_images": 1783,
+      "train_groups": 1276,
+      "val_images": 382,
+      "val_groups": 276,
+      "test_images": 382,
+      "test_groups": 284,
+      "train_pct": 70.0,
+      "val_pct": 15.0,
+      "test_pct": 15.0
+    },
+    "tomato_healthy": {
+      "total_images": 963,
+      "total_groups": 490,
+      "train_images": 674,
+      "train_groups": 343,
+      "val_images": 144,
+      "val_groups": 73,
+      "test_images": 145,
+      "test_groups": 74,
+      "train_pct": 69.99,
+      "val_pct": 14.95,
+      "test_pct": 15.06
+    }
+  },
+  "excluded_duplicates_list": [
+    {
+      "filename": "2c47b891-3c97-48f1-a2cc-5aa53d3a1148___GHLB2 Leaf 9011_final_masked.jpg",
+      "class": "tomato_Late blight",
+      "sha256": "09a7db63f8feed95e15586820bd9eedd89e66f7c39570580489e71f877573142",
+      "duplicate_group_id": "DUP_GRP_001",
+      "primary_file_retained": "1a69b38b-c4eb-42c4-9584-bcb14fb8db0c___GHLB2 Leaf 9011_final_masked.jpg"
+    },
+    {
+      "filename": "34c81c57-e1fa-49dd-a49d-34fe8b2385fe___GH_HL Leaf 466.1_final_masked.jpg",
+      "class": "tomato_healthy",
+      "sha256": "0d86e6bbd54dd221e0db68758bb21297c0309c71e6e827db1954cabb439ef944",
+      "duplicate_group_id": "DUP_GRP_002",
+      "primary_file_retained": "068e324c-faf6-40d6-8f83-578907f1cac5___GH_HL Leaf 466.1_final_masked.jpg"
+    },
+    {
+      "filename": "34c81c57-e1fa-49dd-a49d-34fe8b2385fe___GH_HL Leaf 466.1.JPG",
+      "class": "tomato_healthy",
+      "sha256": "2774c0e8b6081069c32d3349d38163bf4b5463b1af04c64878bea6190d565d5c",
+      "duplicate_group_id": "DUP_GRP_003",
+      "primary_file_retained": "068e324c-faf6-40d6-8f83-578907f1cac5___GH_HL Leaf 466.1.JPG"
+    },
+    {
+      "filename": "e5d707cd-077c-43af-bda9-6138e516ff51___GHLB2 Leaf 8999_final_masked.jpg",
+      "class": "tomato_Late blight",
+      "sha256": "4275563b52937c058edd55590aee2cb002e4e58399490c3b794e94b4539b3fc4",
+      "duplicate_group_id": "DUP_GRP_004",
+      "primary_file_retained": "5f21282c-e2ef-4c4a-ace1-b5701fe7effc___GHLB2 Leaf 8999_final_masked.jpg"
+    },
+    {
+      "filename": "c1775bad-7c02-41fb-bb7d-f8df91d60ac3___GHLB_PS Leaf 23.5 Day 13_final_masked.jpg",
+      "class": "tomato_Late blight",
+      "sha256": "5a874d9024c7f843b68cdb2ce28cd17df24b73acc3be369c80119b872c82c11a",
+      "duplicate_group_id": "DUP_GRP_005",
+      "primary_file_retained": "98586693-fe1f-4ea0-8e27-4501b61cf09b___GHLB_PS Leaf 23.5 Day 13_final_masked.jpg"
+    },
+    {
+      "filename": "2c47b891-3c97-48f1-a2cc-5aa53d3a1148___GHLB2 Leaf 9011.JPG",
+      "class": "tomato_Late blight",
+      "sha256": "7ff8410db407008bb9aecf0cc5505f2b47ffd89e508413a30ea983b4bc169714",
+      "duplicate_group_id": "DUP_GRP_006",
+      "primary_file_retained": "1a69b38b-c4eb-42c4-9584-bcb14fb8db0c___GHLB2 Leaf 9011.JPG"
+    },
+    {
+      "filename": "d82b634e-9a19-497b-b698-aaf100d622a1___GHLB_PS Leaf 24 Day 13_final_masked.jpg",
+      "class": "tomato_Late blight",
+      "sha256": "823e78e14b52a8abd5b85a55f1496b580fd34f942bf79df9fd76d748aa8629b5",
+      "duplicate_group_id": "DUP_GRP_007",
+      "primary_file_retained": "861d8b00-57a4-46b0-b51a-09d102dbe119___GHLB_PS Leaf 24 Day 13_final_masked.jpg"
+    },
+    {
+      "filename": "bd4f09bd-ee85-4ab1-bce0-8cde3fdd7f1b___GHLB_PS Leaf 23.7 Day 13_final_masked.jpg",
+      "class": "tomato_Late blight",
+      "sha256": "8d3a0aa254d57472ccc60067a726f5db54b999f5ef1a8765abd9ed668db66d1a",
+      "duplicate_group_id": "DUP_GRP_008",
+      "primary_file_retained": "48c55974-9fe9-4f4b-94f7-c8cd127d1e05___GHLB_PS Leaf 23.7 Day 13_final_masked.jpg"
+    },
+    {
+      "filename": "5de6da85-f8c4-48c4-b463-3e6bd78884cc___GHLB_PS Leaf 24 Day 16_final_masked.jpg",
+      "class": "tomato_Late blight",
+      "sha256": "dc4ee2046cf5abd0bfa9ecb54c936c717f40694b9af23a6a1063ce72ad60d2cb",
+      "duplicate_group_id": "DUP_GRP_009",
+      "primary_file_retained": "3fae9c64-18f0-4a67-9f97-554248bb1bed___GHLB_PS Leaf 24 Day 16_final_masked.jpg"
+    },
+    {
+      "filename": "d81682aa-746b-4e07-af2b-52ebb6f4c017___GHLB2 Leaf 102_final_masked.jpg",
+      "class": "tomato_Late blight",
+      "sha256": "fe2075c51a2b6756418f86537a349f6c13efeb4335da4e43a67e2d2ae730e729",
+      "duplicate_group_id": "DUP_GRP_010",
+      "primary_file_retained": "d6e6897a-5083-4914-9903-804c5684a956___GHLB2 Leaf 102_final_masked.jpg"
+    },
+    {
+      "filename": "e20107e7-137f-400e-817f-5dc4c58e5d70___GHLB2 Leaf 8677_final_masked.jpg",
+      "class": "tomato_Late blight",
+      "sha256": "fe789072bb93181fa473678db2df4292417d43a122ae5190ecc6da740353a541",
+      "duplicate_group_id": "DUP_GRP_011",
+      "primary_file_retained": "5688ea99-c949-41d0-bbab-9cbf0ffb8bcd___GHLB2 Leaf 8677_final_masked.jpg"
+    }
+  ]
+}

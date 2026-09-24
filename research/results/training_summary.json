@@ -1,0 +1,110 @@
+{
+  "dataset_manifest": "C:\\Greenscan project\\evaluation\\clean_split_manifest.csv",
+  "random_seed": 42,
+  "counts": {
+    "train_images": 3588,
+    "train_physical_leaf_groups": 2314,
+    "validation_images": 768,
+    "validation_physical_leaf_groups": 503,
+    "held_out_test_images": 770,
+    "held_out_test_physical_leaf_groups": 511,
+    "excluded_duplicates": 11
+  },
+  "class_distribution": {
+    "train": {
+      "tomato_Early blight": 1131,
+      "tomato_Late blight": 1783,
+      "tomato_healthy": 674
+    },
+    "validation": {
+      "tomato_Early blight": 242,
+      "tomato_Late blight": 382,
+      "tomato_healthy": 144
+    },
+    "test": {
+      "tomato_Early blight": 243,
+      "tomato_Late blight": 382,
+      "tomato_healthy": 145
+    }
+  },
+  "model_architecture": {
+    "name": "MobileNetV2",
+    "weights": "imagenet",
+    "base_trainable": false,
+    "dense_head": [
+      {
+        "layer": "GlobalAveragePooling2D"
+      },
+      {
+        "layer": "Dense",
+        "units": 128,
+        "activation": "relu"
+      },
+      {
+        "layer": "Dropout",
+        "rate": 0.5
+      },
+      {
+        "layer": "Dense",
+        "units": 3,
+        "activation": "softmax"
+      }
+    ]
+  },
+  "input_size": [
+    224,
+    224,
+    3
+  ],
+  "preprocessing": {
+    "rescale": "1./255",
+    "color_mode": "RGB"
+  },
+  "augmentation_config": {
+    "train_only": true,
+    "rotation_range": 40,
+    "width_shift_range": 0.2,
+    "height_shift_range": 0.2,
+    "shear_range": 0.2,
+    "zoom_range": 0.2,
+    "horizontal_flip": true,
+    "vertical_flip": true,
+    "fill_mode": "nearest"
+  },
+  "optimizer": {
+    "name": "Adam",
+    "initial_learning_rate": 0.001
+  },
+  "loss": "categorical_crossentropy",
+  "batch_size": 32,
+  "max_epochs": 15,
+  "actual_epochs_trained": 15,
+  "callbacks": {
+    "EarlyStopping": {
+      "monitor": "val_loss",
+      "patience": 5,
+      "restore_best_weights": true
+    },
+    "ReduceLROnPlateau": {
+      "monitor": "val_loss",
+      "factor": 0.2,
+      "patience": 3,
+      "min_lr": 1e-06
+    },
+    "ModelCheckpoint": {
+      "monitor": "val_loss",
+      "save_best_only": true
+    }
+  },
+  "best_epoch": 13,
+  "best_train_loss": 0.24354293942451477,
+  "best_train_accuracy": 0.8991081118583679,
+  "best_validation_loss": 0.25229334831237793,
+  "best_validation_accuracy": 0.9060052037239075,
+  "total_training_time_seconds": 1795.6061267852783,
+  "output_paths": {
+    "best_model": "C:\\Greenscan project\\research\\models\\greenscan_research_best.keras",
+    "final_model": "C:\\Greenscan project\\research\\models\\greenscan_research_final.keras",
+    "training_history_csv": "C:\\Greenscan project\\research\\results\\training_history.csv"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "experiment": "Experiment 4: EfficientNetB0 Feature Extractor",
+  "dataset_manifest": "C:\\Greenscan project\\evaluation\\clean_split_manifest.csv",
+  "backbone": "EfficientNetB0",
+  "input_shape": [
+    224,
+    224,
+    3
+  ],
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "max_epochs": 15,
+  "actual_epochs": 15,
+  "best_epoch": 15,
+  "best_train_loss": 0.1645364910364151,
+  "best_train_accuracy": 0.9350613355636597,
+  "best_validation_loss": 0.19325605034828186,
+  "best_validation_accuracy": 0.9308093786239624,
+  "total_training_time_seconds": 2385.370613336563
+}

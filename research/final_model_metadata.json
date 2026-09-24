@@ -1,0 +1,17 @@
+{
+  "model": "EfficientNetB0",
+  "checkpoint": "research/models/greenscan_efficientnetb0_best.keras",
+  "input_size": "224x224x3",
+  "classes": [
+    "tomato_Early blight",
+    "tomato_Late blight",
+    "tomato_healthy"
+  ],
+  "test_samples": 770,
+  "test_physical_leaf_groups": 511,
+  "accuracy": 91.95,
+  "macro_precision": 91.93,
+  "macro_recall": 93.05,
+  "macro_f1": 92.46,
+  "status": "FROZEN"
+}

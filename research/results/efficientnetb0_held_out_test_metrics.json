@@ -1,0 +1,117 @@
+{
+  "evaluation_name": "GreenScan Final Held-Out Test Evaluation",
+  "model_path": "C:\\Greenscan project\\research\\models\\greenscan_efficientnetb0_best.keras",
+  "model_architecture": "EfficientNetB0 (Frozen ImageNet Backbone + Custom Dense Head)",
+  "input_resolution": [
+    224,
+    224,
+    3
+  ],
+  "test_size": 770,
+  "physical_leaf_groups": 511,
+  "class_distribution": {
+    "tomato_Late blight": 382,
+    "tomato_Early blight": 243,
+    "tomato_healthy": 145
+  },
+  "evaluation_timestamp": "2026-09-24T09:34:18.736902",
+  "test_integrity_status": "PASSED (Zero subject overlap, unaugmented, deterministic single-pass)",
+  "overall_metrics": {
+    "accuracy": 0.9194805194805195,
+    "number_correct": 708,
+    "number_incorrect": 62,
+    "macro_precision": 0.919282594768072,
+    "macro_recall": 0.9304965587574427,
+    "macro_f1": 0.9245670735298505,
+    "weighted_precision": 0.9193289800210745,
+    "weighted_recall": 0.9194805194805195,
+    "weighted_f1": 0.9191963561989208
+  },
+  "per_class_metrics": {
+    "tomato_Early blight": {
+      "precision": 0.8921161825726142,
+      "recall": 0.8847736625514403,
+      "f1": 0.8884297520661157,
+      "support": 243
+    },
+    "tomato_Late blight": {
+      "precision": 0.9306666666666666,
+      "recall": 0.9136125654450262,
+      "f1": 0.9220607661822986,
+      "support": 382
+    },
+    "tomato_healthy": {
+      "precision": 0.935064935064935,
+      "recall": 0.993103448275862,
+      "f1": 0.9632107023411371,
+      "support": 145
+    }
+  },
+  "confusion_matrix": [
+    [
+      215,
+      26,
+      2
+    ],
+    [
+      25,
+      349,
+      8
+    ],
+    [
+      1,
+      0,
+      144
+    ]
+  ],
+  "error_breakdown": {
+    "early_to_late": 26,
+    "early_to_healthy": 2,
+    "late_to_early": 25,
+    "late_to_healthy": 8,
+    "healthy_to_early": 1,
+    "healthy_to_late": 0,
+    "total_early_late": 51,
+    "early_to_late_percentage_of_early": 0.10699588477366255,
+    "late_to_early_percentage_of_late": 0.06544502617801047
+  },
+  "confidence_statistics": {
+    "mean_confidence_all": 0.9244990944862366,
+    "median_confidence_all": 0.9861561059951782,
+    "mean_confidence_correct": 0.9397063851356506,
+    "median_confidence_correct": 0.9896172285079956,
+    "mean_confidence_incorrect": 0.7508413195610046,
+    "median_confidence_incorrect": 0.7565410137176514,
+    "min_confidence": 0.4177991449832916,
+    "max_confidence": 0.9999996423721313
+  },
+  "incorrect_confidence_distribution": {
+    "0-50%": 1,
+    "50-70%": 27,
+    "70-80%": 6,
+    "80-90%": 11,
+    "90-95%": 4,
+    "95-100%": 13
+  },
+  "controlled_comparison_vs_mobilenetv2_test": {
+    "accuracy_delta": 0.005194519480519411,
+    "macro_precision_delta": 0.0027185947680719025,
+    "macro_recall_delta": 0.010459558757442755,
+    "macro_f1_delta": 0.007607073529850461,
+    "weighted_precision_delta": 0.004886980021074572,
+    "weighted_recall_delta": 0.005194519480519411,
+    "weighted_f1_delta": 0.0059493561989207855,
+    "early_precision_delta": -0.0256918174273858,
+    "early_recall_delta": 0.05761366255144029,
+    "early_f1_delta": 0.018299752066115782,
+    "late_precision_delta": 0.021805666666666612,
+    "late_recall_delta": -0.026178434554973817,
+    "late_f1_delta": -0.002006233817701375,
+    "healthy_precision_delta": 0.011987935064935007,
+    "healthy_recall_delta": 4.482758620971694e-07,
+    "healthy_f1_delta": 0.006399702341137181,
+    "early_to_late_delta": -9,
+    "late_to_early_delta": 7,
+    "total_early_late_delta": -2
+  }
+}

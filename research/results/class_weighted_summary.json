@@ -1,0 +1,17 @@
+{
+  "experiment": "Experiment 2: Class-Weighted Training",
+  "dataset_manifest": "C:\\Greenscan project\\evaluation\\clean_split_manifest.csv",
+  "class_weights": {
+    "0": 1.0574712643678161,
+    "1": 0.6707795849691531,
+    "2": 1.774480712166172
+  },
+  "learning_rate": 0.001,
+  "max_epochs": 15,
+  "actual_epochs": 15,
+  "best_epoch": 10,
+  "best_train_loss": 0.2903536856174469,
+  "best_train_accuracy": 0.8612040281295776,
+  "best_validation_loss": 0.2556182742118835,
+  "best_validation_accuracy": 0.8994777798652649
+}

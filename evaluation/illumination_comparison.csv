@@ -1,0 +1,9 @@
+Metric,Baseline,Normalized,Difference (% pts)
+Accuracy,95.02,87.24,-7.77
+Macro Precision,95.23,87.81,-7.42
+Macro Recall,95.04,87.39,-7.65
+Macro F1-Score,95.06,87.12,-7.94
+Weighted F1-Score,95.02,87.08,-7.94
+F1-Score (tomato_Early blight),93.43,85.56,-7.86
+F1-Score (tomato_Late blight),93.38,85.71,-7.67
+F1-Score (tomato_healthy),98.36,90.07,-8.29

@@ -99,3 +99,78 @@ export async function analyzeSoilHealth(payload) {
   return handleResponse(res)
 }
 
+
+// ─── GreenScan 2.0: Farmer Profile API ───────────────────────────────────────
+
+/** POST /farmers – Create a new farmer profile */
+export async function createFarmerProfile(profile) {
+  const res = await fetch(`${BASE_URL}/farmers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(profile)
+  })
+  return handleResponse(res)
+}
+
+/** GET /farmers/{id} – Get farmer profile (PIN excluded) */
+export async function getFarmerProfile(farmerId) {
+  const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}`)
+  return handleResponse(res)
+}
+
+/** PUT /farmers/{id} – Update farmer profile fields */
+export async function updateFarmerProfile(farmerId, updates) {
+  const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updates)
+  })
+  return handleResponse(res)
+}
+
+/** POST /farmers/{id}/verify – Verify farmer PIN */
+export async function verifyFarmerPin(farmerId, pin) {
+  const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}/verify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pin })
+  })
+  return handleResponse(res)
+}
+
+/** GET /farmers/{id}/history – Farmer-specific scan history */
+export async function getFarmerHistory(farmerId, limit = 20) {
+  const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}/history?limit=${limit}`)
+  return handleResponse(res)
+}
+
+/** GET /farmers/{id}/trends – Health score and severity trend analysis */
+export async function getFarmerTrends(farmerId, limit = 20) {
+  const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}/trends?limit=${limit}`)
+  return handleResponse(res)
+}
+
+// ─── GreenScan 2.0: Knowledge Base API ───────────────────────────────────────
+
+/** GET /knowledge – List all disease keys in knowledge base */
+export async function getKnowledgeIndex() {
+  const res = await fetch(`${BASE_URL}/knowledge`)
+  return handleResponse(res)
+}
+
+/** GET /knowledge/{diseaseKey} – Full knowledge base entry for a disease */
+export async function getDiseaseKnowledge(diseaseKey) {
+  const res = await fetch(`${BASE_URL}/knowledge/${encodeURIComponent(diseaseKey)}`)
+  return handleResponse(res)
+}
+
+/** POST /predict with optional farmer_id – extended version */
+export async function predictDiseaseWithFarmer(imageFile, farmerId = null) {
+  const form = new FormData()
+  form.append('file', imageFile)
+  const url = farmerId
+    ? `${BASE_URL}/predict?farmer_id=${encodeURIComponent(farmerId)}`
+    : `${BASE_URL}/predict`
+  const res = await fetch(url, { method: 'POST', body: form })
+  return handleResponse(res)
+}

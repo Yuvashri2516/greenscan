@@ -55,7 +55,7 @@ def get_gradcam_activation_matrix(model, img_array: np.ndarray, class_index: int
             last_conv_layer_name = model.layers[-1].name
 
         grad_model = tf.keras.models.Model(
-            inputs=[model.inputs],
+            inputs=model.inputs,
             outputs=[model.get_layer(last_conv_layer_name).output, model.output]
         )
 

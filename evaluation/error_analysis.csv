@@ -1,0 +1,193 @@
+image,true_class,norm_pred_class,norm_conf,baseline_pred_class,baseline_conf,lighting_condition,color_cast
+00c5c908-fc25-4710-a109-db143da23112___RS_Erly.B 7778.JPG,tomato_Early blight,tomato_healthy,0.9991605281829834,tomato_Late blight,0.6485035419464111,standard_field_lighting,neutral
+00c5c908-fc25-4710-a109-db143da23112___RS_Erly.B 7778_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9426734447479248,tomato_Early blight,0.510532021522522,low_light_or_heavy_shadow,neutral
+0208ed52-1b28-4c9c-88e3-4667581e1109___RS_Erly.B 7829.JPG,tomato_Early blight,tomato_healthy,0.8817382454872131,tomato_Late blight,0.9785071611404419,standard_field_lighting,neutral
+0378db62-5231-4eff-815d-c0deb0043e80___RS_Erly.B 7464.JPG,tomato_Early blight,tomato_Late blight,0.826784610748291,tomato_Early blight,0.7000808715820312,standard_field_lighting,neutral
+03b7a13c-f5c0-44c4-beed-443841670e9a___RS_Erly.B 8225.JPG,tomato_Early blight,tomato_Late blight,0.5603895783424377,tomato_Late blight,0.5170456767082214,standard_field_lighting,neutral
+0401adc0-0998-4d8e-90de-4eae8caf4248___RS_Erly.B 8446.JPG,tomato_Early blight,tomato_healthy,0.5031664967536926,tomato_Late blight,0.624449610710144,standard_field_lighting,neutral
+0401adc0-0998-4d8e-90de-4eae8caf4248___RS_Erly.B 8446_final_masked.jpg,tomato_Early blight,tomato_healthy,0.7194510698318481,tomato_Late blight,0.6650547981262207,low_light_or_heavy_shadow,neutral
+04747279-48b2-4ce1-932b-e511424beb6b___RS_Erly.B 8240_final_masked.jpg,tomato_Early blight,tomato_Late blight,0.9271014928817749,tomato_Early blight,0.9855102300643921,low_light_or_heavy_shadow,neutral
+0621aab4-b9fd-4012-b0a6-ba72e63cd87d___RS_Erly.B 8220.JPG,tomato_Early blight,tomato_Late blight,0.7651561498641968,tomato_Late blight,0.9764194488525391,standard_field_lighting,neutral
+06d0298e-18e5-4bf5-8d33-8feef6600f15___RS_Erly.B 7573_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9999986886978149,tomato_Late blight,0.9634062051773071,low_light_or_heavy_shadow,neutral
+072ae43a-416b-434a-a5a2-1b48bc47fada___RS_Erly.B 7472_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9997134804725647,tomato_Early blight,0.9965953230857849,low_light_or_heavy_shadow,neutral
+074bc781-f586-46b0-bef5-0237e3bf5043___RS_Erly.B 8375.JPG,tomato_Early blight,tomato_Late blight,0.9080513119697571,tomato_Early blight,0.6269809603691101,standard_field_lighting,neutral
+090af0e4-75f2-495a-8bca-a3370c6dd2a6___RS_Erly.B 9562.JPG,tomato_Early blight,tomato_Late blight,0.6063944697380066,tomato_Early blight,0.9621965885162354,standard_field_lighting,neutral
+0982d864-182e-4d36-959a-dcc67d85d9e6___RS_Erly.B 9481.JPG,tomato_Early blight,tomato_Late blight,0.6308966279029846,tomato_Early blight,0.6415475606918335,standard_field_lighting,neutral
+0a2726e0-3358-4a46-b6dc-563a5a9f2bdf___RS_Erly.B 7860.JPG,tomato_Early blight,tomato_healthy,0.5922523736953735,tomato_Early blight,0.5986632704734802,standard_field_lighting,neutral
+0a2726e0-3358-4a46-b6dc-563a5a9f2bdf___RS_Erly.B 7860_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9684882164001465,tomato_Early blight,0.7841949462890625,low_light_or_heavy_shadow,neutral
+0abc57ec-7f3b-482a-8579-21f3b2fb780b___RS_Erly.B 7609_final_masked.jpg,tomato_Early blight,tomato_healthy,0.6399227380752563,tomato_Early blight,0.8625842928886414,low_light_or_heavy_shadow,neutral
+0c865fa4-b0bf-4e69-b39a-d97b068cef84___RS_Erly.B 7477_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9792985916137695,tomato_Early blight,0.9988892674446106,low_light_or_heavy_shadow,neutral
+0e03c87e-b43f-4cfe-a837-71306c68f4c0___RS_Erly.B 7733.JPG,tomato_Early blight,tomato_healthy,0.8166195154190063,tomato_Early blight,0.775398313999176,standard_field_lighting,neutral
+0e03c87e-b43f-4cfe-a837-71306c68f4c0___RS_Erly.B 7733_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9750543236732483,tomato_Early blight,0.5054484605789185,low_light_or_heavy_shadow,neutral
+0e2e58b7-1417-49c4-b014-b5efb4b4b831___RS_Erly.B 8256.JPG,tomato_Early blight,tomato_Late blight,0.9841240048408508,tomato_Late blight,0.7267488837242126,standard_field_lighting,neutral
+0e39c18a-9e04-4f6b-b557-dc0e944d22e5___RS_Erly.B 9501_final_masked.jpg,tomato_Early blight,tomato_healthy,0.7295607328414917,tomato_Late blight,0.8320624232292175,low_light_or_heavy_shadow,neutral
+0f111718-a749-42cf-9495-412f4b51acf0___RS_Erly.B 7482_final_masked.jpg,tomato_Early blight,tomato_healthy,0.8970942497253418,tomato_Early blight,0.8908535242080688,low_light_or_heavy_shadow,neutral
+0f4e562d-77ee-47c2-8ee9-34b391bc0fc3___RS_Erly.B 9434.JPG,tomato_Early blight,tomato_Late blight,0.6208894848823547,tomato_Late blight,0.6855142712593079,standard_field_lighting,neutral
+10fedb70-9786-4623-a32b-97a622037511___RS_Erly.B 7796.JPG,tomato_Early blight,tomato_healthy,0.8305904269218445,tomato_Early blight,0.9989016056060791,standard_field_lighting,neutral
+10fedb70-9786-4623-a32b-97a622037511___RS_Erly.B 7796_final_masked.jpg,tomato_Early blight,tomato_healthy,0.5110734105110168,tomato_Early blight,0.9970568418502808,low_light_or_heavy_shadow,neutral
+11922494-321b-4742-afbe-f6db6a8b4005___RS_Erly.B 9392.JPG,tomato_Early blight,tomato_Late blight,0.8909606337547302,tomato_Early blight,0.7654931545257568,standard_field_lighting,neutral
+13c87a78-0a62-4aff-b6f3-fcbf1a8323e6___RS_Erly.B 9612_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9995052814483643,tomato_Early blight,0.6709059476852417,low_light_or_heavy_shadow,neutral
+16c7ab4c-6940-41e9-854f-d1a9a99325ce___RS_Erly.B 8216.JPG,tomato_Early blight,tomato_Late blight,0.5728443264961243,tomato_Early blight,0.6785988807678223,standard_field_lighting,neutral
+16d79bd2-5c70-4e6b-a52a-0c578b501d04___RS_Erly.B 6446.JPG,tomato_Early blight,tomato_Late blight,0.8524022102355957,tomato_Early blight,0.6059300899505615,standard_field_lighting,neutral
+171b6622-c111-4fe9-b3f9-12b12ee0db06___RS_Erly.B 7836.JPG,tomato_Early blight,tomato_Late blight,0.5265105366706848,tomato_Early blight,0.8230043053627014,standard_field_lighting,neutral
+17a09abf-ee69-4d46-ac80-f8608d799b19___RS_Erly.B 7451.JPG,tomato_Early blight,tomato_healthy,0.8157455921173096,tomato_Early blight,0.9998218417167664,standard_field_lighting,neutral
+17a09abf-ee69-4d46-ac80-f8608d799b19___RS_Erly.B 7451_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9952437281608582,tomato_Early blight,0.7866624593734741,low_light_or_heavy_shadow,neutral
+1863e110-8422-400b-89a6-f0ef457659cc___RS_Erly.B 6462_final_masked.jpg,tomato_Early blight,tomato_healthy,0.6803793907165527,tomato_Early blight,0.6886618733406067,low_light_or_heavy_shadow,neutral
+18a21f42-8794-4665-8174-b0ccd3758af8___RS_Erly.B 7650_final_masked.jpg,tomato_Early blight,tomato_healthy,0.5434708595275879,tomato_Early blight,0.9681751132011414,low_light_or_heavy_shadow,neutral
+197fa869-c124-436e-b3cd-bced95f52a8e___RS_Erly.B 7834.JPG,tomato_Early blight,tomato_healthy,0.9871858954429626,tomato_Early blight,0.7254787087440491,standard_field_lighting,neutral
+1b4a2ad5-057d-4fac-9188-648edbe49751___RS_Erly.B 7767.JPG,tomato_Early blight,tomato_healthy,0.9961734414100647,tomato_Early blight,0.9924682974815369,standard_field_lighting,neutral
+1bdb9ab4-1a7a-449a-b848-c446d7615d42___RS_Erly.B 8443.JPG,tomato_Early blight,tomato_Late blight,0.896902322769165,tomato_Late blight,0.8526485562324524,standard_field_lighting,neutral
+1bdb9ab4-1a7a-449a-b848-c446d7615d42___RS_Erly.B 8443_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9814664125442505,tomato_Early blight,0.9174162149429321,low_light_or_heavy_shadow,neutral
+1bff3ab2-9e99-4d4b-ad0e-acd943324050___RS_Erly.B 6460.JPG,tomato_Early blight,tomato_Late blight,0.7797625660896301,tomato_Early blight,0.987890362739563,standard_field_lighting,neutral
+1c71757d-d351-4016-b5bb-06a63d0f2e24___RS_Erly.B 6388.JPG,tomato_Early blight,tomato_Late blight,0.6530141234397888,tomato_Early blight,0.9979931116104126,standard_field_lighting,neutral
+1c71757d-d351-4016-b5bb-06a63d0f2e24___RS_Erly.B 6388_final_masked.jpg,tomato_Early blight,tomato_Late blight,0.5059068202972412,tomato_Early blight,0.9899958372116089,low_light_or_heavy_shadow,neutral
+1c9e0f1a-7314-449c-9482-9059684ac82d___RS_Erly.B 7840_final_masked.jpg,tomato_Early blight,tomato_healthy,0.7222397327423096,tomato_Early blight,0.9324848651885986,low_light_or_heavy_shadow,neutral
+1dad664e-ec73-474e-aaf9-a832ca212e3f___RS_Erly.B 7533.JPG,tomato_Early blight,tomato_Late blight,0.994576096534729,tomato_Late blight,0.9620969295501709,diffuse_cloudy_optimal,neutral
+1de17623-e625-4a3a-91e8-64973e6d09fd___RS_Erly.B 9577.JPG,tomato_Early blight,tomato_Late blight,0.62717205286026,tomato_Early blight,0.9889946579933167,standard_field_lighting,neutral
+1e08cf06-c20b-47bc-8773-a22cc730aa04___RS_Erly.B 8228.JPG,tomato_Early blight,tomato_Late blight,0.8359512090682983,tomato_Early blight,0.7639760375022888,standard_field_lighting,neutral
+1e08cf06-c20b-47bc-8773-a22cc730aa04___RS_Erly.B 8228_final_masked.jpg,tomato_Early blight,tomato_healthy,0.7439610362052917,tomato_Late blight,0.5991755723953247,low_light_or_heavy_shadow,neutral
+20a276c8-90b5-475f-811b-1d63f34f1c10___RS_Erly.B 9551.JPG,tomato_Early blight,tomato_Late blight,0.5250614881515503,tomato_Early blight,0.9998904466629028,standard_field_lighting,neutral
+2179421c-3ce3-4581-8b65-17da6fffd3db___RS_Erly.B 7730.JPG,tomato_Early blight,tomato_healthy,0.9788929224014282,tomato_Late blight,0.5798439979553223,standard_field_lighting,neutral
+2179421c-3ce3-4581-8b65-17da6fffd3db___RS_Erly.B 7730_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9987473487854004,tomato_Early blight,0.7271100282669067,low_light_or_heavy_shadow,neutral
+22247648-1650-43d5-8a9b-e03f63cf2f1c___RS_Erly.B 7535.JPG,tomato_Early blight,tomato_Late blight,0.900084376335144,tomato_Early blight,0.7763692140579224,standard_field_lighting,neutral
+22faea13-4b3e-4d87-b80c-379755a7b747___RS_Erly.B 7852.JPG,tomato_Early blight,tomato_healthy,0.8412827849388123,tomato_Early blight,0.9255052208900452,standard_field_lighting,neutral
+22faea13-4b3e-4d87-b80c-379755a7b747___RS_Erly.B 7852_final_masked.jpg,tomato_Early blight,tomato_healthy,0.8851436972618103,tomato_Late blight,0.5024557709693909,low_light_or_heavy_shadow,neutral
+2312305e-c167-4730-a07a-db5c9956077a___RS_Erly.B 7752.JPG,tomato_Early blight,tomato_healthy,0.9998847246170044,tomato_Early blight,0.7559396028518677,standard_field_lighting,neutral
+23e8ae15-6cfc-4518-9266-3a289a7bced7___RS_Erly.B 6479.JPG,tomato_Early blight,tomato_Late blight,0.6982216238975525,tomato_Early blight,0.9945787191390991,standard_field_lighting,neutral
+23e8ae15-6cfc-4518-9266-3a289a7bced7___RS_Erly.B 6479_final_masked.jpg,tomato_Early blight,tomato_Late blight,0.6204862594604492,tomato_Early blight,0.9887711405754089,low_light_or_heavy_shadow,neutral
+2419fd79-cda0-4ba4-be14-31c92a2e91dd___RS_Erly.B 8255.JPG,tomato_Early blight,tomato_Late blight,0.9971574544906616,tomato_Late blight,0.9882742166519165,standard_field_lighting,neutral
+248a61d1-ed39-452b-b985-77120c1edc7a___RS_Erly.B 7669.JPG,tomato_Early blight,tomato_Late blight,0.6316061019897461,tomato_Early blight,0.8355321288108826,diffuse_cloudy_optimal,neutral
+248a61d1-ed39-452b-b985-77120c1edc7a___RS_Erly.B 7669_final_masked.jpg,tomato_Early blight,tomato_healthy,0.6039448380470276,tomato_Late blight,0.5738242268562317,low_light_or_heavy_shadow,neutral
+248f220e-56ac-43f1-8f17-641ed4637138___RS_Erly.B 7802_final_masked.jpg,tomato_Early blight,tomato_healthy,0.7422397136688232,tomato_Early blight,0.8955615758895874,low_light_or_heavy_shadow,neutral
+250f6c43-1800-4c21-9d73-cc51fe144bbc___RS_Erly.B 6356.JPG,tomato_Early blight,tomato_Late blight,0.504055380821228,tomato_Early blight,0.9955690503120422,standard_field_lighting,neutral
+2586a260-ecf6-40e8-aa11-4b8a50845575___RS_Erly.B 7833.JPG,tomato_Early blight,tomato_healthy,0.99741131067276,tomato_Late blight,0.5021987557411194,standard_field_lighting,neutral
+2586a260-ecf6-40e8-aa11-4b8a50845575___RS_Erly.B 7833_final_masked.jpg,tomato_Early blight,tomato_healthy,0.8644865155220032,tomato_Early blight,0.7940083146095276,low_light_or_heavy_shadow,neutral
+2763c9bc-ecc6-4f1a-86a7-ef8ffa370420___RS_Erly.B 8422.JPG,tomato_Early blight,tomato_Late blight,0.9217774271965027,tomato_Late blight,0.9914113283157349,standard_field_lighting,neutral
+2840c2f1-b901-41c2-8d0c-7827bc7f8ab3___RS_Erly.B 9574.JPG,tomato_Early blight,tomato_Late blight,0.9868850708007812,tomato_Late blight,0.8480271100997925,standard_field_lighting,neutral
+2840c2f1-b901-41c2-8d0c-7827bc7f8ab3___RS_Erly.B 9574_final_masked.jpg,tomato_Early blight,tomato_healthy,0.7210270762443542,tomato_Late blight,0.9565226435661316,low_light_or_heavy_shadow,neutral
+289ba10b-f518-445a-8c54-cc981e2ffe34___RS_Erly.B 7399_final_masked.jpg,tomato_Early blight,tomato_Late blight,0.5416879057884216,tomato_Late blight,0.8465207815170288,low_light_or_heavy_shadow,neutral
+29645def-a571-4442-8f95-d7ebf71befde___RS_Erly.B 7751.JPG,tomato_Early blight,tomato_healthy,0.9928654432296753,tomato_Early blight,0.9870554208755493,standard_field_lighting,neutral
+29645def-a571-4442-8f95-d7ebf71befde___RS_Erly.B 7751_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9603129029273987,tomato_Early blight,0.9991863369941711,low_light_or_heavy_shadow,neutral
+2998c7f2-9f4f-4734-aa39-403dd7211869___RS_Erly.B 7528_final_masked.jpg,tomato_Early blight,tomato_healthy,0.6991623640060425,tomato_Early blight,0.9999915361404419,low_light_or_heavy_shadow,neutral
+29fb6588-a368-4143-9cdd-8a131f0d50f4___RS_Erly.B 7779.JPG,tomato_Early blight,tomato_healthy,0.955414354801178,tomato_Early blight,0.8014086484909058,standard_field_lighting,neutral
+2ab7f21e-4a55-4895-acdb-5f161167a0f1___RS_Erly.B 8318.JPG,tomato_Early blight,tomato_Late blight,0.8919379115104675,tomato_Late blight,0.9824889898300171,standard_field_lighting,warm_evening_or_indoor
+2b7c8b0d-d906-4c93-9dc4-554ae46a3ec3___RS_Erly.B 7825.JPG,tomato_Early blight,tomato_Late blight,0.8653776049613953,tomato_Late blight,0.6791777014732361,standard_field_lighting,neutral
+2bdecb58-7e31-4129-83ff-125b7a31c0f6___RS_Erly.B 9506.JPG,tomato_Early blight,tomato_Late blight,0.7304935455322266,tomato_Late blight,0.8177109360694885,standard_field_lighting,neutral
+2e7b090e-4fc6-42f2-8bf6-3f84b32712e5___RS_Erly.B 7470.JPG,tomato_Early blight,tomato_Late blight,0.9054157137870789,tomato_Late blight,0.982232928276062,standard_field_lighting,neutral
+2efd143b-619d-455d-9b16-95536cad01e3___RS_Erly.B 7780.JPG,tomato_Early blight,tomato_healthy,0.9717341661453247,tomato_Early blight,0.9953633546829224,standard_field_lighting,neutral
+2efd143b-619d-455d-9b16-95536cad01e3___RS_Erly.B 7780_final_masked.jpg,tomato_Early blight,tomato_healthy,0.5136776566505432,tomato_Early blight,0.998362123966217,low_light_or_heavy_shadow,neutral
+3069555f-45e9-4208-bc5e-015ce47e34e2___RS_Erly.B 7663_final_masked.jpg,tomato_Early blight,tomato_healthy,0.8460971117019653,tomato_Early blight,0.9979158043861389,low_light_or_heavy_shadow,neutral
+3253ff4e-90ab-475a-89d2-f99875c53367___RS_Erly.B 8356.JPG,tomato_Early blight,tomato_healthy,0.7322570085525513,tomato_Early blight,0.8262496590614319,standard_field_lighting,neutral
+3253ff4e-90ab-475a-89d2-f99875c53367___RS_Erly.B 8356_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9140281677246094,tomato_Early blight,0.7735162973403931,low_light_or_heavy_shadow,neutral
+32e59188-5c46-4369-8991-5acfa253263b___RS_Erly.B 7781_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9840684533119202,tomato_Early blight,0.9999055862426758,low_light_or_heavy_shadow,neutral
+33cd99f1-1f8a-497b-b4fc-60ff78af4b8a___RS_Erly.B 8378.JPG,tomato_Early blight,tomato_Late blight,0.965776801109314,tomato_Late blight,0.6206419467926025,standard_field_lighting,warm_evening_or_indoor
+33cd99f1-1f8a-497b-b4fc-60ff78af4b8a___RS_Erly.B 8378_final_masked.jpg,tomato_Early blight,tomato_Late blight,0.7319344282150269,tomato_Early blight,0.8340147733688354,low_light_or_heavy_shadow,neutral
+34044338-c693-4604-8764-35eaece11e56___RS_Erly.B 9483_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9841299057006836,tomato_healthy,0.5659588575363159,low_light_or_heavy_shadow,neutral
+347120f8-e92d-43f7-9ace-196890cec04d___RS_Erly.B 9421.JPG,tomato_Early blight,tomato_Late blight,0.5282945036888123,tomato_Late blight,0.6023633480072021,standard_field_lighting,neutral
+36c17d6d-9e00-4e7c-bf14-eaadb64b508d___RS_Erly.B 7641_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9983776807785034,tomato_Early blight,0.7225362062454224,low_light_or_heavy_shadow,neutral
+3726eff6-547d-411e-bc00-f8b533d067e3___RS_Erly.B 6494.JPG,tomato_Early blight,tomato_Late blight,0.8520710468292236,tomato_Early blight,0.9994470477104187,standard_field_lighting,neutral
+3754ec0a-13b7-40c5-9839-b7499b6c365b___RS_Erly.B 7449.JPG,tomato_Early blight,tomato_healthy,0.37333884835243225,tomato_Early blight,0.9537106156349182,standard_field_lighting,neutral
+3754ec0a-13b7-40c5-9839-b7499b6c365b___RS_Erly.B 7449_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9498833417892456,tomato_healthy,0.6543871164321899,low_light_or_heavy_shadow,neutral
+38685009-d6e6-4b3a-9957-bf049a210cda___RS_Erly.B 7606.JPG,tomato_Early blight,tomato_Late blight,0.8152696490287781,tomato_Early blight,0.9796283841133118,standard_field_lighting,neutral
+389a93c4-2ea1-4df5-94c6-01ea8ad856db___RS_Erly.B 7720.JPG,tomato_Early blight,tomato_healthy,0.9944624304771423,tomato_Early blight,0.9291105270385742,standard_field_lighting,neutral
+389a93c4-2ea1-4df5-94c6-01ea8ad856db___RS_Erly.B 7720_final_masked.jpg,tomato_Early blight,tomato_healthy,0.9511843323707581,tomato_Early blight,0.9926243424415588,low_light_or_heavy_shadow,neutral
+3a634ad7-1119-4ea1-9268-bedc8308fdc8___RS_Erly.B 7841.JPG,tomato_Early blight,tomato_Late blight,0.5618451833724976,tomato_Early blight,0.645488977432251,standard_field_lighting,neutral
+3a634ad7-1119-4ea1-9268-bedc8308fdc8___RS_Erly.B 7841_final_masked.jpg,tomato_Early blight,tomato_healthy,0.8247047662734985,tomato_Early blight,0.9538199305534363,low_light_or_heavy_shadow,neutral
+3a7c19c6-a86d-4127-b00e-600cb0244ac4___RS_Erly.B 6415.JPG,tomato_Early blight,tomato_Late blight,0.9951540231704712,tomato_Early blight,0.7193694710731506,standard_field_lighting,neutral
+0003faa8-4b27-4c65-bf42-6d9e352ca1a5___RS_Late.B 4946_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.608779788017273,tomato_Late blight,0.99986732006073,low_light_or_heavy_shadow,neutral
+008ebb44-eb77-4843-b621-4b88b5df7d43___RS_Late.B 5188_final_masked.jpg,tomato_Late blight,tomato_healthy,0.4966098964214325,tomato_Late blight,0.9735971093177795,low_light_or_heavy_shadow,neutral
+013f987a-9371-4763-a104-ea6f326e584b___GHLB2 Leaf 8556.JPG,tomato_Late blight,tomato_Early blight,0.7746725082397461,tomato_Late blight,0.9988133907318115,diffuse_cloudy_optimal,neutral
+013f987a-9371-4763-a104-ea6f326e584b___GHLB2 Leaf 8556_final_masked.jpg,tomato_Late blight,tomato_healthy,0.998178243637085,tomato_Late blight,0.97802734375,low_light_or_heavy_shadow,neutral
+01425d17-4c97-46e3-b395-c1453b78ab78___GHLB2 Leaf 9100_final_masked.jpg,tomato_Late blight,tomato_healthy,0.8214196562767029,tomato_Late blight,0.9996298551559448,low_light_or_heavy_shadow,neutral
+01527fac-41e4-484c-af41-1ed7bc3b5ce6___RS_Late.B 6134_final_masked.jpg,tomato_Late blight,tomato_healthy,0.6027358174324036,tomato_Late blight,0.9943404197692871,low_light_or_heavy_shadow,neutral
+017a9839-6097-45aa-85b0-3051db151484___RS_Late.B 5125_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9416539072990417,tomato_Late blight,0.9939082860946655,low_light_or_heavy_shadow,neutral
+01a68044-9c5b-4658-a944-6108c6862ce7___GHLB Leaf 2.1 Day 16_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.5228247046470642,tomato_Late blight,0.9841379523277283,low_light_or_heavy_shadow,neutral
+01cd2d73-c741-45a5-9610-a2cea2266b80___GHLB2 Leaf 121_final_masked.jpg,tomato_Late blight,tomato_healthy,0.6697317361831665,tomato_Late blight,0.9995027780532837,low_light_or_heavy_shadow,neutral
+023315df-8824-4760-9480-4dca3a023931___GHLB2 Leaf 8719_final_masked.jpg,tomato_Late blight,tomato_healthy,0.5308295488357544,tomato_Late blight,0.9997898936271667,low_light_or_heavy_shadow,neutral
+024dc5bb-7990-4256-b2b4-a8495b71cbd4___RS_Late.B 6064_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.6677167415618896,tomato_Late blight,0.987011194229126,low_light_or_heavy_shadow,neutral
+031ab3ab-02f4-4397-9886-54345461580d___RS_Late.B 6654_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.755808413028717,tomato_Late blight,0.9999098777770996,low_light_or_heavy_shadow,warm_evening_or_indoor
+0334d40b-d880-442f-a7db-e5c85a2e0bed___RS_Late.B 6367_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.6475920081138611,tomato_Late blight,0.9999971389770508,low_light_or_heavy_shadow,neutral
+039e5d57-64e2-41de-8ccf-e44598bcedb0___RS_Late.B 6883.JPG,tomato_Late blight,tomato_Early blight,0.8709489703178406,tomato_Early blight,0.9008759260177612,bright_direct_sunlight,warm_evening_or_indoor
+03a15d38-e1b5-4586-b763-2bad2d268290___RS_Late.B 5207_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.552752673625946,tomato_Late blight,0.9253014326095581,low_light_or_heavy_shadow,neutral
+03e8a2f9-6a7e-43dd-8a1b-3eb7cf99b89b___RS_Late.B 5034_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.7630400061607361,tomato_Late blight,0.9985743761062622,low_light_or_heavy_shadow,neutral
+048eddf2-6142-4031-b23a-654cc3803d01___RS_Late.B 6097_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9813366532325745,tomato_Late blight,0.8446791172027588,low_light_or_heavy_shadow,neutral
+049dbcab-de65-4f09-9b1b-e59886f56f2e___RS_Late.B 5141_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9211898446083069,tomato_Late blight,0.9996387958526611,low_light_or_heavy_shadow,neutral
+0566e4e3-675b-4289-9e36-ad199448975b___GHLB2 Leaf 161.2_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9924267530441284,tomato_Late blight,0.8104329109191895,low_light_or_heavy_shadow,neutral
+05b90bad-941f-499f-a2f6-a88e54c1da85___GHLB2 Leaf 155.2_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.5547544360160828,tomato_Late blight,0.9989087581634521,low_light_or_heavy_shadow,neutral
+067fa506-1859-485a-9a17-53aaf0e8b1c3___RS_Late.B 6641_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.9247704148292542,tomato_Late blight,0.979914128780365,low_light_or_heavy_shadow,warm_evening_or_indoor
+06913075-dad1-4047-b5a2-74fe680efa3b___RS_Late.B 6048_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.4932730793952942,tomato_Late blight,0.9989644289016724,low_light_or_heavy_shadow,neutral
+06a7cfd9-0992-4020-8a11-79249d657c0c___GHLB2 Leaf 131_final_masked.jpg,tomato_Late blight,tomato_healthy,0.5537513494491577,tomato_Late blight,0.989319384098053,low_light_or_heavy_shadow,neutral
+06b911b8-1375-4da1-929c-2294c4051ece___GHLB2 Leaf 8883_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.718028724193573,tomato_Late blight,0.9971479773521423,low_light_or_heavy_shadow,neutral
+077c04cc-184d-4efd-bbc3-093cd61bedef___RS_Late.B 5560_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.9996039271354675,tomato_Early blight,0.8320650458335876,low_light_or_heavy_shadow,neutral
+07897854-c2ab-465b-8cf7-a134b6066a1c___GHLB Leaf 1.1 Day 6.JPG,tomato_Late blight,tomato_healthy,0.8206299543380737,tomato_healthy,0.7245567440986633,standard_field_lighting,neutral
+07897854-c2ab-465b-8cf7-a134b6066a1c___GHLB Leaf 1.1 Day 6_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9999972581863403,tomato_healthy,0.985195517539978,low_light_or_heavy_shadow,neutral
+07b42bb5-9f6c-43bc-9bbe-e4b127d84cb6___GHLB Leaf 18.1 Day 8_final_masked.jpg,tomato_Late blight,tomato_healthy,0.5571756958961487,tomato_Late blight,0.9999802112579346,low_light_or_heavy_shadow,neutral
+07c7f8bf-5f9c-4b94-bea8-c549866e206e___GHLB2 Leaf 101.2_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.6622614860534668,tomato_Late blight,0.9999656677246094,low_light_or_heavy_shadow,neutral
+07cca2ca-6b0f-4322-8779-beb94bc219b0___RS_Late.B 6037_final_masked.jpg,tomato_Late blight,tomato_healthy,0.83913654088974,tomato_Late blight,0.8886890411376953,low_light_or_heavy_shadow,neutral
+07eb29e8-112d-4bcb-8b65-aba4b4307f2a___RS_Late.B 6907_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.813284158706665,tomato_Late blight,0.9408033490180969,low_light_or_heavy_shadow,neutral
+081d1e25-3f06-46a1-95ef-d10a62faa80f___GHLB2 Leaf 8600_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9249487519264221,tomato_Late blight,0.9900863766670227,low_light_or_heavy_shadow,neutral
+08816f81-65f4-4372-84e8-d27b67a193d5___GHLB2 Leaf 152_final_masked.jpg,tomato_Late blight,tomato_healthy,0.5108014345169067,tomato_Late blight,0.9942166805267334,low_light_or_heavy_shadow,neutral
+0893ac69-4004-4577-b4aa-496983116208___GHLB2 Leaf 8738_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.8937217593193054,tomato_Late blight,0.876925528049469,low_light_or_heavy_shadow,neutral
+08a94695-4566-49aa-84df-91980c3534a2___RS_Late.B 5396_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9588307738304138,tomato_Late blight,0.9940999150276184,low_light_or_heavy_shadow,neutral
+08c1db4d-e947-4499-beff-ed2d8025d725___RS_Late.B 6113.JPG,tomato_Late blight,tomato_healthy,0.91172194480896,tomato_Late blight,0.822735607624054,standard_field_lighting,neutral
+08c1db4d-e947-4499-beff-ed2d8025d725___RS_Late.B 6113_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9999911785125732,tomato_healthy,0.9864233136177063,low_light_or_heavy_shadow,neutral
+0931f7e6-8481-4d03-8fe6-d4ae7637142d___RS_Late.B 4917.JPG,tomato_Late blight,tomato_healthy,0.8745253682136536,tomato_Late blight,0.9892690777778625,standard_field_lighting,neutral
+0931f7e6-8481-4d03-8fe6-d4ae7637142d___RS_Late.B 4917_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9923428893089294,tomato_Late blight,0.9923481941223145,low_light_or_heavy_shadow,neutral
+0a3f65fc-ef1c-4aed-b235-46bae4e5c0e7___GHLB2 Leaf 9065_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.7560973763465881,tomato_Late blight,0.9781888127326965,low_light_or_heavy_shadow,neutral
+0a6203b9-ced0-4934-ae23-4a7d2e2e2fdd___RS_Late.B 6424_final_masked.jpg,tomato_Late blight,tomato_healthy,0.8401035070419312,tomato_Late blight,0.9999496936798096,low_light_or_heavy_shadow,neutral
+0a8967d4-bb72-4fe4-8096-55fc57437557___RS_Late.B 6974_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.49105626344680786,tomato_Late blight,0.9967353940010071,low_light_or_heavy_shadow,neutral
+0ab172fa-ac7b-4a3e-90c8-0708703eb3bb___RS_Late.B 5572_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.9995019435882568,tomato_Late blight,0.7392046451568604,low_light_or_heavy_shadow,neutral
+0bb05a47-55a2-4c23-9dd2-3a5abf17c9f4___GHLB Leaf 5 Day 1.JPG,tomato_Late blight,tomato_healthy,0.9723766446113586,tomato_Late blight,0.9725869297981262,diffuse_cloudy_optimal,neutral
+0bb05a47-55a2-4c23-9dd2-3a5abf17c9f4___GHLB Leaf 5 Day 1_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9996788501739502,tomato_Early blight,0.5621386170387268,low_light_or_heavy_shadow,neutral
+0c192fbe-38eb-4abb-a858-8bc39942a3ef___RS_Late.B 6076_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9934418201446533,tomato_Late blight,0.9988722205162048,low_light_or_heavy_shadow,neutral
+0c47de5b-adbe-479f-8ccf-5b8c530c32f8___RS_Late.B 6312_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.9999977350234985,tomato_Early blight,0.5785853862762451,low_light_or_heavy_shadow,warm_evening_or_indoor
+0ccaeb36-37ff-4328-91c8-99aabd68f442___RS_Late.B 6596_final_masked.jpg,tomato_Late blight,tomato_healthy,0.4152878522872925,tomato_Late blight,0.9994392991065979,low_light_or_heavy_shadow,neutral
+0d7a68e9-3df0-4ef8-88f7-c0a202725c5d___RS_Late.B 6787_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9782986640930176,tomato_Late blight,0.5245635509490967,standard_field_lighting,neutral
+0da53824-7b3b-43a9-9b34-146a7f71ef7e___RS_Late.B 6958_final_masked.jpg,tomato_Late blight,tomato_healthy,0.6288439035415649,tomato_Late blight,0.8162275552749634,low_light_or_heavy_shadow,neutral
+0dd9d965-d68a-4e47-ba02-ebcadf13c7ae___GHLB2 Leaf 78.1_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.5332032442092896,tomato_Late blight,0.9999945163726807,low_light_or_heavy_shadow,warm_evening_or_indoor
+0e451078-be73-4e6b-b329-a7b0fa1f152b___GHLB2 Leaf 8612_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.5851147770881653,tomato_Late blight,0.8990780711174011,low_light_or_heavy_shadow,neutral
+0e669afb-1315-4903-b7ca-1a0ffa95d454___RS_Late.B 5626_final_masked.jpg,tomato_Late blight,tomato_healthy,0.7078489661216736,tomato_Late blight,0.9997521042823792,low_light_or_heavy_shadow,neutral
+0fa1b773-fe9f-4440-ab2a-cfbc39c9cd2b___RS_Late.B 6230_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.9984506368637085,tomato_Late blight,0.9997822642326355,low_light_or_heavy_shadow,neutral
+10d91c8f-6d77-4c15-ad21-459688b52055___GHLB2 Leaf 154.4_final_masked.jpg,tomato_Late blight,tomato_healthy,0.6915198564529419,tomato_Late blight,0.8012720346450806,low_light_or_heavy_shadow,neutral
+117a7f38-eaa6-4f88-b892-33e2a66d77d5___RS_Late.B 5129_final_masked.jpg,tomato_Late blight,tomato_healthy,0.7150188684463501,tomato_Late blight,0.9982455968856812,low_light_or_heavy_shadow,neutral
+11b2caf9-a56c-4d3e-bea4-a5d00affd161___RS_Late.B 6140_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.9818967580795288,tomato_Late blight,0.6887900233268738,low_light_or_heavy_shadow,neutral
+126e12d3-3d51-4ba6-861f-e6ed09ee951f___GHLB2 Leaf 9021_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.865216076374054,tomato_Late blight,0.9814178347587585,low_light_or_heavy_shadow,neutral
+12c80d02-59c6-4db4-a96e-b28c3fdaf3c2___GHLB_PS Leaf 1.2 Day 9.jpg,tomato_Late blight,tomato_healthy,0.7024693489074707,tomato_Late blight,0.999954104423523,low_light_or_heavy_shadow,neutral
+12c80d02-59c6-4db4-a96e-b28c3fdaf3c2___GHLB_PS Leaf 1.2 Day 9_final_masked.jpg,tomato_Late blight,tomato_healthy,0.6406682133674622,tomato_Late blight,0.9999836683273315,low_light_or_heavy_shadow,neutral
+12d62ed2-a145-4400-824d-3e4d5f64418a___RS_Late.B 6586_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9626985788345337,tomato_Late blight,0.7318466901779175,low_light_or_heavy_shadow,neutral
+13533985-e30d-4023-8bd3-7a45b07816ca___RS_Late.B 5593_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.49984484910964966,tomato_Late blight,0.8241144418716431,low_light_or_heavy_shadow,neutral
+13adbb9e-c4e1-46bd-8621-ae351dd464ca___RS_Late.B 6595_final_masked.jpg,tomato_Late blight,tomato_healthy,0.37053143978118896,tomato_Late blight,0.9993535876274109,low_light_or_heavy_shadow,neutral
+142fbb48-886a-4b2b-8a2a-52e548e7e2b7___GHLB2 Leaf 117.3_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.9068318605422974,tomato_Late blight,0.9999914169311523,low_light_or_heavy_shadow,neutral
+1430346f-f3f2-4766-bd0e-c6f9316851e9___RS_Late.B 6311.JPG,tomato_Late blight,tomato_Early blight,0.7675765752792358,tomato_Late blight,0.740355908870697,standard_field_lighting,neutral
+1430346f-f3f2-4766-bd0e-c6f9316851e9___RS_Late.B 6311_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.8443183302879333,tomato_Late blight,0.9947511553764343,low_light_or_heavy_shadow,warm_evening_or_indoor
+1449ecb2-0325-49ba-80f1-2040b739fddd___RS_Late.B 7044_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.8688783645629883,tomato_Early blight,0.7052468657493591,low_light_or_heavy_shadow,neutral
+1498c064-8f74-4706-bf27-4761c24b72bd___RS_Late.B 5120_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9988879561424255,tomato_Late blight,0.8784629702568054,low_light_or_heavy_shadow,neutral
+1507883d-7f10-4b69-88d4-db80850b1664___GHLB2 Leaf 154_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.9879546165466309,tomato_Late blight,0.5628088712692261,low_light_or_heavy_shadow,neutral
+157250ce-f291-48ec-9d81-184af5400f90___RS_Late.B 6652_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.6472018361091614,tomato_Late blight,0.999937891960144,low_light_or_heavy_shadow,warm_evening_or_indoor
+15e1e8d7-e05a-4dc1-b872-364b15f004f0___RS_Late.B 4873_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.8514543771743774,tomato_Late blight,0.9998445510864258,low_light_or_heavy_shadow,neutral
+16257155-3d28-49cd-bb96-c188e946c4ec___RS_Late.B 4935.JPG,tomato_Late blight,tomato_healthy,0.5345420241355896,tomato_Late blight,0.999882698059082,standard_field_lighting,neutral
+16257155-3d28-49cd-bb96-c188e946c4ec___RS_Late.B 4935_final_masked.jpg,tomato_Late blight,tomato_healthy,0.6079435348510742,tomato_Late blight,0.9999797344207764,low_light_or_heavy_shadow,neutral
+16a3a1a3-3e8b-4192-999d-2728df11549d___RS_Late.B 4983.JPG,tomato_Late blight,tomato_healthy,0.6570313572883606,tomato_Late blight,0.7840242385864258,standard_field_lighting,neutral
+16a3a1a3-3e8b-4192-999d-2728df11549d___RS_Late.B 4983_final_masked.jpg,tomato_Late blight,tomato_healthy,0.5409861207008362,tomato_Late blight,0.5959264636039734,low_light_or_heavy_shadow,neutral
+16ac8a43-f720-4fd9-ac41-016523612f38___RS_Late.B 4898.JPG,tomato_Late blight,tomato_healthy,0.7125805616378784,tomato_Late blight,0.5829100012779236,standard_field_lighting,neutral
+16ac8a43-f720-4fd9-ac41-016523612f38___RS_Late.B 4898_final_masked.jpg,tomato_Late blight,tomato_healthy,0.8867841958999634,tomato_Late blight,0.6162504553794861,low_light_or_heavy_shadow,neutral
+1847f41b-f412-46a2-90c1-21ba9aac6246___RS_Late.B 6816.JPG,tomato_Late blight,tomato_Early blight,0.8653966188430786,tomato_Early blight,0.9238274097442627,standard_field_lighting,warm_evening_or_indoor
+1869d21d-5461-4378-bddb-8de766b836f7___GHLB Leaf 12 Day 6_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9213932156562805,tomato_Late blight,0.8682791590690613,low_light_or_heavy_shadow,neutral
+189f8e47-0892-4c82-b0b9-7a51b6c83a04___RS_Late.B 7193_final_masked.jpg,tomato_Late blight,tomato_healthy,0.7129386067390442,tomato_Late blight,0.9041883945465088,low_light_or_heavy_shadow,neutral
+19bfccfd-5df8-41be-910e-2c5f3eae3573___GHLB2 Leaf 8597_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.9644508957862854,tomato_Late blight,0.9945313334465027,low_light_or_heavy_shadow,neutral
+19f3e2cd-2900-4043-bb15-31a0098d26b9___RS_Late.B 5197.JPG,tomato_Late blight,tomato_healthy,0.4294903874397278,tomato_Late blight,0.9985926747322083,standard_field_lighting,neutral
+19f3e2cd-2900-4043-bb15-31a0098d26b9___RS_Late.B 5197_final_masked.jpg,tomato_Late blight,tomato_healthy,0.8194470405578613,tomato_Late blight,0.7784897089004517,low_light_or_heavy_shadow,neutral
+1a473cad-42fc-48ca-963c-d438fbca928f___RS_Late.B 5418_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.822303295135498,tomato_Late blight,0.6262638568878174,low_light_or_heavy_shadow,neutral
+1af98b62-adaf-43d0-b4eb-83ab3f1ee084___RS_Late.B 4908_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.48793718218803406,tomato_Late blight,0.9198449850082397,low_light_or_heavy_shadow,neutral
+1b2756ef-4fa0-410a-8fe5-a8b699d3553e___GHLB2 Leaf 156.2_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.5581182837486267,tomato_Late blight,0.9900107979774475,low_light_or_heavy_shadow,neutral
+1b5ec98a-5be3-408c-8d8c-e3042f68e225___RS_Late.B 5016.JPG,tomato_Late blight,tomato_healthy,0.6829509139060974,tomato_Late blight,0.9504300951957703,standard_field_lighting,neutral
+1b5ec98a-5be3-408c-8d8c-e3042f68e225___RS_Late.B 5016_final_masked.jpg,tomato_Late blight,tomato_healthy,0.91693115234375,tomato_Late blight,0.7197672128677368,low_light_or_heavy_shadow,neutral
+1b7d11ff-e94c-45cb-9ef2-6430f989e90e___GHLB2 Leaf 120.1_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.5208954811096191,tomato_Late blight,0.9999961853027344,low_light_or_heavy_shadow,neutral
+1c35f7ce-8e8e-4c20-b625-b01f9bf7d0cd___GHLB2 Leaf 111_final_masked.jpg,tomato_Late blight,tomato_healthy,0.593871533870697,tomato_Late blight,0.9990266561508179,low_light_or_heavy_shadow,neutral
+1c5deb80-6bde-4aa4-843e-c69f80b7713a___RS_Late.B 6874_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.6910527944564819,tomato_Late blight,0.956838071346283,low_light_or_heavy_shadow,neutral
+1c6b66db-9891-41cc-972f-a3521deee072___RS_Late.B 5589_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.9198158383369446,tomato_Late blight,0.535266101360321,low_light_or_heavy_shadow,neutral
+1cb5d336-3649-49bf-aa9a-72950067b8b0___GHLB_PS Leaf 12 Day 9.jpg,tomato_Late blight,tomato_healthy,0.8594524264335632,tomato_Late blight,0.9999363422393799,low_light_or_heavy_shadow,neutral
+1cb5d336-3649-49bf-aa9a-72950067b8b0___GHLB_PS Leaf 12 Day 9_final_masked.jpg,tomato_Late blight,tomato_Early blight,0.48624053597450256,tomato_Late blight,0.9999169111251831,low_light_or_heavy_shadow,neutral
+1db51a76-0e89-45c6-8f00-9262c1c7732e___GHLB2ES Leaf 139_final_masked.jpg,tomato_Late blight,tomato_healthy,0.980430006980896,tomato_healthy,0.7948676347732544,low_light_or_heavy_shadow,neutral
+1e0adf6c-906f-4e8f-bfea-cdebf491f3bb___GHLB2 Leaf 8572_final_masked.jpg,tomato_Late blight,tomato_healthy,0.9517548084259033,tomato_Late blight,0.9999455213546753,low_light_or_heavy_shadow,neutral
+1e0c01b6-5d75-47ea-b455-c9508882424a___RS_Late.B 6886_final_masked.jpg,tomato_Late blight,tomato_healthy,0.7601074576377869,tomato_Late blight,0.5417771339416504,low_light_or_heavy_shadow,neutral

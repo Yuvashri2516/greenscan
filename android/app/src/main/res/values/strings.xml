@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GreenScan</string>
+    <string name="app_tagline">AI-Powered Plant Health &amp; Disease Detection</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_scan">Scan</string>
+    <string name="nav_history">History</string>
+    <string name="nav_chatbot">AI Assistant</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Home Screen -->
+    <string name="btn_scan_leaf">Scan a Leaf</string>
+    <string name="btn_gallery">Upload from Gallery</string>
+    <string name="btn_history">Scan History</string>
+    <string name="btn_chatbot">AI Chatbot</string>
+    <string name="btn_library">Disease Library</string>
+
+    <!-- Scan Screen -->
+    <string name="scan_title">Scan Your Leaf</string>
+    <string name="scan_hint">Upload a clear image of a tomato leaf</string>
+    <string name="scan_btn_camera">Capture with Camera</string>
+    <string name="scan_btn_gallery">Choose from Gallery</string>
+    <string name="scan_btn_analyze">Analyze Leaf</string>
+    <string name="scan_btn_retake">Choose Different Image</string>
+
+    <!-- Analysis Screen -->
+    <string name="analyzing_title">Analyzing your leaf…</string>
+    <string name="step_quality">Image quality check</string>
+    <string name="step_leaf">Leaf segmentation</string>
+    <string name="step_disease">Disease classification</string>
+    <string name="step_health">Health assessment</string>
+    <string name="step_recommendations">Generating recommendations</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Diagnosis Result</string>
+    <string name="health_score_label">Plant Health Score</string>
+    <string name="gsa_title">GreenScan Assessment (GSA)</string>
+    <string name="affected_area">Affected Region</string>
+    <string name="severity">Severity</string>
+    <string name="risk_level">Risk Level</string>
+    <string name="treatment_priority">Treatment Priority</string>
+    <string name="gradcam_title">Explainable AI — Grad-CAM</string>
+    <string name="gradcam_explanation">Highlighted regions indicate areas that most influenced the AI\'s prediction. This is a model explanation tool — not a definitive diagnosis.</string>
+    <string name="disease_info_title">Disease Information</string>
+
+    <!-- History -->
+    <string name="history_title">Scan History</string>
+    <string name="history_empty">No scans yet. Scan your first leaf to get started.</string>
+
+    <!-- Recommendation -->
+    <string name="rec_title">Treatment Guide</string>
+    <string name="rec_organic">Organic Treatment</string>
+    <string name="rec_chemical">Chemical Treatment</string>
+    <string name="rec_preventive">Preventive Measures</string>
+
+    <!-- Errors -->
+    <string name="error_no_image">Please select a leaf image first.</string>
+    <string name="error_network">No internet connection. Please check your network.</string>
+    <string name="error_server">Unable to reach GreenScan server. Please try again.</string>
+    <string name="error_image_invalid">Unable to process this image. Please choose a clearer leaf photo.</string>
+    <string name="error_timeout">Request timed out. The server may be warming up — please retry.</string>
+    <string name="btn_retry">Retry</string>
+    <string name="btn_back">Go Back</string>
+    <string name="btn_choose_another">Choose Another Image</string>
+
+    <!-- About -->
+    <string name="about_title">About GreenScan</string>
+    <string name="about_version">Version 1.0.0</string>
+    <string name="about_description">GreenScan is an AI-powered plant disease detection system using EfficientNet-B0, Grad-CAM explainability, and the GreenScan Assessment (GSA) framework for tomato leaf diagnosis.</string>
+    <string name="about_backend">Backend: https://greenscan-bot5.onrender.com</string>
+</resources>
