@@ -28,7 +28,7 @@ DB_PATH = Path(__file__).parent / "greenscan.db"
 
 
 def _get_conn():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=10.0)
     conn.row_factory = sqlite3.Row
     return conn
 

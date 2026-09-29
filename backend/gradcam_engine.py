@@ -6,6 +6,7 @@ The raw heatmap is NEVER exposed to the frontend/farmer directly.
 
 import numpy as np
 import logging
+from typing import Optional, Tuple, Any
 
 logger = logging.getLogger("greenscan.gradcam")
 
@@ -14,31 +15,22 @@ try:
 except ImportError:
     tf = None
 
-def get_gradcam_activation_matrix(model, img_array: np.ndarray, class_index: int) -> np.ndarray:
+# In-memory cache for Grad-CAM sub-models and layer names: {model_id: (grad_model, last_conv_layer_name)}
+_grad_model_cache = {}
+
+def get_or_build_grad_model(model) -> Optional[Tuple[Any, str]]:
     """
-    Computes normalized Grad-CAM activation map for the given target class.
-    
-    Args:
-        model: Trained tf.keras.Model (e.g. EfficientNet-B0)
-        img_array: Preprocessed image tensor of shape (1, 224, 224, 3)
-        class_index: Target class index (0: Early Blight, 1: Late Blight, 2: Healthy)
-        
-    Returns:
-        2D numpy array of shape (224, 224) with values in range [0.0, 1.0].
+    Retrieves or constructs a cached Grad-CAM model wrapper for the provided tf.keras.Model.
+    Avoids rebuilding the computational graph on every prediction request.
     """
     if tf is None or model is None:
-        logger.warning("TensorFlow or model is unavailable. Returning synthetic activation matrix.")
-        # Fallback synthetic spatial Gaussian activation matrix centered on image
-        h, w = img_array.shape[1], img_array.shape[2]
-        x = np.linspace(-1, 1, w)
-        y = np.linspace(-1, 1, h)
-        xx, yy = np.meshgrid(x, y)
-        d = np.sqrt(xx*xx + yy*yy)
-        synthetic_matrix = np.exp(- (d**2) / 0.5)
-        return (synthetic_matrix - synthetic_matrix.min()) / (synthetic_matrix.max() - synthetic_matrix.min() + 1e-8)
-
+        return None
+        
+    model_id = id(model)
+    if model_id in _grad_model_cache:
+        return _grad_model_cache[model_id]
+        
     try:
-        # Identify last convolutional layer in EfficientNet-B0
         last_conv_layer_name = None
         for layer in reversed(model.layers):
             if isinstance(layer, (tf.keras.layers.Conv2D, tf.keras.layers.DepthwiseConv2D)):
@@ -58,9 +50,60 @@ def get_gradcam_activation_matrix(model, img_array: np.ndarray, class_index: int
             inputs=model.inputs,
             outputs=[model.get_layer(last_conv_layer_name).output, model.output]
         )
+        _grad_model_cache[model_id] = (grad_model, last_conv_layer_name)
+        logger.info(f"Initialized and cached Grad-CAM model with target layer: {last_conv_layer_name}")
+        return _grad_model_cache[model_id]
+    except Exception as e:
+        logger.error(f"Failed to build Grad-CAM model: {e}")
+        return None
 
+def init_gradcam_engine(model):
+    """Explicitly pre-warms the Grad-CAM engine at server startup."""
+    cached = get_or_build_grad_model(model)
+    if cached is not None and tf is not None:
+        try:
+            grad_model, _ = cached
+            dummy_tensor = tf.zeros((1, 224, 224, 3), dtype=tf.float32)
+            with tf.GradientTape() as tape:
+                conv_out, preds = grad_model(dummy_tensor, training=False)
+                loss = preds[:, 0]
+            _ = tape.gradient(loss, conv_out)
+            logger.info("Grad-CAM engine pre-warmed successfully.")
+        except Exception as e:
+            logger.warning(f"Grad-CAM engine pre-warming warning: {e}")
+
+def get_gradcam_activation_matrix(model, img_array: np.ndarray, class_index: int) -> np.ndarray:
+    """
+    Computes normalized Grad-CAM activation map for the given target class.
+    
+    Args:
+        model: Trained tf.keras.Model (e.g. EfficientNet-B0)
+        img_array: Preprocessed image tensor of shape (1, 224, 224, 3)
+        class_index: Target class index (0: Early Blight, 1: Late Blight, 2: Healthy)
+        
+    Returns:
+        2D numpy array of shape (224, 224) with values in range [0.0, 1.0].
+    """
+    if tf is None or model is None:
+        logger.warning("TensorFlow or model is unavailable. Returning synthetic activation matrix.")
+        h, w = img_array.shape[1], img_array.shape[2]
+        x = np.linspace(-1, 1, w)
+        y = np.linspace(-1, 1, h)
+        xx, yy = np.meshgrid(x, y)
+        d = np.sqrt(xx*xx + yy*yy)
+        synthetic_matrix = np.exp(- (d**2) / 0.5)
+        return (synthetic_matrix - synthetic_matrix.min()) / (synthetic_matrix.max() - synthetic_matrix.min() + 1e-8)
+
+    try:
+        cached = get_or_build_grad_model(model)
+        if cached is None:
+            raise RuntimeError("Unable to get or construct Grad-CAM model wrapper.")
+            
+        grad_model, _ = cached
+
+        img_tensor = tf.convert_to_tensor(img_array, dtype=tf.float32)
         with tf.GradientTape() as tape:
-            conv_outputs, predictions = grad_model(img_array)
+            conv_outputs, predictions = grad_model(img_tensor, training=False)
             loss = predictions[:, class_index]
 
         # Compute gradients of top class w.r.t last conv layer

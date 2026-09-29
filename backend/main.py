@@ -6,6 +6,7 @@ IEEE/Scopus Research Grade Decision Support System API
 import os
 import io
 import sys
+import time
 import logging
 import traceback
 from pathlib import Path
@@ -50,8 +51,25 @@ def load_tf_model():
     try:
         import tensorflow as tf
         tf.get_logger().setLevel("ERROR")
+        try:
+            # Optimize CPU threading for containerized environments (Render / Linux CPU)
+            tf.config.threading.set_intra_op_parallelism_threads(2)
+            tf.config.threading.set_inter_op_parallelism_threads(2)
+        except Exception:
+            pass
         model = tf.keras.models.load_model(str(MODEL_PATH))
         logger.info(f"Successfully loaded frozen EfficientNet-B0 model from {MODEL_PATH}")
+        
+        # Pre-warm model and Grad-CAM graph at application startup
+        try:
+            dummy_arr = np.zeros((1, 224, 224, 3), dtype=np.float32)
+            _ = model(dummy_arr, training=False)
+            from gradcam_engine import init_gradcam_engine
+            init_gradcam_engine(model)
+            logger.info("EfficientNet-B0 inference and Grad-CAM engine warmed up successfully.")
+        except Exception as warmup_err:
+            logger.warning(f"Model pre-warmup warning: {warmup_err}")
+            
         return model
     except Exception as e:
         logger.error(f"Failed to load model from {MODEL_PATH}: {e}")
@@ -198,7 +216,9 @@ def health():
     return {
         "status": "healthy",
         "model_loaded": model is not None,
-        "model_path": str(MODEL_PATH)
+        "model": "EfficientNet-B0",
+        "model_path": str(MODEL_PATH),
+        "version": "2.0.0"
     }
 
 @app.post("/predict")
@@ -208,48 +228,62 @@ async def predict(
 ):
     """
     GreenScan 2.0 Core Decision Support Inference Pipeline:
-    0. [NEW] Phase 1 Hierarchical Leaf Validation (NOT_TOMATO_LEAF / LOW_QUALITY gate)
+    0. Hierarchical Leaf Validation (NOT_TOMATO_LEAF / LOW_QUALITY gate)
     1. Read input leaf photo
     2. OpenCV Quality Inspection & Enhancement (Blur, CLAHE, Bilateral filter)
     3. OpenCV Leaf Segmentation (Leaf Mask & Leaf Pixels count)
-    4. [NEW] Leaf coverage validation gate (returns early if not valid leaf)
+    4. Leaf coverage validation gate (returns early if not valid leaf)
     5. EfficientNet-B0 Classification (Disease Label & Confidence)
     6. Internal Grad-CAM Heatmap Matrix Generation
     7. GreenScan Severity Analyzer (GSA) Pipeline
     8. Recommendation Lookup (legacy v1, preserved)
-    9. [NEW] Structured Recommendation v2 (context-aware, farmer-specific)
+    9. Structured Recommendation v2 (context-aware, farmer-specific)
     10. SQLite Persistence & Response Packaging
     """
+    t_start = time.perf_counter()
+    logger.info(f"[PREDICT] request received | filename={file.filename}")
+
     try:
+        # Step 1: Read and decode image
+        t0 = time.perf_counter()
         contents = await file.read()
         nparr = np.frombuffer(contents, np.uint8)
         img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
         if img_bgr is None:
             raise HTTPException(status_code=400, detail="Invalid image file format.")
+            
+        t_decode = time.perf_counter() - t0
+        logger.info(f"[PREDICT] image_decode={t_decode*1000:.2f}ms (shape={img_bgr.shape})")
 
-        # Step A: OpenCV Enhancement & Blur/Quality Validation
+        # Step 2: OpenCV Enhancement & Blur/Quality Validation
+        t0 = time.perf_counter()
         enhanced_bgr, quality_info = enhance_leaf_image(img_bgr, target_size=(224, 224))
+        t_enh = time.perf_counter() - t0
+        logger.info(f"[PREDICT] preprocessing={t_enh*1000:.2f}ms")
         
-        # Step B: Leaf Segmentation
+        # Step 3: Leaf Segmentation
+        t0 = time.perf_counter()
         leaf_mask, leaf_pixels = segment_leaf(enhanced_bgr)
+        t_seg = time.perf_counter() - t0
+        logger.info(f"[PREDICT] segmentation={t_seg*1000:.2f}ms (leaf_pixels={leaf_pixels})")
 
-        # Step B2: [NEW] Phase 1 Leaf Validation Gate
-        # Check if image is a valid tomato leaf before running expensive inference.
+        # Step 4: Phase 1 Leaf Validation Gate
         total_pixels = enhanced_bgr.shape[0] * enhanced_bgr.shape[1]
         early_validation = validate_leaf_image(
             leaf_pixels=int(leaf_pixels),
             total_pixels=total_pixels,
             quality_info=quality_info,
-            confidence=None,  # confidence not yet known at this stage
+            confidence=None,
             min_leaf_coverage_pct=config.LEAF_COVERAGE_MIN_PCT,
             min_leaf_pixels=config.LEAF_PIXEL_MIN,
             min_confidence=config.MIN_CONFIDENCE_THRESHOLD,
         )
 
         # If image quality fails, return early with a clear user message
-        # (NOT_TOMATO_LEAF based purely on coverage/quality before model runs)
         if not early_validation["is_valid"] and early_validation["validation_status"] == LOW_QUALITY_IMAGE:
+            t_total = time.perf_counter() - t_start
+            logger.info(f"[PREDICT] early_exit_quality total={t_total*1000:.2f}ms")
             return {
                 "validation": early_validation,
                 "is_valid": False,
@@ -258,24 +292,28 @@ async def predict(
                 "user_guidance": early_validation["user_guidance"],
             }
         
-        # Step C: Model Prediction (EfficientNet-B0)
-        # Match exact training preprocessing: raw [0, 255] float32 RGB image resized to 224x224 without double-normalization or color distortion.
+        # Step 5: Model Prediction (EfficientNet-B0)
+        t0 = time.perf_counter()
         raw_resized_bgr = cv2.resize(img_bgr, (224, 224), interpolation=cv2.INTER_AREA)
         rgb_img = cv2.cvtColor(raw_resized_bgr, cv2.COLOR_BGR2RGB)
         input_arr = np.expand_dims(rgb_img.astype(np.float32), axis=0)
+        
         if model is not None:
-            preds = model.predict(input_arr, verbose=0)
-            predicted_idx = int(np.argmax(preds[0]))
-            confidence = float(np.max(preds[0]))
+            # Fast tensor call avoids Keras batching overhead
+            preds_tensor = model(input_arr, training=False)
+            preds = preds_tensor.numpy()[0]
+            predicted_idx = int(np.argmax(preds))
+            confidence = float(np.max(preds))
             predicted_class = CLASS_LABELS[predicted_idx]
         else:
-            # Fallback mock prediction if model binary is missing
             predicted_idx = 1
             confidence = 0.945
             predicted_class = CLASS_LABELS[predicted_idx]
+            
+        t_model = time.perf_counter() - t0
+        logger.info(f"[PREDICT] model={t_model*1000:.2f}ms (class={predicted_class}, conf={confidence:.4f})")
 
-        # Step C2: [NEW] Post-prediction leaf coverage validation
-        # Now that we have the confidence score, re-run validator to catch borderline cases.
+        # Step 6: Post-prediction leaf coverage validation
         validation_result = validate_leaf_image(
             leaf_pixels=int(leaf_pixels),
             total_pixels=total_pixels,
@@ -288,6 +326,8 @@ async def predict(
 
         # Return early for NOT_TOMATO_LEAF (coverage-based rejection)
         if not validation_result["is_valid"] and validation_result["validation_status"] == NOT_TOMATO_LEAF:
+            t_total = time.perf_counter() - t_start
+            logger.info(f"[PREDICT] early_exit_not_leaf total={t_total*1000:.2f}ms")
             return {
                 "validation": validation_result,
                 "is_valid": False,
@@ -296,7 +336,6 @@ async def predict(
                 "user_guidance": validation_result["user_guidance"],
             }
 
-        # Map display name
         display_names = {
             "tomato_healthy": "Tomato Healthy",
             "tomato_Early blight": "Tomato Early Blight",
@@ -304,10 +343,14 @@ async def predict(
         }
         display_name = display_names.get(predicted_class, predicted_class)
 
-        # Step D: Internal Grad-CAM Activation Matrix
+        # Step 7: Internal Grad-CAM Activation Matrix
+        t0 = time.perf_counter()
         gradcam_matrix = get_gradcam_activation_matrix(model, input_arr, predicted_idx)
+        t_gradcam = time.perf_counter() - t0
+        logger.info(f"[PREDICT] gradcam={t_gradcam*1000:.2f}ms")
 
-        # Step E: GreenScan Severity Analyzer (GSA) Execution
+        # Step 8: GreenScan Severity Analyzer (GSA) Execution
+        t0 = time.perf_counter()
         gsa_results = run_gsa_pipeline(
             gradcam_matrix=gradcam_matrix,
             leaf_mask=leaf_mask,
@@ -315,14 +358,16 @@ async def predict(
             confidence=confidence,
             predicted_class=predicted_class
         )
+        t_gsa = time.perf_counter() - t0
+        logger.info(f"[PREDICT] gsa={t_gsa*1000:.2f}ms")
 
-        # Step F: Recommendation Lookup
+        # Step 9: Recommendation & Progression Lookup
+        t0 = time.perf_counter()
         recommendations = get_recommendations_for_disease(
             disease_key=predicted_class,
             severity_level=gsa_results["severity_level"]
         )
         
-        # Step G: Progression Forecast & Disease Info Lookup
         from progression import predict_progression
         from disease_db import get_disease_info
         
@@ -332,8 +377,10 @@ async def predict(
             severity_pct=gsa_results["attention_affected_region_percent"],
             spread_rate=disease_info_data.get("spread_rate", "Moderate")
         )
+        t_rec = time.perf_counter() - t0
+        logger.info(f"[PREDICT] recommendations={t_rec*1000:.2f}ms")
         
-        # --- Farmer Safety Logic ---
+        # Farmer Safety Logic
         is_reliable = True
         unreliable_reasons = []
         
@@ -346,7 +393,6 @@ async def predict(
             unreliable_reasons.append(f"Model confidence ({confidence*100:.1f}%) is below the minimum reliable threshold ({config.MIN_CONFIDENCE_THRESHOLD*100}%).")
             
         if not is_reliable:
-            # Overwrite recommendations to safety message
             recommendations = {
                 "organic": [],
                 "chemical": [],
@@ -361,38 +407,34 @@ async def predict(
                 "safety_warning": "Unable to provide a reliable diagnosis. " + " ".join(unreliable_reasons)
             }
 
-        # Generate base64 visuals for Research Validation Mode
-        # 1. Original Leaf
+        # Step 10: Visual Assets Serialization (Research & UI)
+        t0 = time.perf_counter()
         _, buffer = cv2.imencode('.jpg', enhanced_bgr)
         orig_b64 = base64.b64encode(buffer).decode('utf-8')
         
-        # 2. Grad-CAM Heatmap
         heatmap_color = cv2.applyColorMap(np.uint8(255 * gradcam_matrix), cv2.COLORMAP_JET)
         heatmap_overlay = cv2.addWeighted(enhanced_bgr, 0.6, heatmap_color, 0.4, 0)
         _, buffer = cv2.imencode('.jpg', heatmap_overlay)
         heatmap_b64 = base64.b64encode(buffer).decode('utf-8')
         
-        # 3. Leaf Mask
         mask_vis = (leaf_mask * 255).astype(np.uint8)
         _, buffer = cv2.imencode('.png', mask_vis)
         mask_b64 = base64.b64encode(buffer).decode('utf-8')
         
-        # 4. Activation Mask
         act_mask_vis = (gsa_results["_internal_activated_mask"] * 255).astype(np.uint8)
         _, buffer = cv2.imencode('.png', act_mask_vis)
         act_mask_b64 = base64.b64encode(buffer).decode('utf-8')
         
-        # 5. Overlay
-        # Red overlay for activated region
         red_overlay = np.zeros_like(enhanced_bgr)
-        red_overlay[:, :] = [0, 0, 255] # BGR
+        red_overlay[:, :] = [0, 0, 255]
         act_overlay = np.where(gsa_results["_internal_activated_mask"][..., None], 
                                cv2.addWeighted(enhanced_bgr, 0.5, red_overlay, 0.5, 0), 
                                enhanced_bgr)
         _, buffer = cv2.imencode('.jpg', act_overlay)
         overlay_b64 = base64.b64encode(buffer).decode('utf-8')
+        t_vis = time.perf_counter() - t0
+        logger.info(f"[PREDICT] serialization={t_vis*1000:.2f}ms")
 
-        # Final Dashboard Record
         response_payload = {
             "disease": display_name,
             "disease_name": predicted_class,
@@ -408,9 +450,9 @@ async def predict(
             "gsa_metrics": {
                 "leaf_pixels": gsa_results["leaf_pixels"],
                 "activated_pixels": gsa_results["activated_pixels"],
-                "affected_area_pct": gsa_results["attention_affected_region_percent"], # Backward compat
+                "affected_area_pct": gsa_results["attention_affected_region_percent"],
                 "attention_affected_region_percent": gsa_results["attention_affected_region_percent"],
-                "weighted_activation_score": gsa_results["mean_leaf_activation"], # Backward compat
+                "weighted_activation_score": gsa_results["mean_leaf_activation"],
                 "plant_health_score": gsa_results["plant_health_score"],
                 "severity_level": gsa_results["severity_level"],
                 "traffic_light": gsa_results["traffic_light"],
@@ -434,7 +476,6 @@ async def predict(
                 }
             },
             "recommendations": recommendations,
-            # GreenScan 2.0: Validation result (Phase 1)
             "validation": {
                 "status": validation_result["validation_status"],
                 "is_valid": validation_result["is_valid"],
@@ -447,7 +488,6 @@ async def predict(
             "is_valid": validation_result["is_valid"],
             "validation_status": validation_result["validation_status"],
             "illumination_info": quality_info.get("illumination", {}),
-            # GreenScan 2.0: Farmer association
             "farmer_id": farmer_id,
         }
 
@@ -457,9 +497,9 @@ async def predict(
                 disease_key=predicted_class,
                 severity_level=gsa_results["severity_level"],
                 confidence=confidence,
-                weather_context=None,  # enriched externally if farmer passes weather
+                weather_context=None,
                 farmer_context=get_farmer(farmer_id) if farmer_id else None,
-                history_trend=None,  # enriched from farmer trends if farmer_id provided
+                history_trend=None,
             )
             if farmer_id:
                 try:
@@ -472,13 +512,14 @@ async def predict(
                         history_trend=trends.get("trend_direction"),
                     )
                 except Exception:
-                    pass  # Non-critical; proceed without trend data
+                    pass
             response_payload["structured_recommendation"] = structured_rec
         except Exception as rec_err:
             logger.error(f"Failed to build structured recommendation: {rec_err}")
             response_payload["structured_recommendation"] = None
 
-        # Step G: Persist to SQLite
+        # Step 11: Persist to SQLite
+        t0 = time.perf_counter()
         try:
             save_scan_history({
                 "disease_name": predicted_class,
@@ -505,6 +546,12 @@ async def predict(
             })
         except Exception as db_err:
             logger.error(f"Failed to persist scan history to SQLite: {db_err}")
+            
+        t_db = time.perf_counter() - t0
+        logger.info(f"[PREDICT] database={t_db*1000:.2f}ms")
+
+        t_total = time.perf_counter() - t_start
+        logger.info(f"[PREDICT] total={t_total*1000:.2f}ms ({t_total:.3f}s)")
 
         return response_payload
 
