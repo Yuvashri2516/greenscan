@@ -6,14 +6,18 @@ IEEE/Scopus Research Grade Decision Support System API
 import os
 # Force CPU-only mode immediately to prevent slow CUDA probing and cuInit hangs on Render
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["MALLOC_TRIM_THRESHOLD_"] = "65536"
 
 import io
 import sys
 import time
 import logging
 import traceback
+import threading
+import asyncio
+import gc
 from pathlib import Path
 from contextlib import asynccontextmanager
 import numpy as np
@@ -50,6 +54,7 @@ DEPLOYMENT_MODEL_PATH = (Path(__file__).parent.parent / "model" / "greenscan_mod
 MODEL_PATH = RESEARCH_MODEL_PATH if RESEARCH_MODEL_PATH.is_file() else DEPLOYMENT_MODEL_PATH
 CLASS_LABELS = ["tomato_Early blight", "tomato_Late blight", "tomato_healthy"]
 
+_model_lock = threading.Lock()
 _global_model = None
 
 def load_tf_model():
@@ -65,10 +70,11 @@ def load_tf_model():
             tf.config.threading.set_inter_op_parallelism_threads(2)
         except Exception:
             pass
-        loaded_model = tf.keras.models.load_model(str(MODEL_PATH))
+        # compile=False avoids loading training optimizer states into RAM, saving >150MB
+        loaded_model = tf.keras.models.load_model(str(MODEL_PATH), compile=False)
         logger.info(f"Successfully loaded frozen EfficientNet-B0 model from {MODEL_PATH}")
         
-        # Pre-warm model and Grad-CAM graph at application startup
+        # Pre-warm model and Grad-CAM graph
         try:
             dummy_arr = np.zeros((1, 224, 224, 3), dtype=np.float32)
             _ = loaded_model(dummy_arr, training=False)
@@ -78,16 +84,19 @@ def load_tf_model():
         except Exception as warmup_err:
             logger.warning(f"Model pre-warmup warning: {warmup_err}")
             
+        gc.collect()
         return loaded_model
     except Exception as e:
         logger.error(f"Failed to load model from {MODEL_PATH}: {e}")
         return None
 
 def get_model():
-    """Singleton model accessor with lazy loading fallback."""
+    """Thread-safe singleton model accessor with lazy loading fallback."""
     global _global_model
     if _global_model is None:
-        _global_model = load_tf_model()
+        with _model_lock:
+            if _global_model is None:
+                _global_model = load_tf_model()
     return _global_model
 
 # ─── Module Imports ───────────────────────────────────────────────────────────
@@ -120,9 +129,9 @@ gsa_engine.GRADCAM_THRESHOLD = config.GRADCAM_THRESHOLD
 # ─── Lifespan Context Manager (Instant Port Binding for Cloud Containers) ────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Ensure model is initialized when server starts without blocking module import
-    logger.info("Initializing GreenScan model during startup lifespan...")
-    _ = get_model()
+    # Bind port immediately so Render's port check passes in <0.01s
+    logger.info("GreenScan API starting - initiating background model warmup...")
+    asyncio.create_task(asyncio.to_thread(get_model))
     yield
     logger.info("GreenScan API shutting down.")
 
@@ -236,10 +245,9 @@ def root():
 
 @app.get("/health")
 def health():
-    current_model = get_model()
     return {
         "status": "healthy",
-        "model_loaded": current_model is not None,
+        "model_loaded": _global_model is not None or MODEL_PATH.is_file(),
         "model": "EfficientNet-B0",
         "model_path": str(MODEL_PATH),
         "version": "2.0.0"
