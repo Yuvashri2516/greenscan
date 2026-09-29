@@ -27,3 +27,7 @@ services:
         value: "2"
       - key: TF_NUM_INTEROP_THREADS
         value: "2"
+      - key: CUDA_VISIBLE_DEVICES
+        value: "-1"
+      - key: TF_CPP_MIN_LOG_LEVEL
+        value: "2"

@@ -4,12 +4,18 @@ IEEE/Scopus Research Grade Decision Support System API
 """
 
 import os
+# Force CPU-only mode immediately to prevent slow CUDA probing and cuInit hangs on Render
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "1"
+
 import io
 import sys
 import time
 import logging
 import traceback
 from pathlib import Path
+from contextlib import asynccontextmanager
 import numpy as np
 from PIL import Image
 import cv2
@@ -44,6 +50,8 @@ DEPLOYMENT_MODEL_PATH = (Path(__file__).parent.parent / "model" / "greenscan_mod
 MODEL_PATH = RESEARCH_MODEL_PATH if RESEARCH_MODEL_PATH.is_file() else DEPLOYMENT_MODEL_PATH
 CLASS_LABELS = ["tomato_Early blight", "tomato_Late blight", "tomato_healthy"]
 
+_global_model = None
+
 def load_tf_model():
     if not MODEL_PATH.is_file():
         logger.warning(f"Model file not found at {MODEL_PATH}")
@@ -57,25 +65,30 @@ def load_tf_model():
             tf.config.threading.set_inter_op_parallelism_threads(2)
         except Exception:
             pass
-        model = tf.keras.models.load_model(str(MODEL_PATH))
+        loaded_model = tf.keras.models.load_model(str(MODEL_PATH))
         logger.info(f"Successfully loaded frozen EfficientNet-B0 model from {MODEL_PATH}")
         
         # Pre-warm model and Grad-CAM graph at application startup
         try:
             dummy_arr = np.zeros((1, 224, 224, 3), dtype=np.float32)
-            _ = model(dummy_arr, training=False)
+            _ = loaded_model(dummy_arr, training=False)
             from gradcam_engine import init_gradcam_engine
-            init_gradcam_engine(model)
+            init_gradcam_engine(loaded_model)
             logger.info("EfficientNet-B0 inference and Grad-CAM engine warmed up successfully.")
         except Exception as warmup_err:
             logger.warning(f"Model pre-warmup warning: {warmup_err}")
             
-        return model
+        return loaded_model
     except Exception as e:
         logger.error(f"Failed to load model from {MODEL_PATH}: {e}")
         return None
 
-model = load_tf_model()
+def get_model():
+    """Singleton model accessor with lazy loading fallback."""
+    global _global_model
+    if _global_model is None:
+        _global_model = load_tf_model()
+    return _global_model
 
 # ─── Module Imports ───────────────────────────────────────────────────────────
 from image_enhancer import enhance_leaf_image, QualityCheckError
@@ -104,11 +117,21 @@ from recommendation_v2 import get_structured_recommendations
 # Override GSA threshold with config
 gsa_engine.GRADCAM_THRESHOLD = config.GRADCAM_THRESHOLD
 
+# ─── Lifespan Context Manager (Instant Port Binding for Cloud Containers) ────
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Ensure model is initialized when server starts without blocking module import
+    logger.info("Initializing GreenScan model during startup lifespan...")
+    _ = get_model()
+    yield
+    logger.info("GreenScan API shutting down.")
+
 # ─── FastAPI Application Initialization ─────────────────────────────────────
 app = FastAPI(
     title="GreenScan API",
     description="Explainable AI Plant Disease Detection & Decision Support System",
-    version="2.0.0"
+    version="2.0.0",
+    lifespan=lifespan
 )
 
 # Build CORS origin list from environment
@@ -213,9 +236,10 @@ def root():
 
 @app.get("/health")
 def health():
+    current_model = get_model()
     return {
         "status": "healthy",
-        "model_loaded": model is not None,
+        "model_loaded": current_model is not None,
         "model": "EfficientNet-B0",
         "model_path": str(MODEL_PATH),
         "version": "2.0.0"
@@ -298,9 +322,10 @@ async def predict(
         rgb_img = cv2.cvtColor(raw_resized_bgr, cv2.COLOR_BGR2RGB)
         input_arr = np.expand_dims(rgb_img.astype(np.float32), axis=0)
         
-        if model is not None:
+        current_model = get_model()
+        if current_model is not None:
             # Fast tensor call avoids Keras batching overhead
-            preds_tensor = model(input_arr, training=False)
+            preds_tensor = current_model(input_arr, training=False)
             preds = preds_tensor.numpy()[0]
             predicted_idx = int(np.argmax(preds))
             confidence = float(np.max(preds))
@@ -345,7 +370,7 @@ async def predict(
 
         # Step 7: Internal Grad-CAM Activation Matrix
         t0 = time.perf_counter()
-        gradcam_matrix = get_gradcam_activation_matrix(model, input_arr, predicted_idx)
+        gradcam_matrix = get_gradcam_activation_matrix(current_model, input_arr, predicted_idx)
         t_gradcam = time.perf_counter() - t0
         logger.info(f"[PREDICT] gradcam={t_gradcam*1000:.2f}ms")
 

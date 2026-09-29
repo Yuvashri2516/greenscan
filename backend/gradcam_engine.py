@@ -4,6 +4,10 @@ Generates raw 2D normalized activation matrix A(x,y) internally.
 The raw heatmap is NEVER exposed to the frontend/farmer directly.
 """
 
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 import numpy as np
 import logging
 from typing import Optional, Tuple, Any
