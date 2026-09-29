@@ -19,3 +19,11 @@ services:
         value: "230.0"
       - key: GRADCAM_THRESHOLD
         value: "0.60"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: OMP_NUM_THREADS
+        value: "2"
+      - key: TF_NUM_INTRAOP_THREADS
+        value: "2"
+      - key: TF_NUM_INTEROP_THREADS
+        value: "2"
