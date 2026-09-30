@@ -11,6 +11,8 @@ export default function UploadSection({ onResult, onLoading = () => {} }) {
   const [error, setError] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
   
+  const [statusMessage, setStatusMessage] = useState(null)
+  
   // Loading cycling state
   const [loadingStep, setLoadingStep] = useState(0)
 
@@ -20,6 +22,7 @@ export default function UploadSection({ onResult, onLoading = () => {} }) {
 
   const fileInputRef = useRef(null)
   const cameraInputRef = useRef(null)
+  const isSubmittingRef = useRef(false)
 
   const loadingMessages = [
     "Preparing image...",
@@ -88,24 +91,31 @@ export default function UploadSection({ onResult, onLoading = () => {} }) {
   }
 
   const handlePredict = async () => {
-    if (!file) return
+    if (!file || loading || isSubmittingRef.current) return
+    isSubmittingRef.current = true
     setLoading(true)
     setError(null)
+    setStatusMessage(null)
 
     try {
-      const data = await predictDisease(file)
+      const data = await predictDisease(file, setStatusMessage)
       onResult({ ...data, _preview: preview })
     } catch (err) {
       console.error(err)
-      setError('Something went wrong. Please try again.')
+      setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
+      setStatusMessage(null)
+      isSubmittingRef.current = false
     }
   }
 
   const handleUseDemoImage = async () => {
+    if (loading || isSubmittingRef.current) return
+    isSubmittingRef.current = true
     setLoading(true)
     setError(null)
+    setStatusMessage(null)
     onResult(null)
     try {
       const { DEMO_IMAGE_BASE64 } = await import('../api/demoImage.js')
@@ -115,13 +125,15 @@ export default function UploadSection({ onResult, onLoading = () => {} }) {
       const demoFile = new File([blob], 'demo_tomato_leaf.jpg', { type: 'image/jpeg' })
       setFile(demoFile)
       
-      const data = await predictDisease(demoFile)
+      const data = await predictDisease(demoFile, setStatusMessage)
       onResult({ ...data, _preview: DEMO_IMAGE_BASE64 })
     } catch (err) {
       console.error(err)
-      setError('Something went wrong. Please try again.')
+      setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setLoading(false)
+      setStatusMessage(null)
+      isSubmittingRef.current = false
     }
   }
 
@@ -274,7 +286,7 @@ export default function UploadSection({ onResult, onLoading = () => {} }) {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '18px 0', background: 'var(--green-100)', borderRadius: 'var(--radius-md)', border: '1px solid var(--green-200)' }}>
               <span className="spinner spinner-green" style={{ width: '24px', height: '24px' }} />
               <p style={{ margin: 0, fontWeight: 700, color: 'var(--green-800)', fontSize: '0.9rem' }} className="animate-pulse">
-                {loadingMessages[loadingStep]}
+                {statusMessage || loadingMessages[loadingStep]}
               </p>
             </div>
           )}
@@ -283,7 +295,9 @@ export default function UploadSection({ onResult, onLoading = () => {} }) {
           {!loading && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
               <button
+                type="button"
                 onClick={handlePredict}
+                disabled={loading}
                 className="btn btn-primary"
                 id="analyze-leaf-btn"
                 style={{ padding: '14px', borderRadius: 'var(--radius-md)', fontSize: '0.95rem', fontWeight: 700 }}

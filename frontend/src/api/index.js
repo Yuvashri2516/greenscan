@@ -1,6 +1,7 @@
 // src/api/index.js – GreenScan API Client
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001'
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001'
+const BASE_URL = rawBaseUrl.replace(/\/+$/, '')
 
 async function handleResponse(res) {
   if (!res.ok) {
@@ -11,11 +12,8 @@ async function handleResponse(res) {
 }
 
 /** POST /predict – upload leaf image for disease detection */
-export async function predictDisease(imageFile) {
-  const form = new FormData()
-  form.append('file', imageFile)
-  const res = await fetch(`${BASE_URL}/predict`, { method: 'POST', body: form })
-  return handleResponse(res)
+export async function predictDisease(imageFile, onStatusUpdate = null) {
+  return predictDiseaseWithFarmer(imageFile, null, onStatusUpdate)
 }
 
 /** GET /stores – nearby agricultural stores */
@@ -165,12 +163,47 @@ export async function getDiseaseKnowledge(diseaseKey) {
 }
 
 /** POST /predict with optional farmer_id – extended version */
-export async function predictDiseaseWithFarmer(imageFile, farmerId = null) {
+export async function predictDiseaseWithFarmer(imageFile, farmerId = null, onStatusUpdate = null) {
   const form = new FormData()
   form.append('file', imageFile)
   const url = farmerId
     ? `${BASE_URL}/predict?farmer_id=${encodeURIComponent(farmerId)}`
     : `${BASE_URL}/predict`
-  const res = await fetch(url, { method: 'POST', body: form })
-  return handleResponse(res)
+
+  const attemptFetch = async (isRetry = false) => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => {
+      controller.abort()
+    }, 90000)
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        body: form,
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+
+      if (res.status === 503 && !isRetry) {
+        if (onStatusUpdate) {
+          onStatusUpdate('Server is waking up, retrying...')
+        }
+        await new Promise((resolve) => setTimeout(resolve, 15000))
+        if (onStatusUpdate) {
+          onStatusUpdate('Retrying prediction...')
+        }
+        return await attemptFetch(true)
+      }
+
+      return await handleResponse(res)
+    } catch (err) {
+      clearTimeout(timeoutId)
+      if (err.name === 'AbortError') {
+        throw new Error('Request timed out after 90 seconds. The server might still be waking up. Please try again.')
+      }
+      throw err
+    }
+  }
+
+  return attemptFetch(false)
 }

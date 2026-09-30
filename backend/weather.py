@@ -17,7 +17,7 @@ async def get_weather_risk(lat: float, lon: float) -> Dict[str, Any]:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=6.0) as client:
+        async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(OPEN_METEO_URL, params=params)
             response.raise_for_status()
             data = response.json()

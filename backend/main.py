@@ -18,6 +18,7 @@ import traceback
 import threading
 import asyncio
 import gc
+import psutil
 from pathlib import Path
 from contextlib import asynccontextmanager
 import numpy as np
@@ -47,6 +48,13 @@ ch.setFormatter(logging.Formatter("[GreenScan API] %(asctime)s %(levelname)s: %(
 if not logger.handlers:
     logger.addHandler(ch)
 
+def get_process_rss() -> float:
+    """Returns current process Resident Set Size (RSS) memory in megabytes (MB)."""
+    try:
+        return psutil.Process(os.getpid()).memory_info().rss / 1e6
+    except Exception:
+        return 0.0
+
 # ─── Model Loading ────────────────────────────────────────────────────────────
 # Priority: Frozen Research Model (EfficientNetB0 best checkpoint)
 RESEARCH_MODEL_PATH = (Path(__file__).parent.parent / "research" / "models" / "greenscan_efficientnetb0_best.keras").resolve()
@@ -56,6 +64,15 @@ CLASS_LABELS = ["tomato_Early blight", "tomato_Late blight", "tomato_healthy"]
 
 _model_lock = threading.Lock()
 _global_model = None
+model_ready = False
+_predict_semaphore = None
+
+def get_predict_semaphore() -> asyncio.Semaphore:
+    """Lazily initializes the predict semaphore on the running event loop."""
+    global _predict_semaphore
+    if _predict_semaphore is None:
+        _predict_semaphore = asyncio.Semaphore(1)
+    return _predict_semaphore
 
 def load_tf_model():
     if not MODEL_PATH.is_file():
@@ -66,21 +83,22 @@ def load_tf_model():
         tf.get_logger().setLevel("ERROR")
         try:
             # Optimize CPU threading for containerized environments (Render / Linux CPU)
-            tf.config.threading.set_intra_op_parallelism_threads(2)
-            tf.config.threading.set_inter_op_parallelism_threads(2)
+            tf.config.threading.set_intra_op_parallelism_threads(1)
+            tf.config.threading.set_inter_op_parallelism_threads(1)
         except Exception:
             pass
         # compile=False avoids loading training optimizer states into RAM, saving >150MB
         loaded_model = tf.keras.models.load_model(str(MODEL_PATH), compile=False)
-        logger.info(f"Successfully loaded frozen EfficientNet-B0 model from {MODEL_PATH}")
+        logger.info(f"Successfully loaded frozen EfficientNet-B0 model from {MODEL_PATH} | rss={get_process_rss():.1f}MB")
         
         # Pre-warm model and Grad-CAM graph
         try:
             dummy_arr = np.zeros((1, 224, 224, 3), dtype=np.float32)
             _ = loaded_model(dummy_arr, training=False)
+            del dummy_arr
             from gradcam_engine import init_gradcam_engine
             init_gradcam_engine(loaded_model)
-            logger.info("EfficientNet-B0 inference and Grad-CAM engine warmed up successfully.")
+            logger.info(f"EfficientNet-B0 inference and Grad-CAM engine warmed up successfully | rss={get_process_rss():.1f}MB")
         except Exception as warmup_err:
             logger.warning(f"Model pre-warmup warning: {warmup_err}")
             
@@ -129,11 +147,25 @@ gsa_engine.GRADCAM_THRESHOLD = config.GRADCAM_THRESHOLD
 # ─── Lifespan Context Manager (Instant Port Binding for Cloud Containers) ────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Bind port immediately so Render's port check passes in <0.01s
-    logger.info("GreenScan API starting - initiating background model warmup...")
-    asyncio.create_task(asyncio.to_thread(get_model))
+    global model_ready
+    _ = get_predict_semaphore()
+    pid = os.getpid()
+    logger.info(f"GreenScan API starting (PID={pid}, single-worker mode) | initial_rss={get_process_rss():.1f}MB - initiating background model warmup...")
+    
+    def _warmup():
+        global model_ready
+        try:
+            m = get_model()
+            model_ready = (m is not None or not MODEL_PATH.is_file())
+            logger.info(f"GreenScan background warmup complete | model_ready={model_ready} | rss={get_process_rss():.1f}MB")
+        except Exception as e:
+            logger.error(f"Background warmup failed: {e}")
+
+    asyncio.create_task(asyncio.to_thread(_warmup))
     yield
     logger.info("GreenScan API shutting down.")
+
+
 
 # ─── FastAPI Application Initialization ─────────────────────────────────────
 app = FastAPI(
@@ -243,42 +275,24 @@ def root():
         ]
     }
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health():
     return {
         "status": "healthy",
         "model_loaded": _global_model is not None or MODEL_PATH.is_file(),
+        "model_ready": model_ready,
         "model": "EfficientNet-B0",
         "model_path": str(MODEL_PATH),
         "version": "2.0.0"
     }
 
-@app.post("/predict")
-async def predict(
-    file: UploadFile = File(...),
-    farmer_id: Optional[str] = Query(None, description="Optional farmer ID to associate this scan")
-):
-    """
-    GreenScan 2.0 Core Decision Support Inference Pipeline:
-    0. Hierarchical Leaf Validation (NOT_TOMATO_LEAF / LOW_QUALITY gate)
-    1. Read input leaf photo
-    2. OpenCV Quality Inspection & Enhancement (Blur, CLAHE, Bilateral filter)
-    3. OpenCV Leaf Segmentation (Leaf Mask & Leaf Pixels count)
-    4. Leaf coverage validation gate (returns early if not valid leaf)
-    5. EfficientNet-B0 Classification (Disease Label & Confidence)
-    6. Internal Grad-CAM Heatmap Matrix Generation
-    7. GreenScan Severity Analyzer (GSA) Pipeline
-    8. Recommendation Lookup (legacy v1, preserved)
-    9. Structured Recommendation v2 (context-aware, farmer-specific)
-    10. SQLite Persistence & Response Packaging
-    """
+def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optional[str]) -> dict:
     t_start = time.perf_counter()
-    logger.info(f"[PREDICT] request received | filename={file.filename}")
+    logger.info(f"[PREDICT] request received | filename={filename} | rss={get_process_rss():.1f}MB")
 
     try:
         # Step 1: Read and decode image
         t0 = time.perf_counter()
-        contents = await file.read()
         nparr = np.frombuffer(contents, np.uint8)
         img_bgr = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
@@ -286,19 +300,19 @@ async def predict(
             raise HTTPException(status_code=400, detail="Invalid image file format.")
             
         t_decode = time.perf_counter() - t0
-        logger.info(f"[PREDICT] image_decode={t_decode*1000:.2f}ms (shape={img_bgr.shape})")
+        logger.info(f"[PREDICT] image_decode={t_decode*1000:.2f}ms (shape={img_bgr.shape}) | rss={get_process_rss():.1f}MB")
 
         # Step 2: OpenCV Enhancement & Blur/Quality Validation
         t0 = time.perf_counter()
         enhanced_bgr, quality_info = enhance_leaf_image(img_bgr, target_size=(224, 224))
         t_enh = time.perf_counter() - t0
-        logger.info(f"[PREDICT] preprocessing={t_enh*1000:.2f}ms")
+        logger.info(f"[PREDICT] preprocessing={t_enh*1000:.2f}ms | rss={get_process_rss():.1f}MB")
         
         # Step 3: Leaf Segmentation
         t0 = time.perf_counter()
         leaf_mask, leaf_pixels = segment_leaf(enhanced_bgr)
         t_seg = time.perf_counter() - t0
-        logger.info(f"[PREDICT] segmentation={t_seg*1000:.2f}ms (leaf_pixels={leaf_pixels})")
+        logger.info(f"[PREDICT] segmentation={t_seg*1000:.2f}ms (leaf_pixels={leaf_pixels}) | rss={get_process_rss():.1f}MB")
 
         # Step 4: Phase 1 Leaf Validation Gate
         total_pixels = enhanced_bgr.shape[0] * enhanced_bgr.shape[1]
@@ -315,7 +329,7 @@ async def predict(
         # If image quality fails, return early with a clear user message
         if not early_validation["is_valid"] and early_validation["validation_status"] == LOW_QUALITY_IMAGE:
             t_total = time.perf_counter() - t_start
-            logger.info(f"[PREDICT] early_exit_quality total={t_total*1000:.2f}ms")
+            logger.info(f"[PREDICT] early_exit_quality total={t_total*1000:.2f}ms | rss={get_process_rss():.1f}MB")
             return {
                 "validation": early_validation,
                 "is_valid": False,
@@ -325,6 +339,7 @@ async def predict(
             }
         
         # Step 5: Model Prediction (EfficientNet-B0)
+        logger.info(f"[PREDICT] inference starting | rss={get_process_rss():.1f}MB")
         t0 = time.perf_counter()
         raw_resized_bgr = cv2.resize(img_bgr, (224, 224), interpolation=cv2.INTER_AREA)
         rgb_img = cv2.cvtColor(raw_resized_bgr, cv2.COLOR_BGR2RGB)
@@ -338,13 +353,14 @@ async def predict(
             predicted_idx = int(np.argmax(preds))
             confidence = float(np.max(preds))
             predicted_class = CLASS_LABELS[predicted_idx]
+            del preds_tensor
         else:
             predicted_idx = 1
             confidence = 0.945
             predicted_class = CLASS_LABELS[predicted_idx]
             
         t_model = time.perf_counter() - t0
-        logger.info(f"[PREDICT] model={t_model*1000:.2f}ms (class={predicted_class}, conf={confidence:.4f})")
+        logger.info(f"[PREDICT] inference completed in {t_model*1000:.2f}ms (class={predicted_class}, conf={confidence:.4f}) | rss={get_process_rss():.1f}MB")
 
         # Step 6: Post-prediction leaf coverage validation
         validation_result = validate_leaf_image(
@@ -360,7 +376,7 @@ async def predict(
         # Return early for NOT_TOMATO_LEAF (coverage-based rejection)
         if not validation_result["is_valid"] and validation_result["validation_status"] == NOT_TOMATO_LEAF:
             t_total = time.perf_counter() - t_start
-            logger.info(f"[PREDICT] early_exit_not_leaf total={t_total*1000:.2f}ms")
+            logger.info(f"[PREDICT] early_exit_not_leaf total={t_total*1000:.2f}ms | rss={get_process_rss():.1f}MB")
             return {
                 "validation": validation_result,
                 "is_valid": False,
@@ -377,12 +393,14 @@ async def predict(
         display_name = display_names.get(predicted_class, predicted_class)
 
         # Step 7: Internal Grad-CAM Activation Matrix
+        logger.info(f"[PREDICT] gradcam starting | rss={get_process_rss():.1f}MB")
         t0 = time.perf_counter()
         gradcam_matrix = get_gradcam_activation_matrix(current_model, input_arr, predicted_idx)
         t_gradcam = time.perf_counter() - t0
-        logger.info(f"[PREDICT] gradcam={t_gradcam*1000:.2f}ms")
+        logger.info(f"[PREDICT] gradcam completed in {t_gradcam*1000:.2f}ms | rss={get_process_rss():.1f}MB")
 
         # Step 8: GreenScan Severity Analyzer (GSA) Execution
+        logger.info(f"[PREDICT] gsa starting | rss={get_process_rss():.1f}MB")
         t0 = time.perf_counter()
         gsa_results = run_gsa_pipeline(
             gradcam_matrix=gradcam_matrix,
@@ -392,26 +410,37 @@ async def predict(
             predicted_class=predicted_class
         )
         t_gsa = time.perf_counter() - t0
-        logger.info(f"[PREDICT] gsa={t_gsa*1000:.2f}ms")
+        logger.info(f"[PREDICT] gsa completed in {t_gsa*1000:.2f}ms | rss={get_process_rss():.1f}MB")
 
-        # Step 9: Recommendation & Progression Lookup
+        # Step 9: Recommendation & Progression Lookup (wrapped in try/except)
+        logger.info(f"[PREDICT] recommendations starting | rss={get_process_rss():.1f}MB")
         t0 = time.perf_counter()
-        recommendations = get_recommendations_for_disease(
-            disease_key=predicted_class,
-            severity_level=gsa_results["severity_level"]
-        )
-        
-        from progression import predict_progression
-        from disease_db import get_disease_info
-        
-        disease_info_data = get_disease_info(predicted_class)
-        progression_data = predict_progression(
-            disease_label=predicted_class,
-            severity_pct=gsa_results["attention_affected_region_percent"],
-            spread_rate=disease_info_data.get("spread_rate", "Moderate")
-        )
+        try:
+            recommendations = get_recommendations_for_disease(
+                disease_key=predicted_class,
+                severity_level=gsa_results["severity_level"]
+            )
+        except Exception as rec_err:
+            logger.warning(f"Fallback recommendations: {rec_err}")
+            recommendations = {"organic": [], "chemical": [], "preventive": ["Monitor leaf regularly."]}
+            
+        try:
+            from progression import predict_progression
+            from disease_db import get_disease_info
+            
+            disease_info_data = get_disease_info(predicted_class)
+            progression_data = predict_progression(
+                disease_label=predicted_class,
+                severity_pct=gsa_results["attention_affected_region_percent"],
+                spread_rate=disease_info_data.get("spread_rate", "Moderate")
+            )
+        except Exception as prog_err:
+            logger.warning(f"Progression calculation fallback: {prog_err}")
+            disease_info_data = {}
+            progression_data = {}
+
         t_rec = time.perf_counter() - t0
-        logger.info(f"[PREDICT] recommendations={t_rec*1000:.2f}ms")
+        logger.info(f"[PREDICT] recommendations completed in {t_rec*1000:.2f}ms | rss={get_process_rss():.1f}MB")
         
         # Farmer Safety Logic
         is_reliable = True
@@ -441,6 +470,7 @@ async def predict(
             }
 
         # Step 10: Visual Assets Serialization (Research & UI)
+        logger.info(f"[PREDICT] serialization starting | rss={get_process_rss():.1f}MB")
         t0 = time.perf_counter()
         _, buffer = cv2.imencode('.jpg', enhanced_bgr)
         orig_b64 = base64.b64encode(buffer).decode('utf-8')
@@ -466,7 +496,7 @@ async def predict(
         _, buffer = cv2.imencode('.jpg', act_overlay)
         overlay_b64 = base64.b64encode(buffer).decode('utf-8')
         t_vis = time.perf_counter() - t0
-        logger.info(f"[PREDICT] serialization={t_vis*1000:.2f}ms")
+        logger.info(f"[PREDICT] serialization completed in {t_vis*1000:.2f}ms | rss={get_process_rss():.1f}MB")
 
         response_payload = {
             "disease": display_name,
@@ -524,34 +554,31 @@ async def predict(
             "farmer_id": farmer_id,
         }
 
-        # GreenScan 2.0: Build structured recommendation v2
+        # GreenScan 2.0: Build structured recommendation v2 (wrapped in try/except)
         try:
+            farmer_ctx = get_farmer(farmer_id) if farmer_id else None
+            history_trend = None
+            if farmer_id:
+                try:
+                    trends = get_farmer_trends(farmer_id)
+                    history_trend = trends.get("trend_direction")
+                except Exception as trend_err:
+                    logger.warning(f"Trend retrieval non-fatal error: {trend_err}")
             structured_rec = get_structured_recommendations(
                 disease_key=predicted_class,
                 severity_level=gsa_results["severity_level"],
                 confidence=confidence,
                 weather_context=None,
-                farmer_context=get_farmer(farmer_id) if farmer_id else None,
-                history_trend=None,
+                farmer_context=farmer_ctx,
+                history_trend=history_trend,
             )
-            if farmer_id:
-                try:
-                    trends = get_farmer_trends(farmer_id)
-                    structured_rec = get_structured_recommendations(
-                        disease_key=predicted_class,
-                        severity_level=gsa_results["severity_level"],
-                        confidence=confidence,
-                        farmer_context=get_farmer(farmer_id),
-                        history_trend=trends.get("trend_direction"),
-                    )
-                except Exception:
-                    pass
             response_payload["structured_recommendation"] = structured_rec
         except Exception as rec_err:
             logger.error(f"Failed to build structured recommendation: {rec_err}")
             response_payload["structured_recommendation"] = None
 
-        # Step 11: Persist to SQLite
+        # Step 11: Persist to SQLite (wrapped in try/except)
+        logger.info(f"[PREDICT] database starting | rss={get_process_rss():.1f}MB")
         t0 = time.perf_counter()
         try:
             save_scan_history({
@@ -581,10 +608,14 @@ async def predict(
             logger.error(f"Failed to persist scan history to SQLite: {db_err}")
             
         t_db = time.perf_counter() - t0
-        logger.info(f"[PREDICT] database={t_db*1000:.2f}ms")
+        logger.info(f"[PREDICT] database completed in {t_db*1000:.2f}ms | rss={get_process_rss():.1f}MB")
+
+        # Clean up local heavy arrays and collect garbage
+        del img_bgr, enhanced_bgr, leaf_mask, gradcam_matrix, input_arr, rgb_img, raw_resized_bgr, nparr, buffer, heatmap_color, heatmap_overlay, mask_vis, act_mask_vis, red_overlay, act_overlay
+        gc.collect()
 
         t_total = time.perf_counter() - t_start
-        logger.info(f"[PREDICT] total={t_total*1000:.2f}ms ({t_total:.3f}s)")
+        logger.info(f"[PREDICT] total={t_total*1000:.2f}ms ({t_total:.3f}s) | final_rss={get_process_rss():.1f}MB")
 
         return response_payload
 
@@ -594,6 +625,35 @@ async def predict(
         logger.error(f"Prediction error: {e}")
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Prediction pipeline error: {str(e)}")
+
+@app.post("/predict")
+async def predict(
+    file: UploadFile = File(...),
+    farmer_id: Optional[str] = Query(None, description="Optional farmer ID to associate this scan")
+):
+    """
+    GreenScan 2.0 Core Decision Support Inference Pipeline:
+    0. Hierarchical Leaf Validation (NOT_TOMATO_LEAF / LOW_QUALITY gate)
+    1. Read input leaf photo
+    2. OpenCV Quality Inspection & Enhancement (Blur, CLAHE, Bilateral filter)
+    3. OpenCV Leaf Segmentation (Leaf Mask & Leaf Pixels count)
+    4. Leaf coverage validation gate (returns early if not valid leaf)
+    5. EfficientNet-B0 Classification (Disease Label & Confidence)
+    6. Internal Grad-CAM Heatmap Matrix Generation
+    7. GreenScan Severity Analyzer (GSA) Pipeline
+    8. Recommendation Lookup (legacy v1, preserved)
+    9. Structured Recommendation v2 (context-aware, farmer-specific)
+    10. SQLite Persistence & Response Packaging
+    """
+    if not model_ready:
+        logger.warning(f"[PREDICT] rejected | model not ready | rss={get_process_rss():.1f}MB")
+        raise HTTPException(status_code=503, detail="Model warming up, please retry in 20 seconds")
+
+    sem = get_predict_semaphore()
+    async with sem:
+        contents = await file.read()
+        return await asyncio.to_thread(_execute_predict_pipeline, contents, file.filename, farmer_id)
+
 
 @app.post("/chat")
 async def chat(request: ChatApiRequest):

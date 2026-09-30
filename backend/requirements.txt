@@ -11,3 +11,4 @@ scipy
 opencv-python-headless
 tensorflow-cpu
 requests
+psutil

@@ -10,6 +10,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 import numpy as np
 import logging
+import gc
 from typing import Optional, Tuple, Any
 
 logger = logging.getLogger("greenscan.gradcam")
@@ -72,6 +73,8 @@ def init_gradcam_engine(model):
                 conv_out, preds = grad_model(dummy_tensor, training=False)
                 loss = preds[:, 0]
             _ = tape.gradient(loss, conv_out)
+            del tape, conv_out, preds, loss, dummy_tensor
+            gc.collect()
             logger.info("Grad-CAM engine pre-warmed successfully.")
         except Exception as e:
             logger.warning(f"Grad-CAM engine pre-warming warning: {e}")
@@ -90,7 +93,7 @@ def get_gradcam_activation_matrix(model, img_array: np.ndarray, class_index: int
     """
     if tf is None or model is None:
         logger.warning("TensorFlow or model is unavailable. Returning synthetic activation matrix.")
-        h, w = img_array.shape[1], img_array.shape[2]
+        h, w = min(img_array.shape[1], 256), min(img_array.shape[2], 256)
         x = np.linspace(-1, 1, w)
         y = np.linspace(-1, 1, h)
         xx, yy = np.meshgrid(x, y)
@@ -114,8 +117,8 @@ def get_gradcam_activation_matrix(model, img_array: np.ndarray, class_index: int
         grads = tape.gradient(loss, conv_outputs)
         pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
 
-        conv_outputs = conv_outputs[0]
-        heatmap = conv_outputs @ pooled_grads[..., tf.newaxis]
+        conv_outputs_0 = conv_outputs[0]
+        heatmap = conv_outputs_0 @ pooled_grads[..., tf.newaxis]
         heatmap = tf.squeeze(heatmap)
 
         # Apply ReLU to retain positive activations and normalize to [0, 1]
@@ -126,10 +129,15 @@ def get_gradcam_activation_matrix(model, img_array: np.ndarray, class_index: int
 
         heatmap_np = heatmap.numpy()
 
-        # Resize heatmap to match input image dimensions (224x224) using OpenCV
+        # Explicitly delete tape and intermediate tensors to free RAM immediately
+        del tape, grads, pooled_grads, conv_outputs, conv_outputs_0, predictions, loss, heatmap, img_tensor
+        gc.collect()
+
+        # Resize heatmap to match input image dimensions (<= 256x256) using OpenCV
         import cv2
-        target_h, target_w = img_array.shape[1], img_array.shape[2]
+        target_h, target_w = min(img_array.shape[1], 256), min(img_array.shape[2], 256)
         heatmap_resized = cv2.resize(heatmap_np, (target_w, target_h), interpolation=cv2.INTER_LINEAR)
+        del heatmap_np
         
         # Ensure strict [0, 1] clipping
         heatmap_resized = np.clip(heatmap_resized, 0.0, 1.0)
@@ -139,3 +147,4 @@ def get_gradcam_activation_matrix(model, img_array: np.ndarray, class_index: int
         logger.error("Grad-CAM generation error: %s", e)
         # Return fallback matrix in case of runtime layer extraction issue
         return np.full((224, 224), 0.2, dtype=np.float32)
+
