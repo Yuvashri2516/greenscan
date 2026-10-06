@@ -26,6 +26,21 @@ export default function ReportDownload({ result }) {
     const statusBadge = is_healthy ? '#dcfce7' : '#fee2e2'
     const statusText  = is_healthy ? '#166534' : '#991b1b'
 
+    // Responsive font scaling helper based on content length
+    const getValueClass = (val) => {
+      const str = String(val ?? '').trim()
+      if (str.length <= 4) return 'text-xl'
+      if (str.length <= 10) return 'text-lg'
+      if (str.length <= 25) return 'text-md'
+      return 'text-sm'
+    }
+
+    // Visual extraction for Card 2 (Grad-CAM heatmap / overlay image if available)
+    const heatmapSrc = result.research_details?.visuals?.heatmap || result.research_details?.visuals?.overlay
+    const gradcamVisual = heatmapSrc
+      ? `<img src="${heatmapSrc}" alt="Grad-CAM Activation" title="Grad-CAM Spatial Attention Map" />`
+      : `<div class="card-icon" style="background:#fff7ed; border-color:#ffedd5;">🎯</div>`
+
     // Section builder
     const listItems = (arr) =>
       arr?.length
@@ -89,7 +104,7 @@ export default function ReportDownload({ result }) {
       line-height: 1.6;
       padding: 40px 16px 80px;
     }
-    .container { max-width: 800px; margin: 0 auto; }
+    .container { max-width: 820px; margin: 0 auto; }
 
     /* Header */
     .header {
@@ -146,34 +161,105 @@ export default function ReportDownload({ result }) {
       white-space: nowrap;
     }
 
-    /* Metrics Grid */
+    /* 4-Card Responsive Metric Grid */
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
       margin-bottom: 28px;
     }
+    @media (max-width: 680px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media print {
+      .metrics-grid { grid-template-columns: repeat(4, 1fr) !important; }
+    }
+
     .metric-card {
-      background: white;
+      background: #ffffff;
       border: 1px solid #e5e7eb;
       border-radius: 12px;
-      padding: 20px 18px;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
       text-align: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      min-height: 210px;
+      height: 210px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      overflow: hidden;
     }
+
+    .metric-card .card-visual {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .metric-card .card-visual img {
+      max-height: 46px;
+      max-width: 80px;
+      object-fit: contain;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+    }
+    .metric-card .card-visual .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #f0fdf4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      border: 1px solid #dcfce7;
+    }
+
+    .metric-card .value-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 4px 0;
+      overflow: hidden;
+    }
+
     .metric-card .value {
-      font-size: 2rem;
       font-weight: 800;
+      line-height: 1.25;
       color: ${healthColor};
-      line-height: 1;
+      overflow-wrap: break-word;
+      word-break: normal;
+      white-space: normal;
+      text-align: center;
+      width: 100%;
     }
+
+    .metric-card .value.text-xl { font-size: 2.2rem; }
+    .metric-card .value.text-lg { font-size: 1.7rem; }
+    .metric-card .value.text-md { font-size: 1.3rem; }
+    .metric-card .value.text-sm {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #374151;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
     .metric-card .label {
-      font-size: 0.72rem;
+      font-size: 0.65rem;
       color: #6b7280;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-top: 6px;
-      font-weight: 600;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      border-top: 1px solid #f3f4f6;
+      padding-top: 6px;
+      width: 100%;
     }
 
     /* Sections */
@@ -288,23 +374,50 @@ export default function ReportDownload({ result }) {
       </div>
     </div>
 
-    <!-- Metrics -->
+    <!-- Metrics Grid (4 Controlled Metric Cards) -->
     <div class="metrics-grid">
+      <!-- CARD 1: PLANT HEALTH SCORE -->
       <div class="metric-card">
-        <div class="value">${typeof phs === 'number' ? phs : phs}</div>
-        <div class="label">Plant Health Score / 100</div>
+        <div class="card-visual">
+          <div class="card-icon" style="background:#f0fdf4; border-color:#bbf7d0;">🌿</div>
+        </div>
+        <div class="value-container">
+          <div class="value ${getValueClass(phs)}">${typeof phs === 'number' ? phs : phs}</div>
+        </div>
+        <div class="label">PLANT HEALTH SCORE / 100</div>
       </div>
+
+      <!-- CARD 2: ATTENTION-AFFECTED REGION -->
       <div class="metric-card">
-        <div class="value">${typeof affectedPct === 'number' ? affectedPct.toFixed(1) + '%' : affectedPct}</div>
-        <div class="label">Attention-Affected Region</div>
+        <div class="card-visual">
+          ${gradcamVisual}
+        </div>
+        <div class="value-container">
+          <div class="value ${getValueClass(affectedPct)}">${typeof affectedPct === 'number' ? affectedPct.toFixed(1) + '%' : affectedPct}</div>
+        </div>
+        <div class="label">ATTENTION REGION</div>
       </div>
+
+      <!-- CARD 3: SEVERITY LEVEL -->
       <div class="metric-card">
-        <div class="value">${sevLevel}</div>
-        <div class="label">Severity Level</div>
+        <div class="card-visual">
+          <div class="card-icon" style="background:${statusBadge};">${is_healthy ? '🟢' : '🟧'}</div>
+        </div>
+        <div class="value-container">
+          <div class="value ${getValueClass(sevLevel)}">${sevLevel}</div>
+        </div>
+        <div class="label">SEVERITY LEVEL</div>
       </div>
+
+      <!-- CARD 4: TREATMENT PRIORITY -->
       <div class="metric-card">
-        <div class="value">${priority}</div>
-        <div class="label">Treatment Priority</div>
+        <div class="card-visual">
+          <div class="card-icon" style="background:#f0fdf4; border-color:#bbf7d0;">🛡️</div>
+        </div>
+        <div class="value-container">
+          <div class="value ${getValueClass(priority)}">${priority}</div>
+        </div>
+        <div class="label">TREATMENT PRIORITY</div>
       </div>
     </div>
 

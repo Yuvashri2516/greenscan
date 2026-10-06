@@ -115,9 +115,10 @@ def run_gsa_pipeline(
         treatment_priority = "Isolate infected plants immediately and apply broad-spectrum systemic fungicide within 24 hours."
 
     return {
-        # Research details (Detailed metrics)
+        # Research details & Grad-CAM Attention Region terminology
         "leaf_pixels": n_leaf,
         "activated_pixels": n_activated,
+        "gradcam_attention_area_pct": round(attention_affected_region_percent, 2),
         "attention_affected_region_percent": round(attention_affected_region_percent, 2),
         "mean_leaf_activation": round(mean_leaf_activation, 4),
         "mean_activated_activation": round(mean_activated_activation, 4),

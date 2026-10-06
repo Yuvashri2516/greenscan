@@ -32,13 +32,18 @@ backend_dir = Path(__file__).parent
 if str(backend_dir) not in sys.path:
     sys.path.append(str(backend_dir))
 
+import uuid
 from fastapi import FastAPI, File, UploadFile, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Optional, List
 from dotenv import load_dotenv
 
 load_dotenv()
+
+UPLOADS_DIR = (backend_dir / "uploads").resolve()
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Logger setup
 logger = logging.getLogger("greenscan.api")
@@ -122,7 +127,7 @@ from image_enhancer import enhance_leaf_image, QualityCheckError
 from leaf_segmenter import segment_leaf
 from gradcam_engine import get_gradcam_activation_matrix
 from gsa_engine import run_gsa_pipeline
-from database import save_scan_history, get_recent_history, get_disease_catalog, export_history_csv
+from database import save_scan_history, get_recent_history, get_disease_catalog, export_history_csv, save_feedback, get_feedback_list
 from recommendation_engine import get_recommendations_for_disease
 from chatbot import get_chat_response
 from tips import get_daily_tips
@@ -202,6 +207,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
+
 # ─── Pydantic Request Models ─────────────────────────────────────────────────
 class ChatApiRequest(BaseModel):
     message: str
@@ -226,6 +233,12 @@ class SoilApiRequest(BaseModel):
     potassium: Optional[float] = 210.0
     moisture: Optional[float] = 45.0
     soil_type: Optional[str] = "Loam"
+
+class FeedbackApiRequest(BaseModel):
+    rating: int
+    comment: str
+    category: Optional[str] = None
+    farmer_id: Optional[str] = None
 
 # GreenScan 2.0: Farmer Profile Models
 class FarmerCreateRequest(BaseModel):
@@ -299,6 +312,16 @@ def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optiona
         if img_bgr is None:
             raise HTTPException(status_code=400, detail="Invalid image file format.")
             
+        # Persist uploaded leaf image to disk for history retrieval
+        saved_filename = f"scan_{int(time.time())}_{uuid.uuid4().hex[:8]}.jpg"
+        saved_image_url = f"/uploads/{saved_filename}"
+        try:
+            with open(UPLOADS_DIR / saved_filename, "wb") as img_f:
+                img_f.write(contents)
+        except Exception as img_err:
+            logger.warning(f"Could not persist image file: {img_err}")
+            saved_image_url = None
+
         t_decode = time.perf_counter() - t0
         logger.info(f"[PREDICT] image_decode={t_decode*1000:.2f}ms (shape={img_bgr.shape}) | rss={get_process_rss():.1f}MB")
 
@@ -513,8 +536,9 @@ def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optiona
             "gsa_metrics": {
                 "leaf_pixels": gsa_results["leaf_pixels"],
                 "activated_pixels": gsa_results["activated_pixels"],
-                "affected_area_pct": gsa_results["attention_affected_region_percent"],
+                "gradcam_attention_area_pct": gsa_results["attention_affected_region_percent"],
                 "attention_affected_region_percent": gsa_results["attention_affected_region_percent"],
+                "affected_area_pct": gsa_results["attention_affected_region_percent"],
                 "weighted_activation_score": gsa_results["mean_leaf_activation"],
                 "plant_health_score": gsa_results["plant_health_score"],
                 "severity_level": gsa_results["severity_level"],
@@ -526,6 +550,7 @@ def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optiona
             "research_details": {
                 "leaf_pixels": gsa_results["leaf_pixels"],
                 "activated_pixels": gsa_results["activated_pixels"],
+                "gradcam_attention_area_pct": gsa_results["attention_affected_region_percent"],
                 "attention_affected_region_percent": gsa_results["attention_affected_region_percent"],
                 "mean_leaf_activation": gsa_results["mean_leaf_activation"],
                 "mean_activated_activation": gsa_results["mean_activated_activation"],
@@ -552,6 +577,7 @@ def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optiona
             "validation_status": validation_result["validation_status"],
             "illumination_info": quality_info.get("illumination", {}),
             "farmer_id": farmer_id,
+            "image_url": saved_image_url,
         }
 
         # GreenScan 2.0: Build structured recommendation v2 (wrapped in try/except)
@@ -596,6 +622,7 @@ def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optiona
                 "activated_pixels": gsa_results["activated_pixels"],
                 "farmer_id": farmer_id,
                 "validation_status": validation_result["validation_status"],
+                "image_url": saved_image_url,
                 "research_metrics_json": {
                     "attention_affected_region_percent": gsa_results["attention_affected_region_percent"],
                     "mean_leaf_activation": gsa_results["mean_leaf_activation"],
@@ -802,3 +829,37 @@ def knowledge_entry(disease_key: str):
     # Return fallback
     kb = get_knowledge(normalized_key)
     return {"disease_key": normalized_key, "knowledge": kb}
+
+
+@app.post("/feedback")
+def submit_feedback_endpoint(request: FeedbackApiRequest):
+    """Submits farmer dashboard feedback with validation and SQLite persistence (status='pending')."""
+    if request.rating < 1 or request.rating > 5:
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 5.")
+
+    cleaned_comment = (request.comment or "").strip()
+    if not cleaned_comment or len(cleaned_comment) < 3:
+        raise HTTPException(status_code=400, detail="Please provide a feedback comment (at least 3 characters).")
+
+    if len(cleaned_comment) > 500:
+        raise HTTPException(status_code=400, detail="Comment must be 500 characters or fewer.")
+
+    allowed_categories = [
+        "Disease Detection", "Recommendations", "AI Assistant",
+        "Dashboard", "Mobile App", "Website", "Weather / Risk Information", "Other"
+    ]
+    if request.category and request.category not in allowed_categories:
+        raise HTTPException(status_code=400, detail="Invalid feedback category.")
+
+    feedback_id = save_feedback(
+        rating=request.rating,
+        comment=cleaned_comment,
+        category=request.category,
+        farmer_id=request.farmer_id
+    )
+
+    return {
+        "success": True,
+        "feedback_id": feedback_id,
+        "message": "Thank you for your feedback."
+    }

@@ -12,6 +12,77 @@ const PRESET_LOCATIONS = [
   { name: 'Nagpur, Maharashtra', lat: 21.1458, lon: 79.0882 },
 ]
 
+async function fetchOpenMeteoDirect(lat, lon) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m,temperature_2m,precipitation_probability&forecast_days=1`
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`)
+  const data = await res.json()
+  
+  const current = data.current_weather || {}
+  const temp = current.temperature ?? 24.0
+  const windspeed = current.windspeed ?? 10.0
+  const hourly = data.hourly || {}
+  const humidities = hourly.relativehumidity_2m || [70]
+  const rainProbs = hourly.precipitation_probability || [20]
+  
+  const avgHumidity = humidities.slice(0, 12).reduce((a, b) => a + b, 0) / Math.max(humidities.slice(0, 12).length, 1)
+  const maxRainProb = rainProbs.length ? Math.max(...rainProbs.slice(0, 12)) : 0
+  
+  let riskScore = 0
+  const riskFactors = []
+  if (avgHumidity > 80) {
+    riskScore += 40
+    riskFactors.push('High relative humidity (>80%) creates ideal spore germination environment.')
+  } else if (avgHumidity > 65) {
+    riskScore += 20
+    riskFactors.push('Moderate humidity level detected.')
+  }
+  
+  if (temp >= 18 && temp <= 26) {
+    riskScore += 35
+    riskFactors.push('Optimal temperature range (18°C-26°C) for fungal blights.')
+  } else if (temp > 26) {
+    riskScore += 15
+    riskFactors.push('Warm temperatures present.')
+  }
+  
+  if (maxRainProb > 50) {
+    riskScore += 25
+    riskFactors.push(`High rain probability (${maxRainProb}%) accelerates foliar disease spread.`)
+  }
+  
+  let riskLevel = 'Low'
+  let warningColor = '#22c55e'
+  if (riskScore >= 75) {
+    riskLevel = 'Critical'
+    warningColor = '#ef4444'
+  } else if (riskScore >= 50) {
+    riskLevel = 'High'
+    warningColor = '#f97316'
+  } else if (riskScore >= 30) {
+    riskLevel = 'Moderate'
+    warningColor = '#eab308'
+  }
+  
+  return {
+    status: 'success',
+    temperature_c: temp,
+    humidity_pct: Math.round(avgHumidity * 10) / 10,
+    windspeed_kmh: windspeed,
+    rain_probability_pct: maxRainProb,
+    disease_risk: {
+      score: riskScore,
+      level: riskLevel,
+      color: warningColor,
+      target_pathogens: ['Late Blight (P. infestans)', 'Early Blight (A. solani)', 'Powdery Mildew'],
+      recommendation: riskScore >= 60
+        ? 'Apply protective copper fungicide immediately before expected rain.'
+        : 'Monitor leaves closely for dark spots and ensure proper row spacing for airflow.',
+      risk_factors: riskFactors
+    }
+  }
+}
+
 export default function WeatherWidget() {
   const [weatherData, setWeatherData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -50,15 +121,12 @@ export default function WeatherWidget() {
         (err) => {
           console.warn("Geolocation warning/error:", err)
           if (err.code === 1) {
-            // Permission Denied
             setErrorType('location-denied')
             setErrorMsg('Location access is required to provide local weather risk analysis.')
             setLoading(false)
           } else {
-            // Other geolocation errors (timeout, position unavailable)
             setErrorType('network-failure')
             setErrorMsg('Unable to detect geolocation. Reverting to default fallback location.')
-            // Fallback to Chennai
             setSelectedLocation({
               name: 'Chennai, Tamil Nadu',
               lat: 13.0827,
@@ -81,22 +149,30 @@ export default function WeatherWidget() {
     setErrorMsg(null)
     setErrorType(null)
     try {
-      const res = await getWeatherRisk(lat, lon)
-      if (res && res.status === 'success') {
-        setWeatherData(res)
+      let data = null
+      try {
+        const res = await getWeatherRisk(lat, lon)
+        if (res && (res.status === 'success' || res.status === 'fallback' || res.temperature_c !== undefined)) {
+          data = res
+        }
+      } catch (backendErr) {
+        console.warn("Backend weather endpoint unavailable, trying direct Open-Meteo API fallback:", backendErr)
+      }
+
+      if (!data || data.temperature_c === undefined) {
+        data = await fetchOpenMeteoDirect(lat, lon)
+      }
+
+      if (data && data.temperature_c !== undefined) {
+        setWeatherData(data)
       } else {
         setErrorType('api-failure')
         setErrorMsg('Weather data is temporarily unavailable.')
       }
     } catch (err) {
-      console.error(err)
-      if (!navigator.onLine) {
-        setErrorType('network-failure')
-        setErrorMsg('Unable to connect to the weather service.')
-      } else {
-        setErrorType('api-failure')
-        setErrorMsg('Weather data is temporarily unavailable.')
-      }
+      console.error("Weather service error:", err)
+      setErrorType('api-failure')
+      setErrorMsg('Weather data is temporarily unavailable.')
     } finally {
       setLoading(false)
     }

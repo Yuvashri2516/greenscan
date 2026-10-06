@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Leaf, Cpu, Activity, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { Leaf, Cpu, Activity, CheckCircle2, ShieldCheck, Quote, MapPin } from 'lucide-react'
 import AnimatedLeaves from '../components/AnimatedLeaves.jsx'
 import FeaturesSection from '../components/FeaturesSection.jsx'
 
@@ -18,100 +18,20 @@ const staggerContainer = {
   visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
 }
 
-function HeroMockup() {
+function HeroVisual() {
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: '360px', margin: '0 auto' }}>
-      {/* Device Shell Frame */}
-      <div 
-        style={{
-          width: '100%',
-          aspectRatio: '1/1.9',
-          background: '#0a2210',
-          borderRadius: '40px',
-          padding: '12px',
-          boxShadow: '0 30px 60px rgba(10,34,16,0.18)',
-          border: '4px solid #1b4e28',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        {/* Notch */}
-        <div style={{ position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)', width: '80px', height: '16px', background: '#000', borderRadius: '8px', zIndex: 10 }} />
-        
-        {/* Screen Display */}
-        <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '28px', overflow: 'hidden' }}>
-          <img 
-            src="/assets/hero_plant.png" 
-            alt="Leaf Scan Diagnostics" 
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-          />
-          
-          {/* Scan Active Indicator HUD Overlay */}
-          <div style={{ position: 'absolute', inset: 0, border: '1.5px dashed rgba(255,255,255,0.4)', borderRadius: '28px', margin: '10px', pointerEvents: 'none' }} />
-
-          {/* AI Result Card */}
-          <div style={{ position: 'absolute', bottom: '12px', left: '12px', right: '12px', background: 'rgba(255, 255, 255, 0.95)', backdropFilter: 'blur(8px)', padding: '12px 14px', borderRadius: '16px', border: '1px solid rgba(76,175,80,0.15)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-              <span style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--green-700)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CLASSIFIER ACTIVE</span>
-              <span style={{ fontSize: '0.62rem', fontWeight: 800, background: 'var(--green-100)', color: 'var(--green-800)', padding: '1px 5px', borderRadius: '4px' }}>98.2%</span>
-            </div>
-            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--gray-900)' }}>Tomato Early Blight</div>
-            <div style={{ fontSize: '0.68rem', color: 'var(--gray-500)' }}>Alternaria solani pathology</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Floating Badge 1: Severity Score */}
-      <motion.div 
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-        style={{
-          position: 'absolute',
-          top: '22%',
-          left: '-24px',
-          background: '#fff',
-          padding: '10px 14px',
-          borderRadius: '12px',
-          boxShadow: '0 8px 24px rgba(10,34,16,0.06)',
-          border: '1px solid var(--gray-200)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          zIndex: 5
-        }}
-      >
-        <span style={{ fontSize: '1rem' }}>📈</span>
-        <div>
-          <div style={{ fontSize: '0.6rem', color: 'var(--gray-400)', fontWeight: 800, textTransform: 'uppercase' }}>Severity Index</div>
-          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-orange)' }}>Moderate infection</div>
-        </div>
-      </motion.div>
-
-      {/* Floating Badge 2: Care Action */}
-      <motion.div 
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        style={{
-          position: 'absolute',
-          bottom: '24%',
-          right: '-24px',
-          background: '#fff',
-          padding: '10px 14px',
-          borderRadius: '12px',
-          boxShadow: '0 8px 24px rgba(10,34,16,0.06)',
-          border: '1px solid var(--gray-200)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          zIndex: 5
-        }}
-      >
-        <span style={{ fontSize: '1rem' }}>🛡️</span>
-        <div>
-          <div style={{ fontSize: '0.6rem', color: 'var(--gray-400)', fontWeight: 800, textTransform: 'uppercase' }}>PHS Score</div>
-          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--green-800)' }}>76 / 100 Health</div>
-        </div>
-      </motion.div>
+    <div style={{ position: 'relative', width: '100%', maxWidth: '495px', margin: '0 auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <img 
+        src="/assets/greenscan-late-blight-analysis.png" 
+        alt="GreenScan AI tomato leaf disease analysis showing Late Blight detection and plant health assessment" 
+        style={{ 
+          width: '100%', 
+          height: 'auto', 
+          maxHeight: '640px',
+          objectFit: 'contain',
+          display: 'block'
+        }} 
+      />
     </div>
   )
 }
@@ -172,7 +92,8 @@ function HeroSection() {
         <motion.div 
           style={{ 
             ...(disableParallax ? {} : { y: yContent }),
-            flex: '1 1 500px', maxWidth: '620px' 
+            flex: '1 1 500px', maxWidth: '640px',
+            paddingLeft: isMobile ? '0px' : '36px'
           }}
           initial="hidden"
           animate="visible"
@@ -234,17 +155,17 @@ function HeroSection() {
             </motion.div>
         </motion.div>
 
-        {/* Right Column: Editorial Device Mockup */}
+        {/* Right Column: Approved Hero Visual */}
         <motion.div 
           style={{ 
             ...(disableParallax ? {} : { y: yMockup }),
-            flex: '1 1 400px', display: 'flex', justifyContent: 'center', position: 'relative' 
+            flex: '1 1 440px', display: 'flex', justifyContent: 'center', position: 'relative' 
           }}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <HeroMockup />
+          <HeroVisual />
         </motion.div>
       </div>
     </div>
@@ -484,96 +405,132 @@ function FarmerExperienceSection() {
       role: "Commercial Tomato Grower",
       location: "Gujarat, India",
       comment: "Early Blight was threatening my tomato crops this season. GreenScan diagnosed it from a simple leaf photo in 5 seconds. The organic treatment advice saved my harvest!",
-      rating: 5,
-      avatarColor: "#2e7d32"
+      rating: 5
     },
     {
       name: "Sophia Martinez",
       role: "AgriTech Field Researcher",
       location: "California, USA",
       comment: "The Grad‑CAM visual activation tab is stellar. It doesn't just output a prediction; it shows exactly where the neural network is looking. That transparency builds deep trust.",
-      rating: 5,
-      avatarColor: "#1b5e20"
+      rating: 5
     },
     {
       name: "John Mwangi",
       role: "Greenhouse Cooperative Lead",
       location: "Nakuru, Kenya",
       comment: "Perfect for field diagnostics. The simple plant health score (PHS) helped me quickly identify which greenhouse zones needed chemical control.",
-      rating: 5,
-      avatarColor: "#388e3c"
+      rating: 5
     },
     {
       name: "Clara Lindqvist",
       role: "Organic Greenhouse Operator",
       location: "Aland, Finland",
       comment: "I use the chatbot to ask follow-up questions about preventative spacing. It gives clear, chemical-free advice that aligns with my organic certification.",
-      rating: 5,
-      avatarColor: "#4caf50"
+      rating: 5
     }
   ]
 
   return (
-    <div style={{ padding: '90px 20px', background: 'var(--green-50)', borderBottom: '1px solid var(--gray-200)' }}>
+    <div style={{ padding: '90px 20px', background: 'var(--green-50, #f6faf7)', borderBottom: '1px solid #d7e2da' }}>
       <div className="container">
         
-        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <div className="section-label">Grower Stories</div>
-          <h2 style={{ color: 'var(--green-900)', fontSize: '2.2rem', fontWeight: 800, fontFamily: 'var(--font-serif)' }}>Farmer Feedback & Comments</h2>
-          <p style={{ color: 'var(--gray-600)', marginTop: '8px', maxWidth: '560px', margin: '8px auto 0' }}>
-            Read real reviews from agriculturalists, growers, and researchers using GreenScan to monitor plant health.
+        <div style={{ textAlign: 'center', marginBottom: '50px' }}>
+          <div style={{ 
+            fontSize: '0.78rem', 
+            fontWeight: 800, 
+            color: '#1b8f3a', 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.08em', 
+            marginBottom: '8px' 
+          }}>
+            GROWER STORIES
+          </div>
+          <h2 style={{ color: '#14532d', fontSize: '2.4rem', fontWeight: 800, fontFamily: 'var(--font-serif)', marginBottom: '12px', letterSpacing: '-0.02em' }}>
+            Farmer Feedback & Comments
+          </h2>
+          <p style={{ color: '#39483e', fontSize: '1.05rem', lineHeight: '1.6', maxWidth: '640px', margin: '0 auto' }}>
+            Hear how growers and agricultural users are using GreenScan to understand plant health and make better crop-care decisions.
           </p>
         </div>
 
         {/* Testimonials Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+        <div className="homepage-feedback-grid" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+          gap: '24px' 
+        }}>
           {feedbacks.map((f, idx) => (
             <motion.div 
               key={idx}
-              whileHover={{ y: -6 }}
+              whileHover={{ y: -3 }}
               transition={{ duration: 0.2 }}
-              className="card"
               style={{ 
-                padding: '30px', 
-                background: '#fff', 
-                border: '1px solid var(--gray-200)', 
-                borderRadius: 'var(--radius-md)',
+                padding: '26px', 
+                background: '#ffffff', 
+                border: '1px solid #d7e2da', 
+                borderRadius: '18px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                boxShadow: '0 10px 30px rgba(10, 34, 16, 0.03)'
+                minHeight: '350px',
+                boxShadow: '0 4px 16px rgba(27, 143, 58, 0.05)',
+                transition: 'box-shadow 0.2s ease, border-color 0.2s ease'
               }}
             >
               <div>
-                {/* Quotes & Stars */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                  <span style={{ fontSize: '2.5rem', color: 'var(--green-100)', fontFamily: 'serif', lineHeight: 0.1, marginTop: '20px' }}>“</span>
-                  <div style={{ color: '#ffb300', fontSize: '0.85rem' }}>
+                {/* Header with Quote Icon & Rating Stars */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <div style={{ 
+                    width: '38px', 
+                    height: '38px', 
+                    borderRadius: '10px', 
+                    background: '#eaf6ed', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    color: '#1b8f3a' 
+                  }}>
+                    <Quote size={20} />
+                  </div>
+                  <div style={{ color: '#f59e0b', fontSize: '0.9rem', letterSpacing: '2px' }} aria-label={`${f.rating} out of 5 stars`}>
                     {"★".repeat(f.rating)}
                   </div>
                 </div>
                 
-                <p style={{ color: 'var(--gray-700)', fontSize: '0.92rem', lineHeight: '1.6', margin: '0 0 24px 0', fontStyle: 'italic' }}>
+                {/* Review Text */}
+                <p style={{ 
+                  color: '#17201a', 
+                  fontSize: '0.94rem', 
+                  lineHeight: '1.65', 
+                  margin: '0 0 20px 0',
+                  fontWeight: 400
+                }}>
                   "{f.comment}"
                 </p>
               </div>
 
-              {/* User Bio */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderTop: '1px solid var(--gray-100)', paddingTop: '16px' }}>
-                <div 
-                  style={{ 
-                    width: '42px', height: '42px', borderRadius: '50%', 
-                    background: f.avatarColor, color: '#fff', 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 700, fontSize: '0.95rem' 
-                  }}
-                >
-                  {f.name.split(' ').map(n => n[0]).join('')}
-                </div>
-                <div>
-                  <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--gray-900)', fontWeight: 800 }}>{f.name}</h4>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--gray-500)' }}>{f.role}</div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--green-800)', fontWeight: 700, marginTop: '2px' }}>📍 {f.location}</div>
+              {/* Author Section */}
+              <div>
+                <div style={{ height: '1px', background: '#e5e7eb', marginBottom: '16px' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div 
+                    style={{ 
+                      width: '42px', height: '42px', borderRadius: '50%', 
+                      background: '#1b8f3a', color: '#ffffff', 
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: 700, fontSize: '0.95rem',
+                      flexShrink: 0
+                    }}
+                  >
+                    {f.name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                  <div style={{ overflow: 'hidden' }}>
+                    <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#17201a', fontWeight: 700, lineHeight: 1.2 }}>{f.name}</h4>
+                    <div style={{ fontSize: '0.8rem', color: '#39483e', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.role}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#14532d', fontWeight: 600, marginTop: '3px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <MapPin size={12} color="#1b8f3a" /> {f.location}
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>

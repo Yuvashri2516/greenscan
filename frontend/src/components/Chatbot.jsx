@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { sendChatMessage } from '../api/index.js'
+import { sendChatMessage, getScanHistory, getFarmerProfile } from '../api/index.js'
 import { MessageSquare, Send, Trash2, X, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import '../index.css'
@@ -10,11 +10,50 @@ const LANGUAGES = [
   { code: 'ta', label: 'த',  name: 'Tamil' },
 ]
 
-const SUGGESTIONS = [
-  'What does my disease result mean?',
-  'How serious is this?',
-  'What should I do next?',
+// Dynamic suggestion sets based on active scan state
+const SUGGESTIONS_NO_SCAN_EN = [
+  'How do I scan a leaf?',
+  'What diseases can GreenScan detect?',
+  'How can I prevent tomato diseases?',
+  'What weather increases disease risk?',
+]
+
+const SUGGESTIONS_NO_SCAN_HI = [
+  'मैं पत्ती स्कैन कैसे करूँ?',
+  'ग्रीनस्कैन किन बीमारियों की पहचान कर सकता है?',
+  'मैं टमाटर की बीमारियों से बचाव कैसे करूँ?',
+  'किस मौसम में बीमारी का खतरा बढ़ता है?',
+]
+
+const SUGGESTIONS_NO_SCAN_TA = [
+  'இலையை எவ்வாறு ஸ்கேன் செய்வது?',
+  'கிரீன்ஸ்கேன் என்ன நோய்களைக் கண்டறியும்?',
+  'தக்காளி நோய்களை எவ்வாறு தடுப்பது?',
+  'எந்த வானிலை நோய் அபாயத்தை அதிகரிக்கும்?',
+]
+
+const SUGGESTIONS_SCAN_EN = [
+  'What does my result mean?',
+  'How serious is it?',
+  'What should I do now?',
   'How can I prevent it?',
+  'Will the weather affect it?',
+]
+
+const SUGGESTIONS_SCAN_HI = [
+  'मेरे परिणाम का क्या मतलब है?',
+  'यह कितना गंभीर है?',
+  'मुझे अब क्या करना चाहिए?',
+  'मैं इससे बचाव कैसे करूँ?',
+  'क्या मौसम इसे प्रभावित करेगा?',
+]
+
+const SUGGESTIONS_SCAN_TA = [
+  'என் முடிவின் அர்த்தம் என்ன?',
+  'இது எவ்வளவு தீவிரமானது?',
+  'இப்போது நான் என்ன செய்ய வேண்டும்?',
+  'இதை எவ்வாறு தடுப்பது?',
+  'வானிலை இதை பாதிக்குமா?',
 ]
 
 function Message({ msg }) {
@@ -35,11 +74,11 @@ function Message({ msg }) {
         }}>🌿</div>
       )}
       <div style={{
-        maxWidth: '80%',
+        maxWidth: '85%',
         padding: '12px 16px',
         borderRadius: isUser ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
         background: isUser ? 'var(--green-700)' : 'var(--white)',
-        color: isUser ? '#fff' : 'var(--gray-800)',
+        color: isUser ? '#fff' : 'var(--gray-900)',
         fontSize: '0.88rem',
         lineHeight: 1.5,
         boxShadow: 'var(--shadow-sm)',
@@ -53,15 +92,114 @@ function Message({ msg }) {
 }
 
 export default function Chatbot({ result = null }) {
-  const [open, setOpen]       = useState(false)
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: "No active plant scan. Start a scan to discuss your plant analysis." }
-  ])
-  const [input, setInput]     = useState('')
+  const [open, setOpen] = useState(false)
+  const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [language, setLanguage] = useState('en')
+  
+  // Active context states
+  const [activeScan, setActiveScan] = useState(result)
+  const [farmerContext, setFarmerContext] = useState(null)
+  const [weatherContext, setWeatherContext] = useState(null)
+
+  const [messages, setMessages] = useState([])
   const bottomRef = useRef(null)
-  const inputRef  = useRef(null)
+  const inputRef = useRef(null)
+
+  // 1. Sync scan result prop or retrieve from localStorage / backend history
+  useEffect(() => {
+    if (result) {
+      setActiveScan(result)
+      try { localStorage.setItem('greenscan_latest_scan', JSON.stringify(result)) } catch (e) {}
+    } else {
+      // Check localStorage cached scan
+      try {
+        const stored = localStorage.getItem('greenscan_latest_scan')
+        if (stored) {
+          setActiveScan(JSON.parse(stored))
+        } else {
+          // Fetch latest scan from history
+          getScanHistory(1)
+            .then(res => {
+              if (res?.history && res.history.length > 0) {
+                const item = res.history[0]
+                const mappedScan = {
+                  disease_name: item.disease_name,
+                  display_name: item.display_name || item.disease_name,
+                  confidence: item.confidence,
+                  severity_level: item.severity_level,
+                  plant_health_score: item.plant_health_score,
+                  affected_area_pct: item.affected_area_pct,
+                  treatment_priority: item.treatment_priority,
+                  recommendations: item.recommendations,
+                  disease_info: { display_name: item.display_name || item.disease_name }
+                }
+                setActiveScan(mappedScan)
+              }
+            })
+            .catch(() => {})
+        }
+      } catch (e) {}
+    }
+  }, [result])
+
+  // 2. Load farmer profile & weather context
+  useEffect(() => {
+    try {
+      const storedProf = localStorage.getItem('greenscan_farmer_profile')
+      if (storedProf) {
+        setFarmerContext(JSON.parse(storedProf))
+      } else {
+        const storedId = localStorage.getItem('greenscan_farmer_id')
+        if (storedId) {
+          getFarmerProfile(storedId)
+            .then(data => {
+              if (data?.farmer) setFarmerContext(data.farmer)
+            })
+            .catch(() => {})
+        }
+      }
+
+      const storedWeather = localStorage.getItem('greenscan_weather_data')
+      if (storedWeather) {
+        setWeatherContext(JSON.parse(storedWeather))
+      }
+    } catch (e) {}
+  }, [open])
+
+  // 3. Initialize greeting message when scan or language updates
+  useEffect(() => {
+    const farmerName = farmerContext?.name || ''
+    const greetingName = farmerName ? `, ${farmerName}` : ''
+    
+    if (activeScan) {
+      const name = activeScan.display_name || activeScan.disease_info?.display_name || 'Tomato Plant'
+      const phs = activeScan.plant_health_score || activeScan.gsa_metrics?.plant_health_score || 100
+      const sev = activeScan.severity_level || activeScan.gsa_metrics?.severity_level || 'Moderate'
+      
+      let initMsg = ''
+      if (language === 'hi') {
+        initMsg = `नमस्ते${greetingName}! मैंने आपके हालिया **${name}** स्कैन (स्वास्थ्य स्कोर: ${phs}/100, ${sev}) के परिणाम लोड कर लिए हैं। मैं आपकी फसल के लिए क्या सहायता कर सकता हूँ?`
+      } else if (language === 'ta') {
+        initMsg = `வணக்கம்${greetingName}! உங்கள் சமீபத்திய **${name}** ஸ்கேன் (ஆரோக்கிய மதிப்பெண்: ${phs}/100, ${sev}) முடிவுகள் ஏற்றப்பட்டுள்ளன. இன்று உங்கள் பயிர் பராமரிப்பில் எவ்வாறு உதவட்டும்?`
+      } else {
+        initMsg = `Hello${greetingName}! I've loaded your recent **${name}** scan (Health Score: ${phs}/100, Severity: ${sev}). How can I help you manage your crop today?`
+      }
+
+      setMessages([{ role: 'assistant', content: initMsg }])
+    } else {
+      let initMsg = ''
+      if (language === 'hi') {
+        initMsg = `नमस्ते${greetingName}! मैं ग्रीनस्कैन एआई हूँ। अभी तक कोई पत्ती स्कैन नहीं मिली है। एआई निदान और सलाह के लिए **Scan** टैब में जाकर फोटो अपलोड करें!`
+      } else if (language === 'ta') {
+        initMsg = `வணக்கம்${greetingName}! நான் கிரீன்ஸ்கேன் ஏஐ உதவியாளராவேன். சமீபத்திய இலை ஸ்கேன் எதுவுமில்லை. ஏஐ நோய் கண்டறிதலுக்கு **Scan** தாவலில் இலையை ஸ்கேன் செய்யவும்!`
+      } else {
+        initMsg = `Hello${greetingName}! I am GreenScan Assistant. I don't have a recent leaf scan yet. Please scan a tomato leaf in the **Scan** tab to get an AI diagnosis and personalized recommendations!`
+      }
+
+      setMessages([{ role: 'assistant', content: initMsg }])
+    }
+  }, [activeScan, language, farmerContext])
 
   useEffect(() => {
     if (open) {
@@ -69,18 +207,6 @@ export default function Chatbot({ result = null }) {
       inputRef.current?.focus()
     }
   }, [open, messages])
-
-  // Update initial message based on context if context becomes available
-  useEffect(() => {
-    if (result && result.disease_info) {
-      setMessages([
-        { 
-          role: 'assistant', 
-          content: `Hello! I've loaded the diagnostic context for your **${result.display_name || result.disease_info.display_name}** scan. I can help you understand this diagnosis and provide simple treatment guidance.` 
-        }
-      ])
-    }
-  }, [result])
 
   const sendMessage = async (text) => {
     const msg = text || input.trim()
@@ -91,31 +217,42 @@ export default function Chatbot({ result = null }) {
     setInput('')
     setLoading(true)
 
-    // Build context object matching backend expected keys
+    // Construct scan context payload
     let chatContext = null
-    if (result && result.disease_info) {
+    if (activeScan) {
       chatContext = {
-        disease_name: result.disease_name,
-        display_name: result.display_name || result.disease_info.display_name,
-        confidence: result.confidence,
-        severity_level: result.gsa_metrics?.severity_level,
-        plant_health_score: result.gsa_metrics?.plant_health_score,
-        recommendations: result.recommendations,
-        treatment_priority: result.gsa_metrics?.treatment_priority
+        disease_name: activeScan.disease_name,
+        display_name: activeScan.display_name || activeScan.disease_info?.display_name,
+        confidence: activeScan.confidence,
+        severity_level: activeScan.severity_level || activeScan.gsa_metrics?.severity_level,
+        plant_health_score: activeScan.plant_health_score || activeScan.gsa_metrics?.plant_health_score,
+        affected_area_pct: activeScan.affected_area_pct || activeScan.gsa_metrics?.affected_area_pct,
+        recommendations: activeScan.recommendations,
+        treatment_priority: activeScan.treatment_priority || activeScan.gsa_metrics?.treatment_priority,
+        is_healthy: activeScan.disease_info?.is_healthy || activeScan.disease_name === 'tomato_healthy'
       }
     }
 
     try {
       const history = messages.slice(-6).map(m => ({ role: m.role, content: m.content }))
-      const res = await sendChatMessage(msg, language, history, chatContext)
-      const replyContent = res.reply || res.response || 'Sorry, I couldn\'t process that question.'
+      const res = await sendChatMessage(
+        msg, 
+        language, 
+        history, 
+        chatContext,
+        farmerContext,
+        weatherContext
+      )
+      const replyContent = res.reply || res.response || 'I am unable to process that request right now.'
       setMessages(prev => [...prev, { role: 'assistant', content: replyContent }])
     } catch (e) {
       console.error(e)
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Something went wrong. Please try again.',
-      }])
+      const errText = language === 'hi'
+        ? 'संपर्क में समस्या आई। कृपया थोड़ी देर बाद पुनः प्रयास करें।'
+        : language === 'ta'
+        ? 'தொடர்பு கொள்வதில் சிக்கல் உள்ளது. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்.'
+        : 'I\'m having trouble connecting to the assistant right now. Your scan result is still safe. Please try again in a moment.'
+      setMessages(prev => [...prev, { role: 'assistant', content: errText }])
     } finally {
       setLoading(false)
     }
@@ -129,17 +266,30 @@ export default function Chatbot({ result = null }) {
   }
 
   const clearChat = () => {
-    if (result && result.disease_info) {
-      setMessages([
-        { 
-          role: 'assistant', 
-          content: `Chat cleared! Ask me anything about your **${result.display_name || result.disease_info.display_name}** diagnosis. 🍅` 
-        }
-      ])
+    const farmerName = farmerContext?.name || ''
+    const greetingName = farmerName ? `, ${farmerName}` : ''
+    
+    if (activeScan) {
+      const name = activeScan.display_name || activeScan.disease_info?.display_name || 'Tomato Plant'
+      const initMsg = language === 'hi'
+        ? `चैट साफ़ हो गई! अपने **${name}** निदान के बारे में कुछ भी पूछें। 🍅`
+        : language === 'ta'
+        ? `அரட்டை அழிக்கப்பட்டது! உங்கள் **${name}** பற்றிய கேள்விகளைக் கேட்கலாம். 🍅`
+        : `Chat cleared! Ask me anything about your **${name}** diagnosis. 🍅`
+      setMessages([{ role: 'assistant', content: initMsg }])
     } else {
-      setMessages([{ role: 'assistant', content: "Chat cleared! How can I help you? 🌿" }])
+      const initMsg = language === 'hi'
+        ? `चैट साफ़ हो गई! मैं आपकी क्या सहायता कर सकता हूँ? 🌿`
+        : language === 'ta'
+        ? `அரட்டை அழிக்கப்பட்டது! நான் உங்களுக்கு எவ்வாறு உதவட்டும்? 🌿`
+        : `Chat cleared! How can I help you today? 🌿`
+      setMessages([{ role: 'assistant', content: initMsg }])
     }
   }
+
+  const suggestions = activeScan
+    ? (language === 'hi' ? SUGGESTIONS_SCAN_HI : (language === 'ta' ? SUGGESTIONS_SCAN_TA : SUGGESTIONS_SCAN_EN))
+    : (language === 'hi' ? SUGGESTIONS_NO_SCAN_HI : (language === 'ta' ? SUGGESTIONS_NO_SCAN_TA : SUGGESTIONS_NO_SCAN_EN))
 
   return (
     <>
@@ -230,7 +380,7 @@ export default function Chatbot({ result = null }) {
 
             {/* Messages view */}
             <div style={{
-              flex: 1, overflowY: 'auto', padding: '20px',
+              flex: 1, overflowY: 'auto', padding: '16px 20px',
               background: 'var(--gray-50)',
             }}>
               {messages.map((msg, i) => <Message key={i} msg={msg} />)}
@@ -261,17 +411,14 @@ export default function Chatbot({ result = null }) {
             {/* Suggestions panel */}
             {messages.length <= 1 && (
               <div style={{ padding: '8px 12px', display: 'flex', gap: 6, flexWrap: 'wrap', borderTop: '1px solid var(--gray-100)', background: 'var(--gray-50)' }}>
-                {SUGGESTIONS.map(s => {
-                  if (result && result.disease_info?.is_healthy && (s.includes('disease') || s.includes('treat'))) return null;
-                  return (
-                    <button key={s} onClick={() => sendMessage(s)} style={{
-                      padding: '5px 10px', borderRadius: 'var(--radius-full)',
-                      border: '1px solid var(--green-200)', background: 'var(--green-50)',
-                      color: 'var(--green-800)', fontSize: '.75rem', fontWeight: 600, cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                    }}>{s}</button>
-                  )
-                })}
+                {suggestions.map(s => (
+                  <button key={s} onClick={() => sendMessage(s)} style={{
+                    padding: '5px 10px', borderRadius: 'var(--radius-full)',
+                    border: '1px solid var(--green-200)', background: 'var(--green-50)',
+                    color: 'var(--green-800)', fontSize: '.75rem', fontWeight: 600, cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}>{s}</button>
+                ))}
               </div>
             )}
 

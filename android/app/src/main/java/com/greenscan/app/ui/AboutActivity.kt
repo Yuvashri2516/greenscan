@@ -126,7 +126,7 @@ class AboutActivity : AppCompatActivity() {
         // Backend info
         val apiCard = buildCard()
         val apiTitle = buildSectionHeader("Backend API")
-        val apiBody = buildBodyText("https://greenscan-bot5.onrender.com\n\nDeployed on Render — free tier with cold start (~30s on first request).")
+        val apiBody = buildBodyText("https://greenscan-api-4rhz.onrender.com\n\nDeployed on Render — free tier with cold start (~30s on first request).")
         apiCard.addView(apiTitle)
         apiCard.addView(apiBody)
         content.addView(apiCard)

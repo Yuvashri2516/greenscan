@@ -36,8 +36,9 @@ backend/virtual/
 !frontend/.env.example
 !frontend/.env.production
 
-# ---- Database (runtime-generated) ----
+# ---- Database & Uploads (runtime-generated) ----
 backend/greenscan.db
+backend/uploads/
 *.db
 *.sqlite
 *.sqlite3

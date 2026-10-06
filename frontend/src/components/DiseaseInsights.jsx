@@ -130,7 +130,7 @@ export default function DiseaseInsights({ diseaseInfo = null }) {
                     transition={{ duration: 0.2, ease: 'easeInOut' }}
                   >
                     <div style={{ padding: '0 20px 20px 20px', borderTop: '1px solid var(--gray-100)', paddingTop: '16px' }}>
-                      {section.isList ? (
+                      {Array.isArray(displayContent) ? (
                         <ul style={{ margin: 0, paddingLeft: '20px', color: 'var(--gray-700)', fontSize: '0.9rem', lineHeight: '1.6' }}>
                           {displayContent.map((item, idx) => (
                             <li key={idx} style={{ marginBottom: '8px' }}>{item}</li>

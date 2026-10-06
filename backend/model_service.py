@@ -87,10 +87,10 @@ def preprocess_image(img_input) -> np.ndarray:
         if len(img_input.shape) == 2:
             rgb = cv2.cvtColor(img_input, cv2.COLOR_GRAY2RGB)
         elif img_input.shape[2] == 4:
-            rgb = cv2.cvtColor(img_input, cv2.COLOR_RGBA2RGB)
-        else:
-            # Assume BGR if from OpenCV or check if already RGB
-            rgb = img_input
+            rgb = cv2.cvtColor(img_input, cv2.COLOR_BGRA2RGB)
+        elif img_input.shape[2] == 3:
+            # OpenCV numpy arrays are BGR by default. Convert BGR -> RGB explicitly.
+            rgb = cv2.cvtColor(img_input, cv2.COLOR_BGR2RGB)
     else:
         raise ValueError(f"Unsupported image input type: {type(img_input)}")
 

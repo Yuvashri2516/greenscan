@@ -57,6 +57,7 @@ def init_db():
         "ALTER TABLE scan_history ADD COLUMN farmer_id TEXT;",
         "ALTER TABLE scan_history ADD COLUMN environmental_context_json TEXT;",
         "ALTER TABLE scan_history ADD COLUMN validation_status TEXT DEFAULT 'VALID_TOMATO_LEAF';",
+        "ALTER TABLE scan_history ADD COLUMN image_url TEXT;",
     ]:
         try:
             cursor.execute(migration_sql)
@@ -93,8 +94,20 @@ def init_db():
             crop_stage  TEXT,
             irrigation_method TEXT,
             pin         TEXT,
-            created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # ─── 4. Feedback Table (Farmer Dashboard Feedback System) ──────────────────
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS feedback (
+            feedback_id TEXT PRIMARY KEY,
+            farmer_id   TEXT,
+            rating      INTEGER NOT NULL,
+            category    TEXT,
+            comment     TEXT NOT NULL,
+            status      TEXT DEFAULT 'pending',
+            created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     """)
 
@@ -160,8 +173,8 @@ def save_scan_history(record: dict) -> int:
             affected_area_pct, weighted_activation, severity_level, risk_level,
             treatment_priority, traffic_light, leaf_pixels, activated_pixels,
             recommendations_json, research_metrics_json,
-            farmer_id, validation_status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            farmer_id, validation_status, image_url
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         record["disease_name"],
         record["display_name"],
@@ -179,6 +192,7 @@ def save_scan_history(record: dict) -> int:
         json.dumps(record.get("research_metrics_json", {})),
         record.get("farmer_id"),           # None if no farmer associated
         record.get("validation_status", "VALID_TOMATO_LEAF"),
+        record.get("image_url"),
     ))
     conn.commit()
     scan_id = cursor.lastrowid
@@ -230,6 +244,27 @@ def export_history_csv() -> str:
         writer.writerow(row)
         
     return output.getvalue()
+
+def save_feedback(rating: int, comment: str, category: Optional[str] = None, farmer_id: Optional[str] = None) -> str:
+    import uuid
+    feedback_id = str(uuid.uuid4())
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO feedback (feedback_id, farmer_id, rating, category, comment, status)
+        VALUES (?, ?, ?, ?, ?, 'pending')
+    """, (feedback_id, farmer_id, rating, category, comment))
+    conn.commit()
+    conn.close()
+    return feedback_id
+
+def get_feedback_list(status: str = "approved", limit: int = 20) -> List[Dict]:
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM feedback WHERE status = ? ORDER BY created_at DESC LIMIT ?", (status, limit))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
 
 # Initialize DB when module loaded
 init_db()

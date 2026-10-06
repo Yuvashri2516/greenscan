@@ -13,7 +13,7 @@ object ApiClient {
      * Never use 127.0.0.1 or localhost for production Android builds.
      * For local emulator testing only: use "http://10.0.2.2:8000/"
      */
-    const val PRODUCTION_URL = "https://greenscan-bot5.onrender.com/"
+    const val PRODUCTION_URL = "https://greenscan-api-4rhz.onrender.com/"
     private const val BASE_URL = PRODUCTION_URL
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {

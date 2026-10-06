@@ -13,33 +13,49 @@
   --font-sans: 'Inter', system-ui, sans-serif;
   /* Brand Colors */
   --green-900: #0a2210; /* Deep botanical green */
-  --green-800: #1b4e28; /* Natural leaf green */
-  --green-700: #266b37; /* Primary brand green */
-  --green-600: #38964e;
-  --green-400: #62b876; /* Accent */
+  --green-800: #14532d; /* Natural dark leaf green */
+  --green-700: #1b8f3a; /* Primary brand green (high contrast) */
+  --green-600: #266b37;
+  --green-400: #38a156;
   --green-200: #bde4c5;
   --green-100: #eaf6ed; /* Light Green */
-  --green-50:  #fbfbf7; /* Warm off-white background */
+  --green-50:  #f8faf8; /* Warm off-white background */
 
-  /* Accent */
-  --accent-yellow: #f1c40f;
-  --accent-orange: #d35400;
-  --accent-red:    #c0392b;
-  --accent-blue:   #2980b9;
+  /* Semantic Accents */
+  --accent-yellow: #d97706;
+  --accent-orange: #d97706;
+  --accent-red:    #dc2626;
+  --accent-blue:   #2563eb;
+  --accent-cyan:   #0284c7;
 
-  /* Neutral */
-  --gray-900: #1a1e1b; /* Dark charcoal text */
-  --gray-800: #2c332e;
-  --gray-700: #424c45;
-  --gray-600: #59665d;
-  --gray-400: #8c9c92;
-  --gray-200: #dce3df;
-  --gray-100: #edf1ee;
-  --gray-50:  #f4f6f4;
+  /* High Contrast Typography & Surface Tokens (WCAG AAA/AA) */
+  --gray-900: #17201a; /* Very dark charcoal text (Headers & Titles) */
+  --gray-800: #26332b; /* Primary dark body text */
+  --gray-700: #39483e; /* Subtitle / Label text */
+  --gray-600: #4b5a52; /* Medium dark text */
+  --gray-500: #5c6c64; /* High-contrast placeholder & helper text */
+  --gray-400: #718278; /* Muted text */
+  --gray-200: #d7e2da; /* Light border */
+  --gray-100: #edf1ee; /* Soft surface */
+  --gray-50:  #f4f7f5;
   --white:    #ffffff;
 
-  /* Semantic */
-  --color-healthy:   var(--green-600);
+  /* Theme Aliases */
+  --bg-primary: var(--green-50);
+  --bg-card: var(--white);
+  --bg-secondary: var(--gray-50);
+  --border-color: var(--gray-200);
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-700);
+  --text-muted: var(--gray-600);
+  --input-bg: var(--white);
+  --input-border: var(--gray-200);
+  --input-text: var(--gray-900);
+  --placeholder-color: var(--gray-500);
+  --primary-green: var(--green-700);
+
+  /* Semantic Status Colors */
+  --color-healthy:   var(--green-700);
   --color-disease:   var(--accent-red);
   --color-warning:   var(--accent-orange);
 
@@ -294,10 +310,23 @@ small { font-size: .8rem; }
               box-shadow var(--dur-fast) var(--ease);
 }
 .input:focus {
-  border-color: var(--green-600);
-  box-shadow: 0 0 0 3px rgba(82,183,136,.15);
+  border-color: var(--green-700);
+  box-shadow: 0 0 0 3px rgba(27,143,58,.15);
 }
-.input::placeholder { color: var(--gray-400); }
+.input::placeholder {
+  color: var(--gray-500);
+  opacity: 1;
+}
+.input:disabled {
+  background: var(--gray-50);
+  color: var(--gray-700);
+  border-color: var(--gray-200);
+  cursor: not-allowed;
+}
+select.input {
+  color: var(--gray-900);
+  background-color: var(--white);
+}
 
 /* ── Alert / Info boxes ── */
 .alert {

@@ -69,5 +69,5 @@
     <string name="about_title">About GreenScan</string>
     <string name="about_version">Version 1.0.0</string>
     <string name="about_description">GreenScan is an AI-powered plant disease detection system using EfficientNet-B0, Grad-CAM explainability, and the GreenScan Assessment (GSA) framework for tomato leaf diagnosis.</string>
-    <string name="about_backend">Backend: https://greenscan-bot5.onrender.com</string>
+    <string name="about_backend">Backend: https://greenscan-api-4rhz.onrender.com</string>
 </resources>

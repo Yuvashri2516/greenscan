@@ -642,7 +642,7 @@ Treatment Priority: ${pred.gsaMetrics.treatmentPriority}
 Affected Region: ${pred.gsaMetrics.affectedAreaPct}%
 
 Powered by GreenScan AI
-https://greenscan-bot5.onrender.com
+https://greenscan-api-4rhz.onrender.com
         """.trimIndent()
     }
 }

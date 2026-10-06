@@ -99,7 +99,9 @@ export default function UploadSection({ onResult, onLoading = () => {} }) {
 
     try {
       const data = await predictDisease(file, setStatusMessage)
-      onResult({ ...data, _preview: preview })
+      const fullResult = { ...data, _preview: preview }
+      onResult(fullResult)
+      try { localStorage.setItem('greenscan_latest_scan', JSON.stringify(fullResult)) } catch (e) {}
     } catch (err) {
       console.error(err)
       setError(err.message || 'Something went wrong. Please try again.')
@@ -126,7 +128,9 @@ export default function UploadSection({ onResult, onLoading = () => {} }) {
       setFile(demoFile)
       
       const data = await predictDisease(demoFile, setStatusMessage)
-      onResult({ ...data, _preview: DEMO_IMAGE_BASE64 })
+      const fullResult = { ...data, _preview: DEMO_IMAGE_BASE64 }
+      onResult(fullResult)
+      try { localStorage.setItem('greenscan_latest_scan', JSON.stringify(fullResult)) } catch (e) {}
     } catch (err) {
       console.error(err)
       setError(err.message || 'Something went wrong. Please try again.')

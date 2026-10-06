@@ -8,52 +8,62 @@ import numpy as np
 
 def segment_leaf(img_bgr: np.ndarray) -> tuple[np.ndarray, int]:
     """
-    Segments the leaf region from the background using a hybrid HSV color mask
-    and Otsu adaptive thresholding.
+    Segments the leaf region from the background using a hybrid HSV foliage color mask
+    and Excess Green (ExG) adaptive thresholding. Eliminates inverted Otsu grayscale
+    thresholding that previously misclassified dark background shadows as leaf pixels.
     
     Returns:
     - leaf_mask: Binary numpy array (224x224) where Leaf pixels = 1 and Background = 0.
     - leaf_pixels: Integer count of total leaf pixels (N_leaf).
     """
+    h, w = img_bgr.shape[:2]
     hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
     
-    # Define broad color range for plant foliage (greens, chlorotic yellows, necrotic browns)
-    # Range 1: Green vegetation (Hue: 30-90)
-    lower_green = np.array([25, 25, 25])
+    # Range 1: Green vegetation (Hue: 25-95, Sat: 20-255, Val: 20-255)
+    lower_green = np.array([25, 20, 20])
     upper_green = np.array([95, 255, 255])
     mask_green = cv2.inRange(hsv, lower_green, upper_green)
     
-    # Range 2: Necrotic brown/yellow lesion patches (Hue: 5-30)
-    lower_brown = np.array([5, 30, 20])
-    upper_brown = np.array([25, 255, 220])
+    # Range 2: Chlorotic yellow & Necrotic brown patches (Hue: 5-25, Sat: 30-255, Val: 30-240)
+    lower_brown = np.array([5, 30, 30])
+    upper_brown = np.array([25, 255, 240])
     mask_brown = cv2.inRange(hsv, lower_brown, upper_brown)
     
-    # Combine HSV masks
+    # Combine HSV foliage masks
     hsv_mask = cv2.bitwise_or(mask_green, mask_brown)
     
-    # Otsu thresholding on grayscale channel as fallback / refinement
-    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    _, otsu_mask = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    # Excess Green Index (ExG = 2*G - R - B) for robust vegetation contrast
+    b, g, r = cv2.split(img_bgr.astype(np.float32))
+    exg = 2.0 * g - r - b
+    exg_scaled = cv2.normalize(exg, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+    _, exg_mask = cv2.threshold(exg_scaled, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     
-    # Logical OR to retain foliage detail
-    combined_mask = cv2.bitwise_or(hsv_mask, otsu_mask)
+    # Intersect HSV foliage mask with ExG vegetation mask
+    combined_mask = cv2.bitwise_and(hsv_mask, exg_mask)
     
-    # Morphological operations to remove noise and fill internal holes in the leaf contour
+    # Fallback to hsv_mask if ExG intersection is overly restrictive (< 5% of frame)
+    total_pixels = h * w
+    if np.sum(combined_mask > 0) < total_pixels * 0.05:
+        combined_mask = hsv_mask
+        
+    # Morphological operations (close internal leaf holes, open background noise)
     kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
     kernel_open = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     
     cleaned = cv2.morphologyEx(combined_mask, cv2.MORPH_CLOSE, kernel_close)
     cleaned = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel_open)
     
-    # Find largest contour (assuming main leaf object in frame)
+    # Find external contours and keep valid leaf regions (>= 1% of image size)
     contours, _ = cv2.findContours(cleaned, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
-    final_mask = np.zeros_like(cleaned)
+    final_mask = np.zeros((h, w), dtype=np.uint8)
     if contours:
-        # Filter contours by size, pick largest contour or sum of valid leaf contours
-        c = max(contours, key=cv2.contourArea)
-        cv2.drawContours(final_mask, [c], -1, 255, -1)
+        valid_contours = [c for c in contours if cv2.contourArea(c) >= (total_pixels * 0.01)]
+        if valid_contours:
+            cv2.drawContours(final_mask, valid_contours, -1, 255, -1)
+        else:
+            largest_c = max(contours, key=cv2.contourArea)
+            cv2.drawContours(final_mask, [largest_c], -1, 255, -1)
     else:
         final_mask = cleaned
         
@@ -61,10 +71,10 @@ def segment_leaf(img_bgr: np.ndarray) -> tuple[np.ndarray, int]:
     binary_leaf_mask = (final_mask > 0).astype(np.uint8)
     leaf_pixel_count = int(np.sum(binary_leaf_mask))
     
-    # Fallback safety if segmentation produces 0 pixels (e.g. extreme crop)
-    total_pixels = img_bgr.shape[0] * img_bgr.shape[1]
+    # Safety fallback if segmentation produces < 100 pixels
     if leaf_pixel_count < 100:
-        binary_leaf_mask = np.ones((img_bgr.shape[0], img_bgr.shape[1]), dtype=np.uint8)
+        binary_leaf_mask = np.ones((h, w), dtype=np.uint8)
         leaf_pixel_count = total_pixels
         
     return binary_leaf_mask, leaf_pixel_count
+

@@ -1,0 +1,31 @@
+filename,true_label,local_status,local_pred,local_conf,local_latency_ms,prod_status,prod_pred,prod_conf,prod_latency_ms,match_truth_local,match_truth_prod,local_prod_agree
+0012b9d2-2130-4a06-a834-b1f3af34f57e___RS_Erly.B 8389.JPG,tomato_Early blight,200,tomato_Early blight,94.9,2527.9,200,tomato_Early blight,94.9,10231.6,True,True,True
+0034a551-9512-44e5-ba6c-827f85ecc688___RS_Erly.B 9432.JPG,tomato_Early blight,200,tomato_Early blight,99.07,2398.7,200,tomato_Early blight,99.07,8963.8,True,True,True
+004cbe60-8ff9-4965-92df-e86694d5e9ba___RS_Erly.B 8253.JPG,tomato_Early blight,200,tomato_Early blight,97.34,2445.3,200,tomato_Early blight,97.34,9284.1,True,True,True
+00c5c908-fc25-4710-a109-db143da23112___RS_Erly.B 7778.JPG,tomato_Early blight,200,tomato_Early blight,64.74,2575.0,200,tomato_Early blight,64.74,17946.3,True,True,True
+00e7c4b2-3005-4558-9cfa-235e356cb7a8___RS_Erly.B 7844.JPG,tomato_Early blight,200,tomato_Early blight,93.33,2470.7,200,tomato_Early blight,93.33,9659.1,True,True,True
+0114f7b3-7f56-4bef-aa47-7a82da142d4b___RS_Erly.B 7437.JPG,tomato_Early blight,200,tomato_Early blight,96.0,2528.0,200,tomato_Early blight,96.0,9155.6,True,True,True
+011aa278-a39e-40b0-b6e4-2e2f835889f0___RS_Erly.B 8251.JPG,tomato_Early blight,200,tomato_Early blight,99.51,2594.8,200,tomato_Early blight,99.51,9472.8,True,True,True
+01861c93-ea8b-4820-aaa8-cc6003b3e75b___RS_Erly.B 7855.JPG,tomato_Early blight,200,tomato_Late blight,63.08,3053.5,200,tomato_Late blight,63.08,9904.9,False,False,True
+01f87f04-ff38-4aba-b7d1-587aa06e5282___RS_Erly.B 7851.JPG,tomato_Early blight,200,tomato_Early blight,59.54,2681.4,200,tomato_Early blight,59.54,9202.6,True,True,True
+0208ed52-1b28-4c9c-88e3-4667581e1109___RS_Erly.B 7829.JPG,tomato_Early blight,200,tomato_Early blight,55.31,2470.0,200,tomato_Early blight,55.31,9411.3,True,True,True
+000146ff-92a4-4db6-90ad-8fce2ae4fddd___GH_HL Leaf 259.1.JPG,tomato_healthy,200,tomato_healthy,97.69,2633.6,200,tomato_healthy,97.69,9156.3,True,True,True
+000bf685-b305-408b-91f4-37030f8e62db___GH_HL Leaf 308.1.JPG,tomato_healthy,200,tomato_healthy,99.36,2648.5,200,tomato_healthy,99.36,9941.3,True,True,True
+0031da2a-8edd-468f-a8b1-106657717a32___RS_HL 0105.JPG,tomato_healthy,200,tomato_healthy,99.59,2728.6,200,tomato_healthy,99.59,10039.1,True,True,True
+003944fc-3b99-4a0f-9ed4-0e07352fd8b3___RS_HL 9844.JPG,tomato_healthy,200,tomato_healthy,98.24,2443.2,200,tomato_healthy,98.24,9437.1,True,True,True
+00bce074-967b-4d50-967a-31fdaa35e688___RS_HL 0223.JPG,tomato_healthy,200,tomato_Late blight,59.06,2496.8,200,tomato_Late blight,59.06,9117.0,False,False,True
+014b5e19-7917-4d76-b632-b5dd31d999ec___RS_HL 9640.JPG,tomato_healthy,200,tomato_healthy,96.63,2546.4,200,tomato_healthy,96.63,9612.0,True,True,True
+01700b46-3800-46c6-ab81-09a5f50af525___RS_HL 0108.JPG,tomato_healthy,200,tomato_healthy,99.16,2423.6,200,tomato_healthy,99.16,10166.5,True,True,True
+0172e56c-8bb8-4e75-8ac7-509df81393e8___RS_HL 0580.JPG,tomato_healthy,200,tomato_healthy,99.38,2387.5,200,tomato_healthy,99.38,9896.8,True,True,True
+017a4026-813a-4983-887a-4052bb78c397___RS_HL 0218.JPG,tomato_healthy,200,tomato_healthy,98.9,2376.9,200,tomato_healthy,98.9,10056.6,True,True,True
+0184dc6b-bfc1-4515-ac59-bbadaf524e1a___GH_HL Leaf 422.1.JPG,tomato_healthy,200,tomato_healthy,99.86,2345.8,200,tomato_healthy,99.86,9867.8,True,True,True
+0003faa8-4b27-4c65-bf42-6d9e352ca1a5___RS_Late.B 4946.JPG,tomato_Late blight,200,tomato_Late blight,99.58,2365.2,200,tomato_Late blight,99.58,9025.4,True,True,True
+00355ec2-f12c-4015-b8f9-94354f69ce22___RS_Late.B 5311.JPG,tomato_Late blight,200,tomato_Late blight,97.61,7310.6,200,tomato_Late blight,97.61,9626.4,True,True,True
+005a2c1f-4e15-49e4-9e5c-61dc3ecf9708___RS_Late.B 5096.JPG,tomato_Late blight,200,tomato_Late blight,99.79,6178.0,200,tomato_Late blight,99.79,10852.6,True,True,True
+005e3b43-9050-47da-9498-f9ecdcc703b3___RS_Late.B 5104.JPG,tomato_Late blight,200,tomato_Late blight,91.41,4821.5,200,tomato_Late blight,91.41,8749.4,True,True,True
+008ebb44-eb77-4843-b621-4b88b5df7d43___RS_Late.B 5188.JPG,tomato_Late blight,200,tomato_Late blight,99.71,2305.9,200,tomato_Late blight,99.71,17923.5,True,True,True
+00ce4c63-9913-4b16-898c-29f99acf0dc3___RS_Late.B 4982.JPG,tomato_Late blight,200,tomato_Late blight,97.71,2352.0,200,tomato_Late blight,97.71,9353.3,True,True,True
+013f987a-9371-4763-a104-ea6f326e584b___GHLB2 Leaf 8556.JPG,tomato_Late blight,200,,,50.9,200,,,779.9,False,False,True
+01425d17-4c97-46e3-b395-c1453b78ab78___GHLB2 Leaf 9100.JPG,tomato_Late blight,200,tomato_Late blight,98.85,2390.4,200,tomato_Late blight,98.85,9841.8,True,True,True
+014d4972-1301-46d3-afc4-56470b774137___GHLB2 Leaf 8831.JPG,tomato_Late blight,200,tomato_Late blight,99.89,2299.9,200,tomato_Late blight,99.89,9486.4,True,True,True
+014eee0c-8000-4762-b4b8-63ecc2fadc13___GHLB2ES Leaf 69.1.JPG,tomato_Late blight,200,tomato_Late blight,99.86,1189.4,200,tomato_Late blight,99.86,9311.7,True,True,True

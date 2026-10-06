@@ -36,11 +36,19 @@ export async function getStores(lat, lon, radiusM = 25000) {
 }
 
 /** POST /chat – multilingual chatbot */
-export async function sendChatMessage(message, language = 'en', history = [], context = null) {
+export async function sendChatMessage(message, language = 'en', history = [], context = null, farmerContext = null, weatherContext = null, historyTrend = null) {
   const res = await fetch(`${BASE_URL}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, language, history, context }),
+    body: JSON.stringify({ 
+      message, 
+      language, 
+      history, 
+      context,
+      farmer_context: farmerContext,
+      weather_context: weatherContext,
+      history_trend: historyTrend
+    }),
   })
   return handleResponse(res)
 }
@@ -157,6 +165,21 @@ export async function getFarmerHistory(farmerId, limit = 20) {
 /** GET /farmers/{id}/trends – Health score and severity trend analysis */
 export async function getFarmerTrends(farmerId, limit = 20) {
   const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}/trends?limit=${limit}`)
+  return handleResponse(res)
+}
+
+/** POST /feedback – Submit user feedback */
+export async function submitFeedback(rating, comment, category = null, farmerId = null) {
+  const res = await fetch(`${BASE_URL}/feedback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      rating,
+      comment,
+      category,
+      farmer_id: farmerId
+    })
+  })
   return handleResponse(res)
 }
 

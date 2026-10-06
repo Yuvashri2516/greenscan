@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Activity, ShieldAlert, Award, FileText, ArrowRight, RefreshCw, X, AlertTriangle, Search, Filter } from 'lucide-react'
 import '../index.css'
 
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001'
+const BASE_URL = rawBaseUrl.replace(/\/+$/, '')
+
 export default function HistoryPage() {
   const [historyList, setHistoryList] = useState([])
   const [loading, setLoading] = useState(true)
@@ -393,15 +396,13 @@ export default function HistoryPage() {
             `}</style>
           </div>
         )}
-      </div>
-
       {/* Details Dialog Modal */}
       <AnimatePresence>
         {selectedScan && (
           <div style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
-            backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', padding: '20px', zIndex: 'var(--z-modal)'
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', padding: '20px', zIndex: 1100
           }}>
             <motion.div 
               initial={{ scale: 0.95, opacity: 0 }}
@@ -409,10 +410,11 @@ export default function HistoryPage() {
               exit={{ scale: 0.95, opacity: 0 }}
               className="card"
               style={{
-                width: '100%', maxWidth: '650px', maxHeight: '90vh',
-                overflowY: 'auto', padding: '32px', position: 'relative',
-                boxShadow: 'var(--shadow-lg)', background: '#fff', border: '1px solid var(--gray-200)',
-                borderRadius: 'var(--radius-md)'
+                width: '100%', maxWidth: '680px', maxHeight: '88vh',
+                overflowY: 'auto', padding: '28px 32px', position: 'relative',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
+                background: '#fff', border: '1px solid var(--gray-200)',
+                borderRadius: 'var(--radius-lg)', margin: 'auto'
               }}
             >
               <button 
@@ -421,25 +423,84 @@ export default function HistoryPage() {
                   position: 'absolute', top: '20px', right: '20px',
                   background: 'var(--gray-100)', border: 'none', borderRadius: '50%',
                   width: '36px', height: '36px', display: 'flex',
-                  alignItems: 'center', justifyContents: 'center', cursor: 'pointer',
-                  justifyContent: 'center', color: 'var(--gray-600)'
+                  alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                  color: 'var(--gray-600)', zIndex: 10
                 }}
               >
                 <X size={20} />
               </button>
 
-              <div style={{ borderBottom: '1px solid var(--gray-200)', pb: '16px', marginBottom: '24px', paddingBottom: '16px' }}>
+              <div style={{ borderBottom: '1px solid var(--gray-200)', paddingBottom: '16px', marginBottom: '20px' }}>
                 <span className={`badge ${getSeverityBadgeClass(selectedScan.severity_level)}`} style={{ marginBottom: '8px' }}>
                   {getSeverityTraffic(selectedScan.severity_level)} {selectedScan.severity_level} Severity
                 </span>
-                <h2 style={{ color: 'var(--gray-900)', margin: 0, fontWeight: 800 }}>{selectedScan.display_name}</h2>
+                <h2 style={{ color: 'var(--gray-900)', margin: 0, fontWeight: 800, fontSize: '1.45rem' }}>{selectedScan.display_name}</h2>
                 <p style={{ color: 'var(--gray-500)', margin: '4px 0 0', fontSize: '0.85rem' }}>
                   Logged on {formatDate(selectedScan.timestamp)}
                 </p>
               </div>
 
-              {/* Core Metrics */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+              {/* Dedicated Original Scanned Leaf Container */}
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{ 
+                  fontSize: '0.82rem', 
+                  fontWeight: 800, 
+                  color: 'var(--gray-600)', 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '0.05em',
+                  marginBottom: '10px' 
+                }}>
+                  Original Scanned Leaf
+                </h4>
+                {selectedScan.image_url ? (
+                  <div style={{
+                    width: '100%',
+                    maxHeight: '320px',
+                    background: '#0f172a',
+                    borderRadius: 'var(--radius-md)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid var(--gray-200)',
+                    padding: '8px'
+                  }}>
+                    <img 
+                      src={selectedScan.image_url.startsWith('http') ? selectedScan.image_url : `${BASE_URL}${selectedScan.image_url.startsWith('/') ? '' : '/'}${selectedScan.image_url}`} 
+                      alt={selectedScan.display_name || 'Scanned Leaf'}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '304px',
+                        objectFit: 'contain',
+                        borderRadius: '6px',
+                        display: 'block'
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none'
+                        if (e.target.nextSibling) e.target.nextSibling.style.display = 'block'
+                      }}
+                    />
+                    <div style={{ display: 'none', padding: '32px 20px', textAlign: 'center', color: 'var(--gray-400)', fontSize: '0.88rem' }}>
+                      Original image unavailable for this history record.
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{
+                    padding: '24px 16px',
+                    background: 'var(--gray-100)',
+                    borderRadius: 'var(--radius-md)',
+                    textAlign: 'center',
+                    color: 'var(--gray-500)',
+                    fontSize: '0.88rem',
+                    border: '1px dashed var(--gray-300)'
+                  }}>
+                    Original image unavailable for this history record.
+                  </div>
+                )}
+              </div>
+
+              {/* Core Metrics Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 <div style={{ background: 'var(--gray-50)', padding: '16px', borderRadius: '8px', textAlign: 'center', border: '1px solid var(--gray-200)' }}>
                   <Award size={20} color="var(--green-700)" style={{ margin: '0 auto 6px' }} />
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--gray-500)' }}>Health Score</p>
@@ -448,12 +509,14 @@ export default function HistoryPage() {
                 <div style={{ background: 'var(--gray-50)', padding: '16px', borderRadius: '8px', textAlign: 'center', border: '1px solid var(--gray-200)' }}>
                   <Activity size={20} color="var(--green-700)" style={{ margin: '0 auto 6px' }} />
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--gray-500)' }}>Confidence</p>
-                  <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--gray-800)' }}>{selectedScan.confidence.toFixed(1)}%</p>
+                  <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--gray-800)' }}>{selectedScan.confidence ? selectedScan.confidence.toFixed(1) : '0'}%</p>
                 </div>
                 <div style={{ background: 'var(--gray-50)', padding: '16px', borderRadius: '8px', textAlign: 'center', border: '1px solid var(--gray-200)' }}>
                   <ShieldAlert size={20} color="var(--green-700)" style={{ margin: '0 auto 6px' }} />
                   <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--gray-500)' }}>Affected Region</p>
-                  <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--gray-800)' }}>{selectedScan.affected_area_pct.toFixed(1)}%</p>
+                  <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: 'var(--gray-800)' }}>
+                    {selectedScan.affected_area_pct !== undefined && selectedScan.affected_area_pct !== null ? `${selectedScan.affected_area_pct.toFixed(1)}%` : 'N/A'}
+                  </p>
                 </div>
               </div>
 
@@ -497,7 +560,7 @@ export default function HistoryPage() {
               )}
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '32px', borderTop: '1px solid var(--gray-200)', paddingTop: '20px' }}>
-                <Link to="/scan" className="btn btn-primary" style={{ textDecoration: 'none', flex: 1, borderRadius: '6px' }} onClick={() => setSelectedScan(null)}>
+                <Link to="/scan" className="btn btn-primary" style={{ textDecoration: 'none', flex: 1, borderRadius: '6px', textAlign: 'center' }} onClick={() => setSelectedScan(null)}>
                   Scan Again
                 </Link>
                 <button className="btn btn-secondary" style={{ flex: 1, borderRadius: '6px' }} onClick={() => setSelectedScan(null)}>
@@ -508,6 +571,7 @@ export default function HistoryPage() {
           </div>
         )}
       </AnimatePresence>
+      </div>
     </motion.div>
   )
 }

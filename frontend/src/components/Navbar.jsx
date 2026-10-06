@@ -11,15 +11,15 @@ export default function Navbar() {
   const navigate = useNavigate()
 
   const navLinks = [
-    { path: '/', label: 'Home', icon: <Leaf size={16} /> },
-    { path: '/scan?tab=scan', label: 'Scan', icon: <ScanLine size={16} /> },
-    { path: '/history', label: 'History', icon: <History size={16} /> },
-    { path: '/disease-guide', label: 'Disease Information', icon: <BookOpen size={16} /> },
-    { path: '/scan?tab=soil', label: 'Soil Advisor', icon: <Activity size={16} /> },
-    { path: '/scan?tab=dosage', label: 'Dosage Calculator', icon: <Cpu size={16} /> },
-    { path: '#', label: 'AI Assistant', icon: <MessageSquare size={16} />, isChat: true },
-    { path: '/profile', label: 'My Profile', icon: <User size={16} /> },
-    { path: '/dashboard', label: 'Dashboard', icon: <BarChart2 size={16} /> },
+    { path: '/', label: 'Home', icon: <Leaf size={15} /> },
+    { path: '/scan?tab=scan', label: 'Scan', icon: <ScanLine size={15} /> },
+    { path: '/history', label: 'History', icon: <History size={15} /> },
+    { path: '/disease-guide', label: 'Disease Information', icon: <BookOpen size={15} /> },
+    { path: '/scan?tab=soil', label: 'Soil Advisor', icon: <Activity size={15} /> },
+    { path: '/scan?tab=dosage', label: 'Dosage Calculator', icon: <Cpu size={15} /> },
+    { path: '#', label: 'AI Assistant', icon: <MessageSquare size={15} />, isChat: true },
+    { path: '/profile', label: 'My Profile', icon: <User size={15} /> },
+    { path: '/dashboard', label: 'Dashboard', icon: <BarChart2 size={15} /> },
   ]
 
   useEffect(() => {
@@ -89,29 +89,29 @@ export default function Navbar() {
     >
       <div className="container" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        height: '76px', padding: '0 24px'
+        height: '76px', padding: '0 16px', boxSizing: 'border-box'
       }}>
         {/* Logo */}
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={closeMobileMenu}>
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }} onClick={closeMobileMenu}>
           <motion.div 
             whileHover={{ rotate: 180 }}
             transition={{ duration: 0.5, ease: 'easeInOut' }}
             style={{
               background: 'linear-gradient(135deg, var(--green-600) 0%, var(--green-800) 100%)', 
-              width: 38, height: 38,
+              width: 36, height: 36,
               borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: '0 4px 12px rgba(38, 107, 55, 0.15)'
             }}
           >
             <Leaf size={18} color="#fff" />
           </motion.div>
-          <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--gray-900)', letterSpacing: '-0.02em' }}>
+          <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--gray-900)', letterSpacing: '-0.02em' }}>
             Green<span style={{ color: 'var(--green-700)' }}>Scan</span>
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hide-mobile" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+        <nav className="hide-mobile" style={{ display: 'flex', gap: '3px', alignItems: 'center', flexWrap: 'nowrap', flexShrink: 0 }}>
           {navLinks.map((link) => (
             <motion.div 
               key={link.label} 
@@ -127,35 +127,21 @@ export default function Navbar() {
                   textDecoration: 'none', 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '6px',
-                  padding: '8px 12px',
+                  gap: '4px',
+                  padding: '6px 8px',
                   borderRadius: 'var(--radius-md)',
-                  color: isActive(link.path) ? 'var(--green-800)' : 'var(--gray-700)',
-                  background: isActive(link.path) ? 'var(--green-50)' : 'transparent',
-                  fontWeight: 600,
-                  fontSize: '0.85rem'
+                  color: isActive(link.path) ? 'var(--green-800)' : 'var(--gray-800)',
+                  background: isActive(link.path) ? 'var(--green-100)' : 'transparent',
+                  fontWeight: isActive(link.path) ? 700 : 600,
+                  fontSize: '0.82rem',
+                  whiteSpace: 'nowrap',
+                  lineHeight: '1.2'
                 }}
               >
                 {link.icon} {link.label}
               </Link>
             </motion.div>
           ))}
-          
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} style={{ marginLeft: '12px' }}>
-            <Link 
-              to="/scan?tab=scan" 
-              className="btn btn-primary" 
-              style={{ 
-                textDecoration: 'none', 
-                borderRadius: 'var(--radius-md)', 
-                padding: '9px 18px', 
-                fontSize: '0.85rem',
-                fontWeight: 700
-              }}
-            >
-              Start Scanning
-            </Link>
-          </motion.div>
         </nav>
 
         {/* Hamburger Menu Toggle (Mobile) */}
@@ -209,24 +195,15 @@ export default function Navbar() {
                 {link.icon} {link.label}
               </Link>
             ))}
-
-            <Link 
-              to="/scan?tab=scan" 
-              className="btn btn-primary" 
-              onClick={closeMobileMenu}
-              style={{ textDecoration: 'none', textAlign: 'center', padding: '12px', borderRadius: '8px', display: 'block', width: '100%', fontSize: '0.95rem', fontWeight: 700, marginTop: '8px' }}
-            >
-              Start Scanning
-            </Link>
           </motion.div>
         )}
       </AnimatePresence>
 
       <style>{`
-        @media (max-width: 1024px) {
+        @media (max-width: 1150px) {
           .hide-mobile { display: none !important; }
         }
-        @media (min-width: 1025px) {
+        @media (min-width: 1151px) {
           .hide-desktop { display: none !important; }
         }
       `}</style>

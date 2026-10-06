@@ -1,6 +1,9 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Save, Edit3, CheckCircle, AlertCircle, MapPin, Droplets, Sprout, Leaf } from "lucide-react";
+import { 
+  User, Save, Edit3, CheckCircle, AlertCircle, MapPin, 
+  Droplets, Sprout, Leaf, Phone, Activity 
+} from "lucide-react";
 import { createFarmerProfile, getFarmerProfile, updateFarmerProfile } from "../api/index.js";
 
 const CROP_STAGES = ["Seedling", "Vegetative", "Flowering", "Fruiting", "Harvest"];
@@ -101,26 +104,17 @@ export default function FarmerProfilePage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg-primary)", padding: "2rem 1rem" }}>
-      <div style={{ maxWidth: 640, margin: "0 auto" }}>
+    <div style={{ minHeight: "100vh", background: "var(--green-50)", padding: "2.5rem 1.5rem" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: "50%",
-            background: "linear-gradient(135deg, var(--primary-green), var(--accent-cyan))",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 1rem",
-            boxShadow: "0 0 32px rgba(16,185,129,0.35)"
-          }}>
-            <User size={32} color="white" />
-          </div>
-          <h1 style={{ color: "var(--text-primary)", fontSize: "1.8rem", fontWeight: 700, margin: 0 }}>
+        {/* Page Header */}
+        <div style={{ marginBottom: "2rem" }}>
+          <h1 style={{ color: "var(--gray-900)", fontSize: "1.85rem", fontWeight: 800, margin: 0, letterSpacing: "-0.02em" }}>
             Farmer Profile
           </h1>
-          <p style={{ color: "var(--text-secondary)", marginTop: "0.5rem" }}>
+          <p style={{ color: "var(--gray-600)", marginTop: "0.4rem", fontSize: "0.95rem" }}>
             {existing
-              ? "Your profile personalizes GreenScan recommendations for your farm."
+              ? "Manage your agricultural profile, farm details, and crop configuration."
               : "Create a profile to get personalized disease recommendations, track scan history, and view crop health trends."}
           </p>
         </div>
@@ -130,10 +124,10 @@ export default function FarmerProfilePage() {
           <div style={{
             display: "flex", alignItems: "center", gap: "0.75rem",
             padding: "1rem 1.25rem", borderRadius: 12, marginBottom: "1.5rem",
-            background: status.type === "success"
-              ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)",
-            border: `1px solid ${status.type === "success" ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}`,
-            color: status.type === "success" ? "var(--primary-green)" : "#ef4444"
+            background: status.type === "success" ? "var(--green-100)" : "#fef2f2",
+            border: `1.5px solid ${status.type === "success" ? "var(--green-200)" : "#fecaca"}`,
+            color: status.type === "success" ? "var(--green-800)" : "var(--accent-red)",
+            fontWeight: 600, fontSize: "0.9rem"
           }}>
             {status.type === "success"
               ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
@@ -141,140 +135,215 @@ export default function FarmerProfilePage() {
           </div>
         )}
 
-        {/* Profile Card */}
+        {/* Profile Summary Header Banner */}
         <div style={{
-          background: "var(--bg-card)", borderRadius: 20,
-          border: "1px solid var(--border-color)", overflow: "hidden",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.2)"
+          background: "var(--white)", borderRadius: 16,
+          border: "1.5px solid var(--gray-200)", padding: "1.25rem 1.5rem",
+          marginBottom: "1.5rem", boxShadow: "var(--shadow-card)",
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          flexWrap: "wrap", gap: "1rem"
         }}>
-          {/* Card Header */}
-          <div style={{
-            padding: "1.25rem 1.5rem",
-            borderBottom: "1px solid var(--border-color)",
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-            background: "rgba(16,185,129,0.05)"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-              <Leaf size={18} color="var(--primary-green)" />
-              <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>
-                {existing ? `Farm: ${existing.farm_name || existing.name}` : "New Profile"}
-              </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div style={{
+              width: 52, height: 52, borderRadius: "50%",
+              background: "var(--green-100)", border: "1.5px solid var(--green-200)",
+              display: "flex", alignItems: "center", justifyContent: "center"
+            }}>
+              <Leaf size={24} color="var(--green-700)" />
             </div>
-            {existing && !isEditing && (
-              <div style={{ display: "flex", gap: "0.75rem" }}>
-                <button
-                  onClick={() => setIsEditing(true)}
-                  style={{
-                    display: "flex", alignItems: "center", gap: "0.4rem",
-                    background: "rgba(16,185,129,0.15)", border: "1px solid var(--primary-green)",
-                    color: "var(--primary-green)", padding: "0.5rem 1rem",
-                    borderRadius: 8, cursor: "pointer", fontSize: "0.85rem", fontWeight: 600
-                  }}>
-                  <Edit3 size={14} /> Edit
-                </button>
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  style={{
-                    display: "flex", alignItems: "center", gap: "0.4rem",
-                    background: "rgba(6,182,212,0.12)", border: "1px solid var(--accent-cyan)",
-                    color: "var(--accent-cyan)", padding: "0.5rem 1rem",
-                    borderRadius: 8, cursor: "pointer", fontSize: "0.85rem", fontWeight: 600
-                  }}>
-                  View Dashboard
-                </button>
-              </div>
-            )}
+            <div>
+              <h2 style={{ color: "var(--gray-900)", fontSize: "1.35rem", fontWeight: 800, margin: 0 }}>
+                {existing ? (existing.farm_name || existing.name) : "New Profile"}
+              </h2>
+              {existing && (
+                <p style={{ color: "var(--gray-600)", margin: "0.2rem 0 0", fontSize: "0.88rem", fontWeight: 500 }}>
+                  {existing.name} {existing.farm_location ? `· ${existing.farm_location}` : ""}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Form Body */}
-          <div style={{ padding: "1.5rem", display: "grid", gap: "1.25rem" }}>
+          {existing && !isEditing && (
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <button
+                onClick={() => setIsEditing(true)}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "0.4rem",
+                  background: "var(--green-100)", border: "1.5px solid var(--green-200)",
+                  color: "var(--green-800)", padding: "0.6rem 1.2rem",
+                  borderRadius: 10, cursor: "pointer", fontSize: "0.88rem", fontWeight: 700,
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = "var(--green-200)"}
+                onMouseLeave={e => e.currentTarget.style.background = "var(--green-100)"}
+              >
+                <Edit3 size={15} /> Edit Profile
+              </button>
+              <button
+                onClick={() => navigate("/dashboard")}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "0.4rem",
+                  background: "#eff6ff", border: "1.5px solid #bfdbfe",
+                  color: "var(--accent-blue)", padding: "0.6rem 1.2rem",
+                  borderRadius: 10, cursor: "pointer", fontSize: "0.88rem", fontWeight: 700,
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = "#dbeafe"}
+                onMouseLeave={e => e.currentTarget.style.background = "#eff6ff"}
+              >
+                View Dashboard
+              </button>
+            </div>
+          )}
+        </div>
 
-            {/* Name */}
-            <FormField
-              label="Your Full Name *" icon={<User size={16} />}
-              value={form.name} onChange={v => handleChange("name", v)}
-              placeholder="e.g., Raju Patel" disabled={!isEditing}
-            />
-
-            {/* Farm Name */}
-            <FormField
-              label="Farm Name" icon={<Sprout size={16} />}
-              value={form.farm_name} onChange={v => handleChange("farm_name", v)}
-              placeholder="e.g., Green Valley Farm" disabled={!isEditing}
-            />
-
-            {/* Location + Farm Size (2-col) */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-              <FormField
-                label="Location" icon={<MapPin size={16} />}
-                value={form.farm_location} onChange={v => handleChange("farm_location", v)}
-                placeholder="Village / District" disabled={!isEditing}
-              />
-              <FormField
-                label="Farm Size (acres)" icon={<span style={{fontSize:"0.9rem"}}>🌾</span>}
-                value={form.farm_size} onChange={v => handleChange("farm_size", v)}
-                placeholder="e.g., 2.5" type="number" disabled={!isEditing}
-              />
+        {/* View Mode Section Cards Grid */}
+        {!isEditing && existing && (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.25rem", marginBottom: "1.5rem" }}>
+            
+            {/* Section A: Farmer Information */}
+            <div style={{ background: "var(--white)", borderRadius: 16, border: "1.5px solid var(--gray-200)", padding: "1.5rem", boxShadow: "var(--shadow-card)" }}>
+              <h3 style={{ margin: "0 0 1.25rem", color: "var(--gray-900)", fontSize: "1.1rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <User size={18} color="var(--green-700)" /> Farmer Information
+              </h3>
+              <div style={{ display: "grid", gap: "1rem" }}>
+                <InfoField label="FULL NAME" value={existing.name} icon={<User size={14} />} />
+                <InfoField label="CONTACT / PHONE" value={existing.contact} icon={<Phone size={14} />} />
+              </div>
             </div>
 
-            {/* Contact */}
-            <FormField
-              label="Contact / Phone" icon={<span style={{fontSize:"0.9rem"}}>📞</span>}
-              value={form.contact} onChange={v => handleChange("contact", v)}
-              placeholder="e.g., 9876543210" disabled={!isEditing}
-            />
-
-            {/* Tomato Variety + Crop Stage (2-col) */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-              <SelectField
-                label="Tomato Variety" value={form.tomato_variety}
-                onChange={v => handleChange("tomato_variety", v)}
-                options={TOMATO_VARIETIES} disabled={!isEditing}
-              />
-              <SelectField
-                label="Crop Stage" value={form.crop_stage}
-                onChange={v => handleChange("crop_stage", v)}
-                options={CROP_STAGES} disabled={!isEditing}
-              />
+            {/* Section B: Farm Information */}
+            <div style={{ background: "var(--white)", borderRadius: 16, border: "1.5px solid var(--gray-200)", padding: "1.5rem", boxShadow: "var(--shadow-card)" }}>
+              <h3 style={{ margin: "0 0 1.25rem", color: "var(--gray-900)", fontSize: "1.1rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <Sprout size={18} color="var(--green-700)" /> Farm Information
+              </h3>
+              <div style={{ display: "grid", gap: "1rem" }}>
+                <InfoField label="FARM NAME" value={existing.farm_name} icon={<Sprout size={14} />} />
+                <InfoField label="LOCATION" value={existing.farm_location} icon={<MapPin size={14} />} />
+                <InfoField label="FARM SIZE" value={existing.farm_size ? `${existing.farm_size} acres` : null} icon={<span style={{fontSize:"0.85rem"}}>🌾</span>} />
+              </div>
             </div>
 
-            {/* Irrigation */}
-            <SelectField
-              label="Irrigation Method" icon={<Droplets size={16} />}
-              value={form.irrigation_method}
-              onChange={v => handleChange("irrigation_method", v)}
-              options={IRRIGATION_METHODS} disabled={!isEditing}
-            />
+            {/* Section C: Crop Configuration */}
+            <div style={{ background: "var(--white)", borderRadius: 16, border: "1.5px solid var(--gray-200)", padding: "1.5rem", boxShadow: "var(--shadow-card)" }}>
+              <h3 style={{ margin: "0 0 1.25rem", color: "var(--gray-900)", fontSize: "1.1rem", fontWeight: 800, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <Leaf size={18} color="var(--green-700)" /> Crop Configuration
+              </h3>
+              <div style={{ display: "grid", gap: "1rem" }}>
+                <InfoField label="TOMATO VARIETY" value={existing.tomato_variety} icon={<Leaf size={14} />} />
+                <InfoField label="CROP STAGE" value={existing.crop_stage} icon={<Activity size={14} />} />
+                <InfoField label="IRRIGATION METHOD" value={existing.irrigation_method} icon={<Droplets size={14} />} />
+              </div>
+            </div>
 
-            {/* PIN */}
-            {isEditing && (
+          </div>
+        )}
+
+        {/* Edit / New Profile Form Card */}
+        {isEditing && (
+          <div style={{
+            background: "var(--white)", borderRadius: 16,
+            border: "1.5px solid var(--gray-200)", overflow: "hidden",
+            boxShadow: "var(--shadow-card)", marginBottom: "1.5rem"
+          }}>
+            <div style={{
+              padding: "1.25rem 1.5rem",
+              borderBottom: "1.5px solid var(--gray-200)",
+              background: "var(--green-50)",
+              display: "flex", alignItems: "center", gap: "0.6rem"
+            }}>
+              <Leaf size={18} color="var(--green-700)" />
+              <span style={{ color: "var(--gray-900)", fontWeight: 800, fontSize: "1.05rem" }}>
+                {existing ? "Edit Farmer Profile" : "Create Farmer Profile"}
+              </span>
+            </div>
+
+            {/* Form Fields Body */}
+            <div style={{ padding: "1.75rem 1.5rem", display: "grid", gap: "1.5rem" }}>
+
+              {/* Section 1: Farmer Information */}
+              <div>
+                <h4 style={{ margin: "0 0 1rem", color: "var(--green-800)", fontSize: "0.95rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                  1. Farmer Information
+                </h4>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.25rem" }}>
+                  <FormField
+                    label="Your Full Name *" icon={<User size={16} />}
+                    value={form.name} onChange={v => handleChange("name", v)}
+                    placeholder="e.g., Raju Patel" disabled={false}
+                  />
+                  <FormField
+                    label="Contact / Phone" icon={<Phone size={16} />}
+                    value={form.contact} onChange={v => handleChange("contact", v)}
+                    placeholder="e.g., 9876543210" disabled={false}
+                  />
+                </div>
+              </div>
+
+              {/* Section 2: Farm Details */}
+              <div>
+                <h4 style={{ margin: "0 0 1rem", color: "var(--green-800)", fontSize: "0.95rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                  2. Farm Details
+                </h4>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.25rem" }}>
+                  <FormField
+                    label="Farm Name" icon={<Sprout size={16} />}
+                    value={form.farm_name} onChange={v => handleChange("farm_name", v)}
+                    placeholder="e.g., Green Valley Farm" disabled={false}
+                  />
+                  <FormField
+                    label="Location" icon={<MapPin size={16} />}
+                    value={form.farm_location} onChange={v => handleChange("farm_location", v)}
+                    placeholder="Village / District" disabled={false}
+                  />
+                  <FormField
+                    label="Farm Size (acres)" icon={<span style={{fontSize:"0.9rem"}}>🌾</span>}
+                    value={form.farm_size} onChange={v => handleChange("farm_size", v)}
+                    placeholder="e.g., 2.5" type="number" disabled={false}
+                  />
+                </div>
+              </div>
+
+              {/* Section 3: Crop Configuration */}
+              <div>
+                <h4 style={{ margin: "0 0 1rem", color: "var(--green-800)", fontSize: "0.95rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                  3. Crop Configuration
+                </h4>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.25rem" }}>
+                  <SelectField
+                    label="Tomato Variety" value={form.tomato_variety}
+                    onChange={v => handleChange("tomato_variety", v)}
+                    options={TOMATO_VARIETIES} disabled={false}
+                  />
+                  <SelectField
+                    label="Crop Stage" value={form.crop_stage}
+                    onChange={v => handleChange("crop_stage", v)}
+                    options={CROP_STAGES} disabled={false}
+                  />
+                  <SelectField
+                    label="Irrigation Method" icon={<Droplets size={16} />}
+                    value={form.irrigation_method}
+                    onChange={v => handleChange("irrigation_method", v)}
+                    options={IRRIGATION_METHODS} disabled={false}
+                  />
+                </div>
+              </div>
+
+              {/* PIN Option */}
               <FormField
                 label="Security PIN (optional, 4 digits)" icon={<span style={{fontSize:"0.9rem"}}>🔒</span>}
                 value={form.pin} onChange={v => handleChange("pin", v)}
                 placeholder="Leave blank for no PIN" type="password"
-                maxLength={4} disabled={!isEditing}
+                maxLength={4} disabled={false}
               />
-            )}
 
-          </div>
-
-          {/* Farmer ID display */}
-          {existing && (
-            <div style={{
-              padding: "0.75rem 1.5rem",
-              borderTop: "1px solid var(--border-color)",
-              fontSize: "0.78rem", color: "var(--text-secondary)",
-              fontFamily: "monospace"
-            }}>
-              Farmer ID: {existing.farmer_id} · Member since: {new Date(existing.created_at).toLocaleDateString()}
             </div>
-          )}
 
-          {/* Action Buttons */}
-          {isEditing && (
+            {/* Action Buttons */}
             <div style={{
               padding: "1.25rem 1.5rem",
-              borderTop: "1px solid var(--border-color)",
+              borderTop: "1.5px solid var(--gray-200)",
+              background: "var(--gray-50)",
               display: "flex", gap: "1rem"
             }}>
               <button
@@ -282,15 +351,18 @@ export default function FarmerProfilePage() {
                 onClick={handleSave}
                 disabled={isSaving}
                 style={{
-                  flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-                  gap: "0.5rem", padding: "0.9rem",
-                  background: "linear-gradient(135deg, var(--primary-green), var(--accent-cyan))",
-                  border: "none", borderRadius: 12, color: "white",
-                  fontSize: "1rem", fontWeight: 700, cursor: isSaving ? "not-allowed" : "pointer",
+                  flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  gap: "0.5rem", padding: "0.85rem 1.5rem",
+                  background: "var(--green-700)",
+                  border: "none", borderRadius: 10, color: "white",
+                  fontSize: "0.95rem", fontWeight: 700, cursor: isSaving ? "not-allowed" : "pointer",
                   opacity: isSaving ? 0.75 : 1,
-                  boxShadow: "0 4px 20px rgba(16,185,129,0.4)",
+                  boxShadow: "0 4px 14px rgba(27,143,58,0.35)",
                   transition: "all 0.2s"
-                }}>
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = "var(--green-800)"}
+                onMouseLeave={e => e.currentTarget.style.background = "var(--green-700)"}
+              >
                 <Save size={18} />
                 {isSaving ? "Saving..." : existing ? "Update Profile" : "Create Profile"}
               </button>
@@ -298,42 +370,69 @@ export default function FarmerProfilePage() {
                 <button
                   onClick={() => { setIsEditing(false); setForm({ ...INITIAL_FORM, ...existing, pin: "" }); }}
                   style={{
-                    padding: "0.9rem 1.5rem",
-                    background: "rgba(255,255,255,0.05)", border: "1px solid var(--border-color)",
-                    borderRadius: 12, color: "var(--text-secondary)",
+                    padding: "0.85rem 1.5rem",
+                    background: "var(--white)", border: "1.5px solid var(--gray-200)",
+                    borderRadius: 10, color: "var(--gray-700)", fontWeight: 600,
                     fontSize: "0.9rem", cursor: "pointer"
-                  }}>
+                  }}
+                >
                   Cancel
                 </button>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Logout button */}
+        {/* Farmer ID Display & Logout */}
         {existing && (
-          <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
+          <div style={{ 
+            background: "var(--white)", borderRadius: 16, border: "1.5px solid var(--gray-200)", 
+            padding: "1rem 1.5rem", display: "flex", justifyContent: "space-between", 
+            alignItems: "center", flexWrap: "wrap", gap: "1rem" 
+          }}>
+            <div style={{ fontSize: "0.82rem", color: "var(--gray-600)", fontFamily: "monospace" }}>
+              Farmer ID: <strong>{existing.farmer_id}</strong> · Member since: {new Date(existing.created_at).toLocaleDateString()}
+            </div>
             <button
               onClick={handleLogout}
               style={{
-                background: "none", border: "1px solid rgba(239,68,68,0.3)",
-                color: "rgba(239,68,68,0.7)", padding: "0.5rem 1.5rem",
-                borderRadius: 8, cursor: "pointer", fontSize: "0.85rem"
+                background: "none", border: "1.5px solid #fecaca",
+                color: "var(--accent-red)", padding: "0.45rem 1.1rem",
+                borderRadius: 8, cursor: "pointer", fontSize: "0.82rem", fontWeight: 600
               }}>
               Clear Profile from This Device
             </button>
           </div>
         )}
+
+      </div>
+    </div>
+  );
+}
+
+function InfoField({ label, value, icon }) {
+  return (
+    <div style={{ background: "var(--gray-50)", padding: "1rem 1.15rem", borderRadius: 12, border: "1.5px solid var(--gray-200)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--gray-600)", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: "0.35rem" }}>
+        {icon && <span style={{ color: "var(--green-700)" }}>{icon}</span>}
+        <span>{label}</span>
+      </div>
+      <div style={{ color: "var(--gray-900)", fontSize: "1.1rem", fontWeight: 700 }}>
+        {value || "—"}
       </div>
     </div>
   );
 }
 
 function FormField({ label, value, onChange, placeholder, type = "text", disabled, maxLength, icon }) {
+  const isRequired = label.includes('*');
+  const cleanLabel = label.replace('*', '').trim();
   return (
     <div>
-      <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--text-secondary)", fontSize: "0.85rem", marginBottom: "0.4rem", fontWeight: 500 }}>
-        {icon} {label}
+      <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--gray-800)", fontSize: "0.88rem", marginBottom: "0.45rem", fontWeight: 600 }}>
+        {icon && <span style={{ color: "var(--green-700)" }}>{icon}</span>}
+        <span>{cleanLabel}</span>
+        {isRequired && <span style={{ color: "var(--accent-red)", fontWeight: 700 }}>*</span>}
       </label>
       <input
         type={type}
@@ -344,15 +443,15 @@ function FormField({ label, value, onChange, placeholder, type = "text", disable
         maxLength={maxLength}
         style={{
           width: "100%", padding: "0.75rem 1rem",
-          background: disabled ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.07)",
-          border: `1px solid ${disabled ? "rgba(255,255,255,0.08)" : "var(--border-color)"}`,
-          borderRadius: 10, color: "var(--text-primary)", fontSize: "0.95rem",
+          background: disabled ? "var(--gray-50)" : "var(--white)",
+          border: "1.5px solid var(--gray-200)",
+          borderRadius: 10, color: "var(--gray-900)", fontSize: "0.95rem",
           outline: "none", boxSizing: "border-box",
-          transition: "border-color 0.2s",
-          cursor: disabled ? "default" : "text"
+          transition: "border-color 0.2s, box-shadow 0.2s",
+          cursor: disabled ? "not-allowed" : "text"
         }}
-        onFocus={e => !disabled && (e.target.style.borderColor = "var(--primary-green)")}
-        onBlur={e => e.target.style.borderColor = "var(--border-color)"}
+        onFocus={e => !disabled && (e.target.style.borderColor = "var(--green-700)", e.target.style.boxShadow = "0 0 0 3px rgba(27,143,58,0.15)")}
+        onBlur={e => (e.target.style.borderColor = "var(--gray-200)", e.target.style.boxShadow = "none")}
       />
     </div>
   );
@@ -361,8 +460,9 @@ function FormField({ label, value, onChange, placeholder, type = "text", disable
 function SelectField({ label, value, onChange, options, disabled, icon }) {
   return (
     <div>
-      <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--text-secondary)", fontSize: "0.85rem", marginBottom: "0.4rem", fontWeight: 500 }}>
-        {icon} {label}
+      <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--gray-800)", fontSize: "0.88rem", marginBottom: "0.45rem", fontWeight: 600 }}>
+        {icon && <span style={{ color: "var(--green-700)" }}>{icon}</span>}
+        <span>{label}</span>
       </label>
       <select
         value={value || ""}
@@ -370,12 +470,15 @@ function SelectField({ label, value, onChange, options, disabled, icon }) {
         disabled={disabled}
         style={{
           width: "100%", padding: "0.75rem 1rem",
-          background: disabled ? "rgba(255,255,255,0.03)" : "var(--bg-secondary)",
-          border: `1px solid ${disabled ? "rgba(255,255,255,0.08)" : "var(--border-color)"}`,
-          borderRadius: 10, color: value ? "var(--text-primary)" : "var(--text-secondary)",
-          fontSize: "0.95rem", outline: "none", cursor: disabled ? "default" : "pointer",
+          background: disabled ? "var(--gray-50)" : "var(--white)",
+          border: "1.5px solid var(--gray-200)",
+          borderRadius: 10, color: value ? "var(--gray-900)" : "var(--gray-600)",
+          fontSize: "0.95rem", outline: "none", cursor: disabled ? "not-allowed" : "pointer",
           boxSizing: "border-box"
-        }}>
+        }}
+        onFocus={e => !disabled && (e.target.style.borderColor = "var(--green-700)", e.target.style.boxShadow = "0 0 0 3px rgba(27,143,58,0.15)")}
+        onBlur={e => (e.target.style.borderColor = "var(--gray-200)", e.target.style.boxShadow = "none")}
+      >
         <option value="">— Select —</option>
         {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
       </select>
