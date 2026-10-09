@@ -17,6 +17,7 @@ Quality & Safety Architecture:
 """
 
 import os
+import re
 import logging
 from typing import Optional, List, Dict, Any
 from knowledge_base import KNOWLEDGE_BASE, retrieve_relevant_knowledge
@@ -113,7 +114,30 @@ async def get_chat_response(
     """
     msg_raw = message or ""
     msg_lower = msg_raw.lower().strip()
-    lang_code = (language or "en").lower()[:2]
+    
+    # ─── Language Detection ──────────────────────────────────────────────────
+    def _detect_lang(text: str) -> Optional[str]:
+        clean = re.sub(r'[\s\d\.\,\?\!\-\(\)\[\]]', '', text)
+        if not clean:
+            return None
+        ta_count = sum(1 for c in clean if '\u0B80' <= c <= '\u0BFF')
+        hi_count = sum(1 for c in clean if '\u0900' <= c <= '\u097F')
+        latin_count = sum(1 for c in clean if 'a' <= c.lower() <= 'z')
+        
+        max_count = max(ta_count, hi_count, latin_count)
+        
+        # Determine dominance
+        if max_count == ta_count and ta_count > len(clean) * 0.15:
+            return "ta"
+        if max_count == hi_count and hi_count > len(clean) * 0.15:
+            return "hi"
+        if max_count == latin_count and latin_count > len(clean) * 0.4:
+            return "en"
+            
+        return None
+
+    detected = _detect_lang(msg_raw)
+    lang_code = detected if detected else (language or "en").lower()[:2]
     t = _get_lang_dict(lang_code)
 
     # ─── 1. Unrelated Question Redirection ───────────────────────────────────

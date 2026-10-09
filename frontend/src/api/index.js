@@ -1,6 +1,6 @@
 // src/api/index.js – GreenScan API Client
 
-const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8001'
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL || (import.meta.env.PROD ? 'https://greenscan-api-4rhz.onrender.com' : 'http://127.0.0.1:8001')
 const BASE_URL = rawBaseUrl.replace(/\/+$/, '')
 
 function formatErrorDetail(detail) {
@@ -13,6 +13,22 @@ function formatErrorDetail(detail) {
     return detail.msg || detail.message || detail.error || JSON.stringify(detail)
   }
   return String(detail)
+}
+
+async function fetchWithRetry(url, options = {}, retries = 3, backoff = 3000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url, options)
+      return res
+    } catch (err) {
+      if (i === retries - 1) throw err
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        await new Promise(resolve => setTimeout(resolve, backoff))
+        continue
+      }
+      throw err
+    }
+  }
 }
 
 async function handleResponse(res) {
@@ -37,7 +53,7 @@ export async function getStores(lat, lon, radiusM = 25000) {
 
 /** POST /chat – multilingual chatbot */
 export async function sendChatMessage(message, language = 'en', history = [], context = null, farmerContext = null, weatherContext = null, historyTrend = null) {
-  const res = await fetch(`${BASE_URL}/chat`, {
+  const res = await fetchWithRetry(`${BASE_URL}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ 
@@ -55,7 +71,7 @@ export async function sendChatMessage(message, language = 'en', history = [], co
 
 /** GET /history – retrieve scan history */
 export async function getScanHistory(limit = 20) {
-  const res = await fetch(`${BASE_URL}/history?limit=${limit}`)
+  const res = await fetchWithRetry(`${BASE_URL}/history?limit=${limit}`)
   return handleResponse(res)
 }
 
@@ -109,7 +125,7 @@ export async function calculateDosage(payload) {
 
 /** POST /soil-health – Soil NPK & pH diagnostics */
 export async function analyzeSoilHealth(payload) {
-  const res = await fetch(`${BASE_URL}/soil-health`, {
+  const res = await fetchWithRetry(`${BASE_URL}/soil-health`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
@@ -122,7 +138,7 @@ export async function analyzeSoilHealth(payload) {
 
 /** POST /farmers – Create a new farmer profile */
 export async function createFarmerProfile(profile) {
-  const res = await fetch(`${BASE_URL}/farmers`, {
+  const res = await fetchWithRetry(`${BASE_URL}/farmers`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(profile)
@@ -132,13 +148,13 @@ export async function createFarmerProfile(profile) {
 
 /** GET /farmers/{id} – Get farmer profile (PIN excluded) */
 export async function getFarmerProfile(farmerId) {
-  const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}`)
+  const res = await fetchWithRetry(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}`)
   return handleResponse(res)
 }
 
 /** PUT /farmers/{id} – Update farmer profile fields */
 export async function updateFarmerProfile(farmerId, updates) {
-  const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}`, {
+  const res = await fetchWithRetry(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(updates)
@@ -148,7 +164,7 @@ export async function updateFarmerProfile(farmerId, updates) {
 
 /** POST /farmers/{id}/verify – Verify farmer PIN */
 export async function verifyFarmerPin(farmerId, pin) {
-  const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}/verify`, {
+  const res = await fetchWithRetry(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}/verify`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ pin })
@@ -158,13 +174,13 @@ export async function verifyFarmerPin(farmerId, pin) {
 
 /** GET /farmers/{id}/history – Farmer-specific scan history */
 export async function getFarmerHistory(farmerId, limit = 20) {
-  const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}/history?limit=${limit}`)
+  const res = await fetchWithRetry(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}/history?limit=${limit}`)
   return handleResponse(res)
 }
 
 /** GET /farmers/{id}/trends – Health score and severity trend analysis */
 export async function getFarmerTrends(farmerId, limit = 20) {
-  const res = await fetch(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}/trends?limit=${limit}`)
+  const res = await fetchWithRetry(`${BASE_URL}/farmers/${encodeURIComponent(farmerId)}/trends?limit=${limit}`)
   return handleResponse(res)
 }
 
@@ -198,44 +214,66 @@ export async function getDiseaseKnowledge(diseaseKey) {
 }
 
 /**
- * Polls GET {BASE_URL}/health every 5 seconds until it returns 200 with model_ready === true,
+ * Polls GET {BASE_URL}/health until it returns 200 with model_ready === true,
  * for up to maxWaitMs (150 seconds).
- * Network errors, non-200s, and 10s fetch timeouts are treated as "not ready yet".
  */
-export async function waitForModelReady(onStatusUpdate = null, maxWaitMs = 150000) {
+export async function waitForModelReady(onStatusUpdate = null, maxWaitMs = 180000) {
   const startTime = Date.now()
-  const intervalMs = 5000
+  const intervalMs = 3000
   let hasNotifiedWakeup = false
+
+  if (onStatusUpdate) {
+    onStatusUpdate('Checking service status...')
+  }
 
   while (Date.now() - startTime < maxWaitMs) {
     let isReady = false
-    const pollController = new AbortController()
-    const pollTimeoutId = setTimeout(() => {
-      pollController.abort()
-    }, 10000)
+    let isFetching = true
+
+    // Show waking message if health check takes > 3s
+    const uiTimeoutId = setTimeout(() => {
+      if (isFetching && !hasNotifiedWakeup && onStatusUpdate) {
+        hasNotifiedWakeup = true
+        onStatusUpdate('Waking up the server, this can take up to 2 minutes...')
+      }
+    }, 3000)
 
     try {
-      const res = await fetch(`${BASE_URL}/health`, { signal: pollController.signal })
-      clearTimeout(pollTimeoutId)
+      const controller = new AbortController()
+      const fetchTimeout = setTimeout(() => controller.abort(), 90000) // 90s timeout for health check
+      
+      const res = await fetchWithRetry(`${BASE_URL}/health`, { signal: controller.signal }, 3, 5000)
+      isFetching = false
+      clearTimeout(uiTimeoutId)
+      clearTimeout(fetchTimeout)
+      
       if (res.ok) {
         const data = await res.json().catch(() => null)
         if (data && data.model_ready === true) {
           isReady = true
+        } else if (!hasNotifiedWakeup && onStatusUpdate) {
+          hasNotifiedWakeup = true
+          onStatusUpdate('Warming up AI model...')
         }
+      } else if (res.status !== 502 && res.status !== 503 && res.status !== 504) {
+        // If it's a 500 or 404, it's not a cold start, it's a crash.
+        throw new Error(`Server returned ${res.status}. Please check backend logs.`)
+      } else if (!hasNotifiedWakeup && onStatusUpdate) {
+        // 502/503 usually means Render is booting
+        hasNotifiedWakeup = true
+        onStatusUpdate('Waking up the server, this can take up to 2 minutes...')
       }
-    } catch {
-      clearTimeout(pollTimeoutId)
-      // Network errors and 10s timeouts count as "not ready yet"
+    } catch (err) {
+      isFetching = false
+      clearTimeout(uiTimeoutId)
+      if (err.name !== 'AbortError' && !err.message.includes('fetch')) {
+        throw err // Throw non-network/abort errors immediately
+      }
+      // Network errors or timeouts count as "not ready yet" - keep polling
     }
 
     if (isReady) {
       return true
-    }
-
-    // Call status update only after first not-ready response, and only once
-    if (!hasNotifiedWakeup && onStatusUpdate) {
-      hasNotifiedWakeup = true
-      onStatusUpdate('Waking up the server, this can take up to 2 minutes...')
     }
 
     if (Date.now() - startTime + intervalMs >= maxWaitMs) {
@@ -263,14 +301,14 @@ export async function predictDiseaseWithFarmer(imageFile, farmerId = null, onSta
     onStatusUpdate('Analyzing leaf image...')
   }
 
-  const sendPredict = async (isRetryAfterFail = false) => {
+  const sendPredict = async () => {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => {
       controller.abort()
-    }, 90000)
+    }, 180000)
 
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithRetry(url, {
         method: 'POST',
         body: form,
         signal: controller.signal
@@ -278,14 +316,6 @@ export async function predictDiseaseWithFarmer(imageFile, farmerId = null, onSta
       clearTimeout(timeoutId)
 
       if (res.status === 502 || res.status === 503) {
-        if (!isRetryAfterFail) {
-          // Poll health once more (max one extra cycle)
-          await waitForModelReady(onStatusUpdate)
-          if (onStatusUpdate) {
-            onStatusUpdate('Analyzing leaf image...')
-          }
-          return await sendPredict(true)
-        }
         throw new Error('The server is temporarily unavailable. Please try again in a minute.')
       }
 
@@ -299,5 +329,5 @@ export async function predictDiseaseWithFarmer(imageFile, farmerId = null, onSta
     }
   }
 
-  return sendPredict(false)
+  return sendPredict()
 }

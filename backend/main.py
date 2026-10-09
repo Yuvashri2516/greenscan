@@ -338,6 +338,7 @@ def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optiona
         logger.info(f"[PREDICT] segmentation={t_seg*1000:.2f}ms (leaf_pixels={leaf_pixels}) | rss={get_process_rss():.1f}MB")
 
         # Step 4: Phase 1 Leaf Validation Gate
+        t0 = time.perf_counter()
         total_pixels = enhanced_bgr.shape[0] * enhanced_bgr.shape[1]
         early_validation = validate_leaf_image(
             leaf_pixels=int(leaf_pixels),
@@ -348,6 +349,7 @@ def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optiona
             min_leaf_pixels=config.LEAF_PIXEL_MIN,
             min_confidence=config.MIN_CONFIDENCE_THRESHOLD,
         )
+        t_val1 = time.perf_counter() - t0
 
         # If image quality fails, return early with a clear user message
         if not early_validation["is_valid"] and early_validation["validation_status"] == LOW_QUALITY_IMAGE:
@@ -386,6 +388,7 @@ def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optiona
         logger.info(f"[PREDICT] inference completed in {t_model*1000:.2f}ms (class={predicted_class}, conf={confidence:.4f}) | rss={get_process_rss():.1f}MB")
 
         # Step 6: Post-prediction leaf coverage validation
+        t0 = time.perf_counter()
         validation_result = validate_leaf_image(
             leaf_pixels=int(leaf_pixels),
             total_pixels=total_pixels,
@@ -395,6 +398,7 @@ def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optiona
             min_leaf_pixels=config.LEAF_PIXEL_MIN,
             min_confidence=config.MIN_CONFIDENCE_THRESHOLD,
         )
+        t_val2 = time.perf_counter() - t0
 
         # Return early for NOT_TOMATO_LEAF (coverage-based rejection)
         if not validation_result["is_valid"] and validation_result["validation_status"] == NOT_TOMATO_LEAF:
@@ -643,6 +647,15 @@ def _execute_predict_pipeline(contents: bytes, filename: str, farmer_id: Optiona
 
         t_total = time.perf_counter() - t_start
         logger.info(f"[PREDICT] total={t_total*1000:.2f}ms ({t_total:.3f}s) | final_rss={get_process_rss():.1f}MB")
+
+        response_payload["timings"] = {
+            "image_validation_ms": round((t_val1 + t_val2) * 1000, 2),
+            "preprocessing_ms": round(t_enh * 1000, 2),
+            "classification_ms": round(t_model * 1000, 2),
+            "gradcam_ms": round(t_gradcam * 1000, 2),
+            "gsa_ms": round(t_gsa * 1000, 2),
+            "total_ms": round(t_total * 1000, 2)
+        }
 
         return response_payload
 

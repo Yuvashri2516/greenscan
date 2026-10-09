@@ -131,13 +131,17 @@ export default function DiseaseInsights({ diseaseInfo = null }) {
                   >
                     <div style={{ padding: '0 20px 20px 20px', borderTop: '1px solid var(--gray-100)', paddingTop: '16px' }}>
                       {Array.isArray(displayContent) ? (
-                        <ul style={{ margin: 0, paddingLeft: '20px', color: 'var(--gray-700)', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                        <ul style={{ margin: 0, paddingLeft: '20px', color: 'var(--gray-700)', fontSize: '0.9rem', lineHeight: '1.6', wordBreak: 'break-word' }}>
                           {displayContent.map((item, idx) => (
                             <li key={idx} style={{ marginBottom: '8px' }}>{item}</li>
                           ))}
                         </ul>
+                      ) : !hasContent ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--gray-500)', fontSize: '0.9rem', fontStyle: 'italic', background: 'var(--gray-100)', padding: '12px 16px', borderRadius: '8px' }}>
+                          <Info size={16} /> {displayContent}
+                        </div>
                       ) : (
-                        <p style={{ margin: 0, color: 'var(--gray-700)', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                        <p style={{ margin: 0, color: 'var(--gray-700)', fontSize: '0.9rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                           {displayContent}
                         </p>
                       )}

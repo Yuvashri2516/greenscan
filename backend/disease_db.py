@@ -53,6 +53,18 @@ DISEASE_DB = {
         ],
         "severity": "Moderate",
         "spread_rate": "Moderate",
+        "suitable_fertilizer": (
+            "Ensure balanced nutrition with adequate potassium (K) and phosphorus (P). "
+            "Avoid excessive nitrogen (N) applications, as this promotes dense, succulent foliage "
+            "that is more susceptible to infection and reduces air circulation. "
+            "Note: Fertilizer supports plant vigor but does not cure fungal diseases. "
+            "Consider a soil test if underlying deficiencies are suspected."
+        ),
+        "recovery_time": (
+            "Existing leaf spots and tissue damage will not heal. However, with prompt fungicide "
+            "treatment and proper environmental management, the spread can be halted in 7–14 days. "
+            "New foliage should emerge healthy if the pathogen is controlled."
+        ),
     },
 
     "tomato_Late blight": {
@@ -104,6 +116,18 @@ DISEASE_DB = {
         ],
         "severity": "High",
         "spread_rate": "Very Fast",
+        "suitable_fertilizer": (
+            "Maintain balanced soil fertility, avoiding high-nitrogen fertilizers which can "
+            "stimulate overly lush growth prone to moisture retention and infection. "
+            "Proper nutrition helps the plant withstand stress, but it cannot prevent or cure Late Blight. "
+            "Consult local agricultural extensions for region-specific nutrient management."
+        ),
+        "recovery_time": (
+            "Infected plant tissue will not recover and usually dies rapidly. If caught very early "
+            "and aggressively treated with appropriate fungicides, new growth may be protected. "
+            "However, due to the aggressive nature of Late Blight, a full recovery is rare once "
+            "symptoms are widespread."
+        ),
     },
 
     "tomato_healthy": {
@@ -139,6 +163,12 @@ DISEASE_DB = {
         ],
         "severity": "None",
         "spread_rate": "N/A",
+        "suitable_fertilizer": (
+            "Use a balanced NPK fertilizer (e.g., 5-10-10 or 10-10-10) or a tomato-specific blend "
+            "to support steady growth and fruiting. Adequate calcium is also crucial to prevent "
+            "blossom-end rot. Always apply according to package instructions or based on soil test results."
+        ),
+        "recovery_time": "Not applicable — the plant is currently healthy and requires no recovery period.",
     },
 }
 
@@ -158,5 +188,7 @@ def get_disease_info(class_label: str) -> dict:
             "chemical_solutions": [],
             "severity": "Unknown",
             "spread_rate": "Unknown",
+            "suitable_fertilizer": "Information regarding fertilizer is currently unavailable for this condition.",
+            "recovery_time": "An estimated recovery time cannot be provided due to insufficient data.",
         }
     return info

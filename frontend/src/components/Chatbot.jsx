@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { sendChatMessage, getScanHistory, getFarmerProfile } from '../api/index.js'
 import { MessageSquare, Send, Trash2, X, RefreshCw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import ReactMarkdown from 'react-markdown'
 import '../index.css'
 
 const LANGUAGES = [
@@ -83,9 +84,22 @@ function Message({ msg }) {
         lineHeight: 1.5,
         boxShadow: 'var(--shadow-sm)',
         border: isUser ? 'none' : '1px solid var(--gray-200)',
-        whiteSpace: 'pre-wrap',
+        whiteSpace: 'normal',
       }}>
-        {msg.content}
+        {isUser ? (
+          msg.content
+        ) : (
+          <ReactMarkdown
+            components={{
+              p: ({node, ...props}) => <p style={{margin: '0 0 8px 0', whiteSpace: 'pre-wrap'}} {...props} />,
+              ul: ({node, ...props}) => <ul style={{margin: '0 0 8px 0', paddingLeft: '20px'}} {...props} />,
+              li: ({node, ...props}) => <li style={{marginBottom: '4px'}} {...props} />,
+              strong: ({node, ...props}) => <strong style={{fontWeight: 700}} {...props} />,
+            }}
+          >
+            {msg.content}
+          </ReactMarkdown>
+        )}
       </div>
     </div>
   )
@@ -105,6 +119,8 @@ export default function Chatbot({ result = null }) {
   const [messages, setMessages] = useState([])
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
+  const isSendingRef = useRef(false)
+  const chatSessionIdRef = useRef(0)
 
   // 1. Sync scan result prop or retrieve from localStorage / backend history
   useEffect(() => {
@@ -210,7 +226,10 @@ export default function Chatbot({ result = null }) {
 
   const sendMessage = async (text) => {
     const msg = text || input.trim()
-    if (!msg || loading) return
+    if (!msg || isSendingRef.current) return
+
+    isSendingRef.current = true
+    const currentSession = chatSessionIdRef.current
 
     const userMsg = { role: 'user', content: msg }
     setMessages(prev => [...prev, userMsg])
@@ -234,7 +253,9 @@ export default function Chatbot({ result = null }) {
     }
 
     try {
-      const history = messages.slice(-6).map(m => ({ role: m.role, content: m.content }))
+      // Build history locally so we don't rely on stale closure state
+      const currentHistory = [...messages, userMsg]
+      const history = currentHistory.slice(-6).map(m => ({ role: m.role, content: m.content }))
       const res = await sendChatMessage(
         msg, 
         language, 
@@ -243,18 +264,41 @@ export default function Chatbot({ result = null }) {
         farmerContext,
         weatherContext
       )
+      if (chatSessionIdRef.current !== currentSession) return
+      
       const replyContent = res.reply || res.response || 'I am unable to process that request right now.'
       setMessages(prev => [...prev, { role: 'assistant', content: replyContent }])
     } catch (e) {
       console.error(e)
-      const errText = language === 'hi'
+      if (chatSessionIdRef.current !== currentSession) return
+
+      // Detect language from msg to match backend logic
+      const clean = msg.replace(/[\s\d.,?!-()[\]]/g, '')
+      const taMatch = clean.match(/[\u0B80-\u0BFF]/g)
+      const hiMatch = clean.match(/[\u0900-\u097F]/g)
+      const enMatch = clean.match(/[a-zA-Z]/g)
+      const taCount = taMatch ? taMatch.length : 0
+      const hiCount = hiMatch ? hiMatch.length : 0
+      const enCount = enMatch ? enMatch.length : 0
+
+      const maxCount = Math.max(taCount, hiCount, enCount)
+
+      let detectedLang = language
+      if (maxCount === taCount && taCount > clean.length * 0.15) detectedLang = 'ta'
+      else if (maxCount === hiCount && hiCount > clean.length * 0.15) detectedLang = 'hi'
+      else if (maxCount === enCount && enCount > clean.length * 0.4) detectedLang = 'en'
+
+      const errText = detectedLang === 'hi'
         ? 'संपर्क में समस्या आई। कृपया थोड़ी देर बाद पुनः प्रयास करें।'
-        : language === 'ta'
+        : detectedLang === 'ta'
         ? 'தொடர்பு கொள்வதில் சிக்கல் உள்ளது. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்.'
         : 'I\'m having trouble connecting to the assistant right now. Your scan result is still safe. Please try again in a moment.'
       setMessages(prev => [...prev, { role: 'assistant', content: errText }])
     } finally {
-      setLoading(false)
+      if (chatSessionIdRef.current === currentSession) {
+        setLoading(false)
+        isSendingRef.current = false
+      }
     }
   }
 
@@ -266,6 +310,10 @@ export default function Chatbot({ result = null }) {
   }
 
   const clearChat = () => {
+    chatSessionIdRef.current += 1
+    isSendingRef.current = false
+    setLoading(false)
+    
     const farmerName = farmerContext?.name || ''
     const greetingName = farmerName ? `, ${farmerName}` : ''
     
